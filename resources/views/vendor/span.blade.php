@@ -1,0 +1,351 @@
+@extends('layouts.admin')
+@section('title', 'Vendor')
+@section('style')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+
+<style>
+
+.filter-list {
+    display: flex;
+    margin-bottom: 10px;
+}
+.btn-filter {
+    background: #aeaebd;
+    border-radius: 0;
+    border:none;
+    color: white;
+}
+.form-group{
+    margin-bottom: 10px;
+}
+</style>
+@endsection
+@section('content')
+      
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-7">
+                                <h4 class="black-color" ><a style="color:black!important;" href="../">{{$vendor->nama_vendor}}</a> - <a style="color:black!important;"  href="./">{{$lokasi->nama_lokasi}} </a> - {{$span->nama_span}}</h4>
+                            </div>
+                            <div class="col-5" style="text-align:right;">
+                                <button type="button" data-action="add" style="float:right;margin-bottom: 10px;" class="action btn btn-primary">Tambah Sensor</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="row" style="height:100%;">
+                                    <!--<div style="padding:0;width:auto;background: white;">
+                                        <div id="sensor-filter" style="padding-left:0;">
+                                            
+                                        </div>
+                                    </div>-->
+                                    <div class="col-3" style="padding:0;">
+                                        <div class="form-group">
+                                            <select id="sensor_id" class="form-control select2" name="sensor_id" data-placeholder="sensor_id" required="required" onchange="updateChart()">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-5">
+                                        <div class="form-group">
+                                            <div id="status-sensor" class="form-control box-value" style="background: black;text-align:center;padding: 3px 15px;margin-top: 4px;">
+                                                <div style="margin: auto;color: white;font-weight: bold;" id="current-value">Current Value : 0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="chart" style="border-radius: 0px 0px 20px 20px;">
+                                        <canvas id="myChart" style=" width: 100%;height: 300px;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <!-- / Content -->
+<form id="form-field" autocomplete="off">
+    <div class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Sensor</h5>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="id_sensor" value="" required>
+                    <input type="hidden" name="id_span" id="id_span" value="{{$span->id}}" required>
+
+                    <div class="form-group">
+                        <label><b>Sensor</b></label>
+                        <select id="id_sensor" class="form-control select2" name="id_sensor" data-placeholder="id_sensor" required="required">
+                            <option value="">-- Pilih Sensor --</option>
+                            @foreach($sensor as $data)
+                            <option value="{{$data->id}}">{{$data->nama_parameter}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><b>Sensor ID</b></label>
+                        <input type="text" class="form-control" value="" placeholder="Masukkan Sensor ID" name="nama_sensor" id="nama_sensor">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default waves-effect closemodal">Batal</button>
+                    <button type="button" data-action="simpan" class="action btn btn-primary waves-effect waves-light">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+@endsection
+@section('script')
+
+<script>
+    function showData(){
+        var pathArray = window.location.href.split('/');
+        var idVendor = pathArray[4];
+        var id = pathArray[7];
+        $.ajax({
+            type: "get",
+            url: "{{ url('/listSensor') }}/"+id,
+            cache: false, 
+            success: function(data){
+                $.each(data.items, function(index, item) {
+                    $('#sensor_id').empty(); 
+                    $.each(data.items, function(index, item) {
+                        $("#sensor_id").append('<option value="'+item.id+'">'+item.sensor_id+'</option>');
+                    });  
+                });   
+            }
+        });
+        selectTags = document.querySelectorAll('select');
+
+        for(var i = 0; i < selectTags.length; i++) {
+        selectTags[i].selectedIndex =0;
+        }  
+    }
+    showData();
+   
+    let chart;
+
+    function createChart() {
+        const ctx = document.getElementById('myChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Sensor',
+                    data: [],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.2, // Set the tension of the line chart
+                },{
+                    label: 'Batas Atas',
+                    data: [],
+                    borderColor: 'rgb(255 0 0)',
+                    backgroundColor: 'rgb(255 0 0)',
+                    tension: 0.2, // Set the tension of the line chart
+                    radius: 0
+                },{
+                    label: 'Batas Bawah',
+                    data: [],
+                    borderColor: 'rgb(255 165 0)',
+                    backgroundColor: 'rgb(255 165 0)',
+                    tension: 0.2, // Set the tension of the line chart
+                    radius: 0
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+
+    createChart();
+
+    async function updateChart() {
+
+
+        const selectedOption = document.getElementById('sensor_id').value;
+        const response = await fetch("{{ url('/live_sensor/chartList') }}?id_sensor="+selectedOption);        
+        const data = await response.json();
+        chart.data.labels.push(data.datetime);
+        chart.data.datasets[0].data.push(data.value);
+        chart.data.datasets[1].data.push(data.batas_atas);
+        chart.data.datasets[2].data.push(data.batas_bawah);
+
+        if (chart.data.labels.length > 10) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+			chart.data.datasets[1].data.shift();
+			chart.data.datasets[2].data.shift();
+        }
+        document.getElementById('status-sensor').style.backgroundColor = data.status;
+        $("#current-value").html('Current Value = '+data.value+' '+data.satuan+'');
+        chart.update();
+    }
+    setInterval(() => {
+        updateChart();
+    }, 3000);
+</script>
+<script type="text/javascript">
+    $.ajaxSetup({
+        headers: {
+            'csrftoken': '{{ csrf_token() }}'
+        }
+    });
+   var mode;
+
+    function show_modal(data) {
+
+        if (mode == "add") {
+            $('#form-field').children('.modal').find('.modal-title').text("Tambah Sensor");
+            $('#form-field').find('select[name="id_sensor"]').val("");
+            $('#form-field').find('input[name="nama_sensor"]').val("");
+            $('#form-field').find('input[name="id"]').val("");
+            $('#form-field').children('.modal').modal('show');
+        } else if (mode == "edit") {
+            $.ajax({
+                url: "{{ url('/user') }}/" + data + "/edit",
+                dataType: "json",
+                type: "GET",
+                success: function(data) {
+					$('#form-field').find('select[name="id_vendor"]').val(data.id_vendor);
+                    $('#form-field').find('input[name="name"]').val(data.name);
+                    $('#form-field').find('input[name="email"]').val(data.email);
+                    $('#form-field').find('select[name="role"]').val(data.role);
+                    $('#form-field').find('input[name="id"]').val(data.id);
+                    
+                }
+            })
+            $('#form-field').children('.modal').find('.modal-title').text("Edit User");
+            $('#form-field').children('.modal').modal('show');
+           
+        } else if (mode == "hapus"){
+            $('#form-field-hapus').children('.modal').find('.modal-title').text("Hapus User");
+            $('#form-field-hapus').find('input[name="id_user"]').val(data);
+            $('#form-field-hapus').children('.modal').modal('show');
+        }
+    }
+
+    function reset_default() {
+        $('#form-field')[0].reset();
+        $('#form-field').find('input[name="id"]').val('');
+        mode = undefined;
+        $('#form-field').children('.modal').modal('hide');
+        $('#sensor-filter').html('');
+        showData();
+    }
+
+    function reset_default_hapus() {
+        $('#form-field-hapus')[0].reset();
+        $('#form-field-hapus').find('input[name="id_user"]').val('');
+        mode = undefined;
+        table1.ajax.reload(null, false);
+        $('#form-field-hapus').children('.modal').modal('hide');
+    }
+
+    function clear() {
+        $('#form-field')[0].reset();
+    }
+
+    function clear_hapus() {
+        $('#form-field-hapus')[0].reset();
+    }
+
+    $(document).on('click', ".action", function() {
+        $('.closemodal').click(function() {
+            $('#form-field').children('.modal').modal('hide');
+            $('#form-field-hapus').children('.modal').modal('hide');
+        });
+        var self = this;
+
+        var action = $(this).attr('data-action');
+		if (action == "delete") {
+            var data = $(this).attr('data-id');
+            var nama = $(this).closest("tr").find("td:eq(1)").text();
+            var id = $("input[name='id_user']").val();
+
+            $.ajax({
+                url: "{{ url('/user') }}/" + id,
+                dataType: "json",
+                data: {
+                    _token: '{!! csrf_token() !!}'
+                },
+                type: "DELETE",
+                success: function(data) {
+                    if ($.isEmptyObject(data.error)) {
+                        swal({
+                            title: "Success!",
+                            text: "User " + nama + ' Berhasil Dihapus',
+                            type: "success",
+                        });
+                    } else {
+                        swal({
+                            title: "Error!",
+                            text: data.error,
+                            type: "error",
+                        });
+                    }
+                    reset_default_hapus();
+                }
+            })
+        } else if (action == "add") {
+            mode = "add";
+            clear();
+            show_modal();
+        } else if (action == "edit") {
+            mode = "edit";
+            var data = $(this).attr('data-id');
+            show_modal(data);
+        } else if (action == "hapus") {
+            mode = "hapus";
+            var data = $(this).attr('data-id');
+            show_modal(data);
+        } else if (action == "simpan") {
+            var ids = "";
+            
+            var id = $("input[id='id_sensor']").val();
+            if (id == "") {
+                var tipe = "POST";
+            } else {
+                var tipe = "PUT";
+                var ids = "/"+id;
+            }
+
+            $.ajax({
+                url: "{{ url('/insertSensor') }}" + ids,
+                dataType: "json",
+                data: $('#form-field').serialize() + "&_token={!! csrf_token() !!}",
+                type: tipe,
+                success: function(data) {
+                    if ($.isEmptyObject(data.error)) {
+                        swal({
+                            title: "Success!",
+                            text: data.success,
+                            type: "success",
+                        });
+                    } else {
+                        swal({
+                            title: "Error!",
+                            text: data.error,
+                            type: "error",
+                        });
+                    }
+                    reset_default();
+                }
+            })
+        }
+    })
+    $('form').bind("keypress", function(e) {
+        if (e.keyCode == 13) {               
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
+@endsection
