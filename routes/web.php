@@ -13,8 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('auth.login');
+Route::group(['middleware' => ['guest']], function() {
+    Route::get('/', function () {
+        return view('auth.login');
+    });
 });
 
 Auth::routes();
@@ -29,6 +31,10 @@ Route::group(['middleware' => ['auth']], function() {
     //User
     Route::get('/user/list-user', [App\Http\Controllers\Admin\UserController::class, 'list']);
     Route::resource('/user', 'App\Http\Controllers\Admin\UserController');
+
+    //Admin
+    Route::get('/admin/list-admin', [App\Http\Controllers\Admin\AdminController::class, 'list']);
+    Route::resource('/admin', 'App\Http\Controllers\Admin\AdminController');
 
     //Parameter
     Route::get('/parameter/list-parameter', [App\Http\Controllers\Admin\ParameterController::class, 'listParameter']);
@@ -62,7 +68,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/insertLokasi', [App\Http\Controllers\Admin\VendorController::class, 'insertLokasi']);
     Route::post('/insertSpan', [App\Http\Controllers\Admin\VendorController::class, 'insertSpan']);
     Route::post('/insertSensor', [App\Http\Controllers\Admin\VendorController::class, 'insertSensor']);
-    
+
 
 
     Route::resource('/vendor', 'App\Http\Controllers\Admin\VendorController');
@@ -73,7 +79,7 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::get('/getLoc', [App\Http\Controllers\VendorController::class, 'listLoc']);
     Route::get('/listSpanLokasi/{id}', [App\Http\Controllers\VendorController::class, 'listSpanLokasi']);
-	
+
     Route::get('/listLokasiSpan/{id}', [App\Http\Controllers\VendorController::class, 'listLokasiSpan']);
     Route::get('/live_sensor/chartList', [App\Http\Controllers\VendorController::class, 'chartList']);
     Route::get('/home/{id}/live_sensor', [App\Http\Controllers\VendorController::class, 'liveSensor']);
@@ -81,7 +87,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/editSpan/{id}', [App\Http\Controllers\VendorController::class, 'editSpan']);
     Route::post('/updateSpan', [App\Http\Controllers\VendorController::class, 'updateSpan']);
     Route::get('/home/{id}', [App\Http\Controllers\VendorController::class, 'index']);
-    
+
 
     //Report
     Route::get('/report/list-report', [App\Http\Controllers\ReportController::class, 'listReport']);

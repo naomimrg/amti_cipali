@@ -107,6 +107,12 @@
               </a>
             </li>
             <li class="menu-item">
+              <a href="{{ url('/admin')}}" class="menu-link">
+                <i class="menu-icon tf-icons bx bxs-user-badge"></i>
+                <div data-i18n="vendor">Manage Admin</div>
+              </a>
+            </li>
+            <li class="menu-item">
               <a href="{{ url('/report')}}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-download"></i>
                 <div data-i18n="report">Download Data</div>
@@ -120,7 +126,7 @@
                 <div data-i18n="Extended UI">Home</div>
               </a>
               <ul class="menu-sub" id="loc-lists">
-               
+
               </ul>
             </li>
             <li class="menu-item">
@@ -129,7 +135,7 @@
                 <div data-i18n="report">Download Data</div>
               </a>
             </li>
-            
+
             @endcan
           </ul>
           <div style="padding: 20px;">
@@ -142,7 +148,7 @@
               @csrf
           </form>
           </div>
-         
+
         </div>
       </div>
         <!-- / Menu -->
@@ -157,7 +163,7 @@
                 <i class="bx bx-menu bx-sm"></i>
               </a>
             </div>
-            
+
             <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
             <h5 class="my-0 px-2 black" style="color: black;">Monitoring</h5>
               <!-- Search -->
@@ -183,7 +189,7 @@
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
                   <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online" id="avatar-logo-top">
-                      
+
                     </div>
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end">
@@ -193,7 +199,7 @@
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar avatar-online" id="avatar-logo-bottom">
 
-                            
+
                             </div>
                           </div>
                           <div class="flex-grow-1">
@@ -228,7 +234,7 @@
                   <p><label style="display:none;" class="hl"></label>Show: <span style="color: black;" id="datenow"></span></p>
                 </div>
         @yield('content')
-        
+
         <!-- / Footer -->
 
         <div class="content-backdrop fade"></div>
@@ -282,15 +288,15 @@
 
     </script>
     @can('isAdminVendor')
-   
+
     <script>
        $.ajax({
           url: "{{ url('/getLoc') }}",
           dataType: "json",
-          success: function (data) { 
+          success: function (data) {
             $.each(data.items, function(index, item) {
               $('#loc-lists').append('<li class="menu-item"><a href="{{ url("/home")}}/'+item.slug+'" class="menu-link"><div data-i18n="'+item.nama_lokasi+'">'+item.nama_lokasi+'</div></a></li>');
-            });	
+            });
           }
       });
     </script>
@@ -300,8 +306,8 @@
     $.ajax({
         url: "{{ url('/getProfile') }}",
         dataType: "json",
-        success: function (data) { 
-         
+        success: function (data) {
+
             $('#avatar-logo-top').append('<img src="{{ url("/assets") }}/img/'+data.image+'" alt class="w-px-40 h-auto rounded-circle" />');
             $('#avatar-logo-bottom').append('<img src="{{ url("/assets") }}/img/'+data.image+'" alt class="w-px-40 h-auto rounded-circle" />');
         }
