@@ -6,7 +6,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Events\AfterSheet;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class ReportExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents
 {
@@ -22,17 +22,16 @@ class ReportExport implements FromCollection, WithHeadings, ShouldAutoSize, With
     }
 
     public function collection()
-    
     {
-        $from_date = date('Y-m-d',strtotime($this->fromdate));
-        $to_date = date('Y-m-d',strtotime($this->todate));
+        $from_date = date('Y-m-d 00:00:00',strtotime($this->fromdate));
+        $to_date = date('Y-m-d 23:59:59',strtotime($this->todate));
         $a = DB::select(DB::raw("SELECT date_bin(
                     INTERVAL '5 minutes',
                     time,
                     TIMESTAMP '2000-01-01'
                 ),
                 avg(value)
-        FROM log_data WHERE id_sensor = $this->idSensor and date(time) between date('$from_date') and date('$to_date')
+        FROM log_data WHERE id_sensor = $this->idSensor and time between '$from_date' and '$to_date'
         GROUP BY 1 ORDER BY date_bin ASC"));
         return collect($a);
     }

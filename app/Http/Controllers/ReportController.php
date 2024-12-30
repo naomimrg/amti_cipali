@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Exports\ReportExport;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Validator;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Vendor;
@@ -20,7 +20,7 @@ use Illuminate\Support\Str;
 use DateTime;
 use DateInterval;
 use DatePeriod;
-use Excel;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
@@ -35,15 +35,12 @@ class ReportController extends Controller
             $data['lokasi']  = DB::table('lokasi')->where('id_vendor',$getVendor->id)->where('isDeleted',0)->get();
             return view('admin_vendor.report.index',$data);
         }
-       
-        
-        
     }
 
     public function listReport()
     {
-        $fromdate =  date('Y-m-d', strtotime($_GET['from_date']));
-        $todate =  date('Y-m-d', strtotime($_GET['to_date']));
+        $fromdate = date('Y-m-d 00:00:00', strtotime($_GET['from_date']));
+        $todate = date('Y-m-d 23:59:59', strtotime($_GET['to_date']));
         $id_sensor = $_GET['id_sensor'];
         $draw = $_GET['draw'];
         $row = $_GET['start'];
@@ -53,16 +50,26 @@ class ReportController extends Controller
         $columnSortOrder = $_GET['order'][0]['dir'];
         $searchValue = $_GET['search']['value'];
 
-        $countDataAll = DB::table('log_data')->where('id_sensor',$id_sensor)->whereBetween(\DB::raw('DATE(time)'), [$fromdate, $todate])->count();
+        $countDataAll = DB::table('log_data')
+            ->where('id_sensor',$id_sensor)
+            ->whereBetween('time', [$fromdate, $todate])
+            ->count();
         $totalRecords = $countDataAll;
         $totalRecordwithFilter = $totalRecords;
 
         ## Fetch records
-        $getDataAll = DB::table('log_data')->where('id_sensor',$id_sensor)->whereBetween(\DB::raw('DATE(time)'), [$fromdate, $todate])->orderBy('time', $columnSortOrder)->limit($rowperpage)->offset($row)->get();
+        $getDataAll = DB::table('log_data')
+            ->where('id_sensor',$id_sensor)
+            ->whereBetween('time', [$fromdate, $todate])
+            ->orderBy('time', $columnSortOrder)
+            ->limit($rowperpage)
+            ->offset($row)
+            ->get();
+
         $data = array();
         $id=1;
         foreach($getDataAll as $gD){
-            $data[] = array( 
+            $data[] = array(
                 "datetime"=>date('Y-m-d H:i:s', strtotime($gD->time)),
                 "value"=>$gD->value
             );
@@ -79,7 +86,7 @@ class ReportController extends Controller
 
         echo json_encode($response);
     }
-    
+
     public function chartList()
     {
         $response = array();
@@ -99,7 +106,7 @@ class ReportController extends Controller
         }
 
         $idUser = Auth::user()->id;
-    
+
         $getParameter = Sensor::where('id',$id)->first();
         $begin = new DateTime($from_date);
         $end = new DateTime($to_date);
@@ -113,10 +120,10 @@ class ReportController extends Controller
                 $date = $mewDate.' '.$i.':00:00';
                 $newFromDate = date('Y-m-d H:i:s', strtotime($date));
                 $newToDate =  date("Y-m-d H:i:59", strtotime("59 minute", strtotime($newFromDate)));
-              
+
                 $datas = DB::table('log_data')->select(DB::raw('avg(value) as value'))->where('id_sensor',$id)->whereBetween('time', [$newFromDate, $newToDate])->get();
                 foreach($datas as $data){
-                    $response[] = array( 
+                    $response[] = array(
                         "batas_atas" => $getParameter->batas_atas,
                         "batas_bawah" => $getParameter->batas_bawah,
                         "tahun" => date('Y', strtotime($from_date)),
@@ -129,14 +136,14 @@ class ReportController extends Controller
                         'datetime' => $newFromDate
                     );
                 }
-                
-                
+
+
             }
         }
-        
+
         echo json_encode($response);
     }
-	
+
 	public function chartNat()
     {
         $response = array();
@@ -168,28 +175,27 @@ class ReportController extends Controller
             $mewDate = $dt->format("Y-m-d");
             for($i=0;$i<24;$i++){
                 $date = $mewDate.' '.$i.':00:00';
-             
+
                 $datas = DB::table('nat_freq')->where('stationId',$stationId)->where('time', $date)->sum('value');
-                    $response[] = array( 
+                    $response[] = array(
                         "date" => $date,
                         "value" => $datas
                     );
             }
         }
-        
+
         echo json_encode($response);
     }
-	
+
     function downloadExcel()
     {
         $idSensor = $_GET['id_sensor'];
-        $getSensor = DB::table('sensor')->where('id',$idSensor)->first();
-        $getSpan = DB::table('span')->where('id',$getSensor->id_span)->first();
+        $getSensor = DB::table('sensor')->where('id', $idSensor)->first();
+        $getSpan = DB::table('span')->where('id', $getSensor->id_span)->first();
         $getLokasi = DB::table('lokasi')->where('id', $getSpan->id_lokasi)->first();
         $fromdate =  date('Y-m-d', strtotime($_GET['from_date']));
         $todate =  date('Y-m-d', strtotime($_GET['to_date']));
         $name = 'Report '.$getLokasi->nama_lokasi.' '.$getSpan->nama_span.' Sensor '.$getSensor->nama_sensor.' tanggal '.$fromdate.'-'.$todate.'.xlsx';
-        return Excel::download(new ReportExport($idSensor,$fromdate,$todate), $name);
-
+        return Excel::download(new ReportExport($idSensor, $fromdate, $todate), $name);
     }
 }

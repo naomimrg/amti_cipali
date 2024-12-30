@@ -18,7 +18,6 @@ class PostgresConnection extends IlluminatePostgresConnection
     public function bindValues($statement, $bindings)
     {
         foreach ($bindings as $key => $value) {
-            usleep(500);
             $statement->bindValue(
                 is_string($key) ? $key : $key + 1,
                 $value,
