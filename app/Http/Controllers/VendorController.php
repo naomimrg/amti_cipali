@@ -313,5 +313,35 @@ class VendorController extends Controller
         );
         echo json_encode($response);
     }
+    public function natFreqChartList(Request $request)
+    {
+        $stationId = $request->query('station_id');
+        $date = $request->query('date'); 
+    
+        if (!$stationId || !$date) {
+            return response()->json(['error' => 'Missing required parameters'], 400);
+        }
+    
+        $natFreqData = DB::table('nat_freq')
+            ->select(
+                'time',
+                DB::raw('CASE WHEN axis = \'X\' THEN value ELSE NULL END as x'),
+                DB::raw('CASE WHEN axis = \'Y\' THEN value ELSE NULL END as y'),
+                DB::raw('CASE WHEN axis = \'Z\' THEN value ELSE NULL END as z')
+            )
+            ->where('station_id', $stationId)
+            ->whereDate('time', $date)
+            ->orderBy('time', 'ASC')
+            ->get();
+    
+        $response = [
+            'time' => $natFreqData->pluck('time'),
+            'x' => $natFreqData->pluck('x'),
+            'y' => $natFreqData->pluck('y'),
+            'z' => $natFreqData->pluck('z'),
+        ];
+    
+        return response()->json($response);
+    }
 
 }

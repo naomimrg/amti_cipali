@@ -87,7 +87,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/editSpan/{id}', [App\Http\Controllers\VendorController::class, 'editSpan']);
     Route::post('/updateSpan', [App\Http\Controllers\VendorController::class, 'updateSpan']);
     Route::get('/home/{id}', [App\Http\Controllers\VendorController::class, 'index']);
-
+    Route::get('/live_sensor/natFreqChartList', [App\Http\Controllers\VendorController::class, 'natFreqChartList']);
 
     //Report
     Route::get('/report/list-report', [App\Http\Controllers\ReportController::class, 'listReport']);
