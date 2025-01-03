@@ -26,6 +26,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::group(['middleware' => ['auth']], function() {
     //SUPER ADMIN
     Route::get('/dashboard/listLokasi', [App\Http\Controllers\Admin\DashboardController::class, 'listLokasi']);
+    Route::get('/dashboard/listLokasiSSE', [App\Http\Controllers\Admin\DashboardController::class, 'listLokasiSSE']);
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index']);
 
     //User

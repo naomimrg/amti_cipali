@@ -5,14 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use Auth;
-use Validator;
-use DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
-use App\Models\Vendor;
-use App\Models\Lokasi;
-use App\Models\Span;
 use App\Models\Sensor;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DashboardController extends Controller
 {
@@ -41,25 +38,25 @@ class DashboardController extends Controller
             $countSpan = 0;
             $getSpan = DB::table('span')->where('id_lokasi',$key->id)->where('isDeleted',0)->orderBy('id', 'ASC')->get();
             $to_date = date('Y-m-d H:i:s');
-            $from_date = date('Y-m-d H:i:s', strtotime('-3 second'));
+            $from_date = date('Y-m-d H:i:s', strtotime('-50 second'));
             $goodSpan = 0;
             $warningSpan = 0;
             $criticalSpan = 0;
-            $offlineSpan = 0; 
+            $offlineSpan = 0;
             foreach ($getSpan as $keys) {
                 $countSensor = Sensor::where('id_span',$keys->id)->where('isDeleted',0)->count();
                 $good = 0;
                 $warning = 0;
                 $critical = 0;
-                $offline = 0; 
+                $offline = 0;
                 if($countSensor > 0){
                     $getSensor = Sensor::where('id_span',$keys->id)->where('isDeleted',0)->get();
                     foreach($getSensor as $gs){
                         $batas_atas = $gs->batas_atas;
                         $batas_bawah = $gs->batas_bawah;
-                        $getValue = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(\DB::raw('time'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->count();
+                        $getValue = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(DB::raw('time'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->count();
                         if($getValue > 0){
-                            $gV = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(\DB::raw('DATE(time)'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->first();
+                            $gV = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(DB::raw('DATE(time)'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->first();
                             $value = $gV->value;
                             if($value == 0 || $value == NULL){
                                 $offline++;
@@ -75,9 +72,9 @@ class DashboardController extends Controller
                         }else{
                             $offline++;
                         }
-                       
+
                     }
-                    $rules = $countSensor / 2;  
+                    $rules = $countSensor / 2;
 
                     if($offline > 0){
                         $status = "black-pin";
@@ -91,7 +88,7 @@ class DashboardController extends Controller
                 }else{
                     $status = "black-pin";
                 }
-                
+
                 if($status == "red-pin"){
                     $criticalSpan++;
                 }elseif($status == "orange-pin"){
@@ -117,7 +114,7 @@ class DashboardController extends Controller
             }else{
                 $statusSpan = "black";
             }
-            
+
 
             $data[] = [
                 'id' => $key->id,
@@ -130,8 +127,120 @@ class DashboardController extends Controller
                 'lat' => $key->lat,
                 'status' => $statusSpan,
                 'created_at' => date('D,j M Y',strtotime($key->created_at))];
-            
+
         }
         return response()->json(['items' => $data]);
+    }
+
+    public function listLokasiSSE()
+    {
+        $response = new StreamedResponse(function () {
+            $lastQueryTime = now();
+            $isOpenConnection = true;
+
+            while (true) {
+                $currentTime = now();
+                if ($currentTime->diffInSeconds($lastQueryTime) >= 20 || $isOpenConnection) {
+                    $to_date = now()->toDateTimeString();
+                    $from_date = now()->subSeconds(3)->toDateTimeString();
+
+                    $locations = DB::table('lokasi')
+                        ->leftJoin('span', function($join) {
+                            $join->on('lokasi.id', '=', 'span.id_lokasi')
+                                ->where('span.isDeleted', 0);
+                        })
+                        ->leftJoin('sensor', function($join) {
+                            $join->on('span.id', '=', 'sensor.id_span')
+                                ->where('sensor.isDeleted', 0);
+                        })
+                        ->join('vendor', 'lokasi.id_vendor', '=', 'vendor.id')
+                        ->select(
+                            'lokasi.id',
+                            'lokasi.nama_lokasi',
+                            'lokasi.slug',
+                            'lokasi.long',
+                            'lokasi.lat',
+                            'vendor.nama_vendor',
+                            'vendor.slug as slug_vendor',
+                            'lokasi.foto',
+                            DB::raw("(
+                                SELECT value
+                                FROM log_data
+                                WHERE id_sensor = sensor.id
+                                AND time BETWEEN '$from_date' AND '$to_date'
+                                ORDER BY id DESC
+                                LIMIT 1
+                            ) as log_data_value"),
+                            'sensor.batas_bawah',
+                            'sensor.batas_atas',
+                            'lokasi.created_at',
+                        )
+                        ->where('lokasi.isDeleted', 0)
+                        ->where('vendor.isDeleted', 0)
+                        ->get()
+                        ->groupBy('id');
+
+                    $data = [];
+                    foreach ($locations as $locationId => $location) {
+                        $countSensor = $location->count();
+                        $rules = $countSensor/2;
+
+                        $countOffline = $location->filter(function ($item) {
+                            return is_null($item->log_data_value) || $item->log_data_value === 0;
+                        })->count();
+
+                        $countCritical = $location->where('log_data_value', '>', 'batas_atas')->count();
+                        $countWarning = $location
+                            ->where('log_data_value', '>', 'batas_bawah')
+                            ->where('log_data_value', '<', 'batas_atas')
+                            ->count();
+                        $countGood = $location->where('log_data_value', '<', 'batas_bawah')->count();
+
+                        $statusSpan = '';
+                        if ($countOffline > 0) {
+                            $statusSpan = 'black';
+                        } else if ($countCritical > 0 || $countWarning >= $rules) {
+                            $statusSpan = 'red';
+                        } elseif ($countWarning > 0) {
+                            $statusSpan = 'yellow';
+                        } elseif($countGood == $countSensor){
+                            $statusSpan = "green";
+                        }
+
+                        $data[] = [
+                            'id' => $locationId,
+                            'nama_vendor' => $location->first()->nama_vendor,
+                            'slug_vendor' => $location->first()->slug_vendor,
+                            'image' => $location->first()->foto ?? 'default.jpg',
+                            'nama_lokasi' => $location->first()->nama_lokasi,
+                            'slug' => $location->first()->slug,
+                            'long' => $location->first()->long,
+                            'lat' => $location->first()->lat,
+                            'status' => $statusSpan,
+                            'created_at' => date('D,j M Y',strtotime($location->first()->created_at))];
+                    }
+                }
+
+                if ($currentTime->diffInSeconds($lastQueryTime) >= 20 || $isOpenConnection) {
+                    $isOpenConnection = false;
+                    $lastQueryTime = now();
+                    $data = json_encode(['items' => $data]);
+                    echo "data: $data\n\n";
+                } else {
+                    echo "data: empty\n\n";
+                }
+
+                ob_flush();
+                flush();
+
+                sleep(1);
+            }
+        });
+
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('Cache-Control', 'no-cache');
+        $response->headers->set('Connection', 'keep-alive');
+
+        return $response;
     }
 }
