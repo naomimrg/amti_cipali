@@ -4,19 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Validator;
-use DB;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\Parameter;
 use App\Models\Sensor;
 use App\Models\Lokasi;
 use App\Models\Span;
-use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class VendorController extends Controller
 {
@@ -25,7 +23,7 @@ class VendorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-   
+
     public function index()
     {
         $id = Auth::user()->id;
@@ -35,7 +33,7 @@ class VendorController extends Controller
         }else{
             return view('vendor.index');
         }
-        
+
     }
 
     public function listVendor()
@@ -50,14 +48,14 @@ class VendorController extends Controller
                 $image = 'default.jpeg';
             }
             $data[] = ['id' => $key->id,'image' => $image,'nama_vendor' => $key->nama_vendor,'slug' => $key->slug,'created_at' => date('D,j M Y',strtotime($key->created_at))];
-            
+
         }
         return response()->json(['items' => $data]);
     }
 
     public function listLokasi($id)
     {
-        
+
         $getVendor = Vendor::where('slug',$id)->where('isDeleted',0)->first();
         $getLokasi = DB::table('lokasi')->where('id_vendor',$getVendor->id)->where('isDeleted',0)
         ->get();
@@ -95,15 +93,15 @@ class VendorController extends Controller
             $good = 0;
             $warning = 0;
             $critical = 0;
-            $offline = 0; 
+            $offline = 0;
             if($countSensor > 0){
                 $getSensor = Sensor::where('id_span',$key->id)->where('isDeleted',0)->get();
                 foreach($getSensor as $gs){
                     $batas_atas = $gs->batas_atas;
                     $batas_bawah = $gs->batas_bawah;
-                    $getValue = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(\DB::raw('time'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->count();
+                    $getValue = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(DB::raw('time'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->count();
                     if($getValue > 0){
-                        $getValue = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(\DB::raw('DATE(time)'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->get();
+                        $getValue = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(DB::raw('DATE(time)'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->get();
                         foreach($getValue as $gV){
                             $value = $gV->value;
                             if($value == 0 || $value == NULL){
@@ -121,9 +119,9 @@ class VendorController extends Controller
                     }else{
                         $offline++;
                     }
-                   
+
                 }
-                $rules = $countSensor / 2; 
+                $rules = $countSensor / 2;
                 if($offline > 0){
                     $status = "black-pin";
                 }elseif($critical > 0 || $warning >= $rules){
@@ -147,6 +145,106 @@ class VendorController extends Controller
             $no++;
         }
         return response()->json(['items' => $data]);
+    }
+
+    public function listSpanSSE($slug)
+    {
+        $response = new StreamedResponse(function () use ($slug) {
+            while (true) {
+                if(connection_aborted()){
+                    exit();
+                }
+
+                $to_date = now()->toDateTimeString();
+                $from_date = now()->subSeconds(3)->toDateTimeString();
+
+                $spans = DB::table('span')
+                    ->join('lokasi', function($join) {
+                        $join->on('lokasi.id', '=', 'span.id_lokasi')
+                            ->where('lokasi.isDeleted', 0);
+                    })
+                    ->leftJoin('sensor', function($join) {
+                        $join->on('span.id', '=', 'sensor.id_span')
+                            ->where('sensor.isDeleted', 0);
+                    })
+                    ->select(
+                        'span.id',
+                        'span.foto',
+                        'span.nama_span',
+                        'span.x_position',
+                        'span.y_position',
+                        DB::raw("(
+                            SELECT value
+                            FROM log_data
+                            WHERE id_sensor = sensor.id
+                            AND time BETWEEN '$from_date' AND '$to_date'
+                            ORDER BY id DESC
+                            LIMIT 1
+                        ) as log_data_value"),
+                        'sensor.batas_bawah',
+                        'sensor.batas_atas',
+                    )
+                    ->where('lokasi.slug', $slug)
+                    ->where('span.isDeleted', 0)
+                    ->orderBy('id', 'ASC')
+                    ->get()
+                    ->groupBy('id');
+
+                $data = [];
+                $no = 1;
+                foreach ($spans as $spanId => $span) {
+                    $countSensor = $span->count();
+                    $rules = $countSensor/2;
+
+                    $countOffline = $span->filter(function ($item) {
+                        return is_null($item->log_data_value) || $item->log_data_value === 0;
+                    })->count();
+
+                    $countCritical = $span->where('log_data_value', '>', 'batas_atas')->count();
+                    $countWarning = $span
+                        ->where('log_data_value', '>', 'batas_bawah')
+                        ->where('log_data_value', '<', 'batas_atas')
+                        ->count();
+                    $countGood = $span->where('log_data_value', '<', 'batas_bawah')->count();
+
+                    $statusSpan = '';
+                    if ($countOffline > 0) {
+                        $statusSpan = 'black-pin';
+                    } else if ($countCritical > 0 || $countWarning >= $rules) {
+                        $statusSpan = 'red-pin';
+                    } elseif ($countWarning > 0) {
+                        $statusSpan = 'yellow-pin';
+                    } elseif($countGood == $countSensor){
+                        $statusSpan = "green-pin";
+                    }
+
+                    $data[] = [
+                        'id' => $spanId,
+                        'no' => $no,
+                        'nama_span' => $span->first()->nama_span,
+                        'foto' => $span->first()->foto,
+                        'y' => $span->first()->y_position,
+                        'x' => $span->first()->x_position,
+                        'status' => $statusSpan,
+                    ];
+
+                    $no++;
+                }
+
+                $data = json_encode(['items' => $data]);
+                echo "retry: 10000\n\n";
+                echo "data: $data\n\n";
+                ob_flush();
+                flush();
+                $this->get('session')->close();
+            }
+        });
+
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('Cache-Control', 'no-cache');
+        $response->headers->set('Connection', 'keep-alive');
+
+        return $response;
     }
 
     public function listSensor($id)
@@ -186,11 +284,11 @@ class VendorController extends Controller
     {
         $preSlug = $request->input('nama_vendor');
         $slug = Str::slug($preSlug, '-');
-        
+
         $vendor = new Vendor;
         $vendor->nama_vendor = $request->input('nama_vendor');
         $vendor->slug = $slug;
-        
+
         if($request->hasFile('image')){
             $validation = Validator::make($request->all(), [
                 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
@@ -220,7 +318,7 @@ class VendorController extends Controller
         $lokasi->long = $request->input('longitude');
         $lokasi->lat = $request->input('latitude');
         $lokasi->slug = $slug;
-        
+
         if($request->hasFile('image')){
             $validation = Validator::make($request->all(), [
                 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
@@ -241,10 +339,10 @@ class VendorController extends Controller
                     $span = new Span;
                     $span->nama_span = $nama_span;
                     $span->id_lokasi = $lokasiId;
-                    $span->save(); 
+                    $span->save();
                 }
             }*/
-            
+
             return response()->json(['success'=>'Data Berhasil Disimpan.']);
         }else{
             return response()->json(['error'=>'Data Gagal Disimpan.']);
@@ -252,12 +350,12 @@ class VendorController extends Controller
     }
 
     public function insertSpan(Request $request)
-    {       
+    {
         $span = new Span;
         $span->nama_span = $request->input('nama_span');
         $span->stationId = $request->input('station_id');
         $span->id_lokasi = $request->input('id_lokasi');
-        if($span->save()){ 
+        if($span->save()){
             return response()->json(['success'=>'Span Berhasil Ditambah.']);
         }else{
             return response()->json(['error'=>'Span Gagal Ditambah.']);
@@ -276,8 +374,8 @@ class VendorController extends Controller
             $sensor->id_parameter = $getParameter->id;
             $sensor->satuan = $getParameter->satuan;
             $sensor->batas_bawah = $getParameter->batas_bawah;
-            $sensor->batas_atas = $getParameter->batas_atas;    
-            if($sensor->save()){ 
+            $sensor->batas_atas = $getParameter->batas_atas;
+            if($sensor->save()){
                 return response()->json(['success'=>'Sensor Berhasil Ditambah.']);
             }else{
                 return response()->json(['error'=>'Sensor Gagal Ditambah.']);
@@ -285,7 +383,7 @@ class VendorController extends Controller
         }else{
             return response()->json(['error'=>'Nama sensor sudah ada, silahkan ubah nama sensor.']);
         }
-        
+
     }
 
     /**
@@ -305,7 +403,7 @@ class VendorController extends Controller
         }else{
             return view('vendor.vendor',$data);
         }
-        
+
     }
 
     public function lokasiList($id, $lokasiId)
@@ -360,7 +458,7 @@ class VendorController extends Controller
      */
     public function edit($id)
     {
-        
+
     }
 
     public function editVendor($id)
@@ -385,11 +483,11 @@ class VendorController extends Controller
     {
         $preSlug = $request->input('nama_vendor');
         $slug = Str::slug($preSlug, '-');
-        
+
         $vendor = Vendor::find($id);
         $vendor->nama_vendor = $request->input('nama_vendor');
         $vendor->slug = $slug;
-        
+
         if($request->hasFile('image')){
             $validation = Validator::make($request->all(), [
                 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
@@ -415,7 +513,7 @@ class VendorController extends Controller
         $vendor = Vendor::find($id);
         $vendor->nama_vendor = $request->input('nama_vendors');
         $vendor->slug = $slug;
-        
+
         if($request->hasFile('foto')){
             $validation = Validator::make($request->all(), [
                 'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
@@ -445,7 +543,7 @@ class VendorController extends Controller
         $lokasi->long = $request->input('longitudes');
         $lokasi->lat = $request->input('latitudes');
         $lokasi->slug = $slug;
-        
+
         if($request->hasFile('foto')){
             $validation = Validator::make($request->all(), [
                 'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
@@ -471,7 +569,7 @@ class VendorController extends Controller
         $checkData = Span::join('lokasi','lokasi.id','=','span.id_lokasi')->where('span.id',$id)->where('span.isDeleted',0)->first();
         $span = Span::find($id);
         $span->nama_span = $request->input('nama_span');
-        $span->stationId = $request->input('station_id');        
+        $span->stationId = $request->input('station_id');
         if($request->hasFile('foto')){
             $validation = Validator::make($request->all(), [
                 'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
@@ -488,13 +586,13 @@ class VendorController extends Controller
         }else {
             return response()->json(['error'=>'Span Gagal Diubah.']);
         }
-        
+
     }
     public function updatePositionSpan(Request $request)
     {
         $getUser = User::where('id', Auth::user()->id)->first();
         $id = $request->input('id');
-        
+
         $delimiter = "_";
         $parts = explode($delimiter, $id);
         $newId = $parts[1];
@@ -503,7 +601,7 @@ class VendorController extends Controller
         if($checkData > 0){
             $span = Span::find($newId);
             $span->x_position = $request->input('left');
-            $span->y_position = $request->input('top');   
+            $span->y_position = $request->input('top');
             if($span->save()){
                 return response()->json(['success'=>'Span Berhasil Diubah.']);
             }else {

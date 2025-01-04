@@ -124,9 +124,6 @@ class VendorController extends Controller
         $no = 1;
 
         foreach ($getSpan as $key) {
-            $countSensor = Sensor::where('id_span',$key->id)->where('isDeleted',0)->count();
-
-
             $data[] = [
                 'id' => $key->id,
 				'foto' => $key->foto,
