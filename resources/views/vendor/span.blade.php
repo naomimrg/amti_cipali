@@ -56,6 +56,18 @@
                                     <div class="chart" style="border-radius: 0px 0px 20px 20px;">
                                         <canvas id="myChart" style=" width: 100%;height: 300px;"></canvas>
                                     </div>
+                                    <div class="chart" style="border-radius: 0px 0px 20px 20px; margin-top: 20px;">
+                                        <div style="margin-bottom: 10px;">
+                                            <label for="datePicker" style="font-weight: bold; margin-right: 10px;">Select Date:</label>
+                                            <input 
+                                                type="date" 
+                                                id="datePicker" 
+                                                onchange="updateNatFreqChartByDate()" 
+                                                style="padding: 5px; border: 1px solid #ccc; border-radius: 5px;" 
+                                            />
+                                        </div>
+                                        <canvas id="natFreqChart" style="width: 100%; height: 300px;"></canvas>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -192,6 +204,134 @@
         updateChart();
     }, 3000);
 </script>
+
+<script>
+    let natFreqChart;
+
+    function createNatFreqChart() {
+    const ctx = document.getElementById('natFreqChart').getContext('2d');
+    natFreqChart = new Chart(ctx, {
+        type: 'bubble',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'X',
+                    data: [],
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 3,
+                },
+                {
+                    label: 'Y',
+                    data: [],
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 3,
+                },
+                {
+                    label: 'Z',
+                    data: [],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 3,
+                },
+            ],
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'category',
+                    title: {
+                        display: true,
+                        text: 'Time (hh:mm)',
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Frequency (hz)',
+                    },
+                    beginAtZero: true,
+                },
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const datasetLabel = context.dataset.label || '';
+                            const yValue = context.raw.y;
+                            return `${datasetLabel}: ${yValue}`;
+                        },
+                    },
+                },
+            },
+        },
+    });
+}
+
+createNatFreqChart();
+
+async function updateNatFreqChart(date) {
+    const stationId = "GSI_ASTRA";
+    try {
+        const response = await fetch(`{{ url('/live_sensor/natFreqChartList') }}?station_id=${stationId}&date=${date}`);
+        const data = await response.json();
+
+        const uniqueTimes = {};
+        const formattedTimes = data.time.map(time => {
+            const dateObj = new Date(time);
+            return dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        });
+
+        formattedTimes.forEach((time, index) => {
+            if (!uniqueTimes[time]) {
+                uniqueTimes[time] = { x: null, y: null, z: null };
+            }
+            if (uniqueTimes[time].x === null) {
+                uniqueTimes[time].x = data.x[index] ?? 0;
+            } else if (uniqueTimes[time].y === null) {
+                uniqueTimes[time].y = data.y[index] ?? 0;
+            } else if (uniqueTimes[time].z === null) {
+                uniqueTimes[time].z = data.z[index] ?? 0;
+            }
+        });
+
+        const times = Object.keys(uniqueTimes);
+        natFreqChart.data.datasets[0].data = times.map(time => ({
+            x: time,
+            y: uniqueTimes[time].x,
+        }));
+        natFreqChart.data.datasets[1].data = times.map(time => ({
+            x: time,
+            y: uniqueTimes[time].y,
+        }));
+        natFreqChart.data.datasets[2].data = times.map(time => ({
+            x: time,
+            y: uniqueTimes[time].z,
+        }));
+
+        natFreqChart.update();
+    } catch (error) {
+        console.error("Failed to fetch data:", error);
+    }
+}
+
+function updateNatFreqChartByDate() {
+    const datePicker = document.getElementById('datePicker');
+    const selectedDate = datePicker.value;
+    if (selectedDate) {
+        updateNatFreqChart(selectedDate);
+    }
+}
+
+setInterval(() => {
+    const datePicker = document.getElementById('datePicker');
+    const selectedDate = datePicker.value || new Date().toISOString().split('T')[0];
+    updateNatFreqChart(selectedDate);
+}, 3000);
+</script>
+
 <script type="text/javascript">
     $.ajaxSetup({
         headers: {
