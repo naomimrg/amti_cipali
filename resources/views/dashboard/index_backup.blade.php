@@ -74,60 +74,44 @@
 @endsection
 @section('script')
 <script>
-function showData(){
-    $.ajax({
-        url: "{{ url('/dashboard/listLokasi') }}",
-        dataType: "json",
-        async: true,
-        type: "GET",
-        success: function(data) {
-            var map = L.map('map').setView([-2,120], 5);
+$(document).ready(function() {
+    var map = L.map('map').setView([-2,120], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+    const urlListLokasi = "{{ url('/dashboard/listLokasiSSE') }}";
+    const eventSource = new EventSource(urlListLokasi);
+    eventSource.onmessage = function(event) {
+        if (event.data === 'empty') {
+            return;
+        }
 
-            $.each(data.items, function(index, item) {
+        const data = JSON.parse(event.data);
+
+        $.each(data.items, function(index, item) {
+            const pinId = item.id + '-' + item.slug;
+            const pinElement = document.getElementById(pinId);
+
+            if (pinElement) {
+                pinElement.style.backgroundColor = item.status;
+            } else {
                 icon = L.divIcon({
-                    className: 'custom-div-icon',
-                    html: '<div id="'+item.id+'-'+item.slug+'" style="background-color:'+item.status+';" class="marker-pin"><center><img src="{{ url("/assets") }}/img/lokasi/'+item.image+'" style="width: 30px;height:30px;object-fit:cover;background:black;transform:rotate(45deg);margin-top: 5px;border-radius: 16px;"></center></div>',
-                    iconSize: [30, 42],
-                    iconAnchor: [15, 42]
+                className: 'custom-div-icon',
+                html: '<div id="'+item.id+'-'+item.slug+'" style="background-color:'+item.status+';" class="marker-pin"><center><img src="{{ url("/assets") }}/img/lokasi/'+item.image+'" style="width: 30px;height:30px;object-fit:cover;background:black;transform:rotate(45deg);margin-top: 5px;border-radius: 16px;"></center></div>',
+                iconSize: [30, 42],
+                iconAnchor: [15, 42]
                 });
                 L.marker([item.long, item.lat],{ icon: icon }).addTo(map)
                 .bindPopup('<a href="{{ url("/vendor")}}/'+item.slug_vendor+'/'+item.slug+'">'+item.nama_lokasi+'</a>')
                 .openPopup();
-            });
-        }
-    });
-}
-showData();
+            }
+        });
+    };
 
-$(document).ready(function() {
-    realtime();
+    window.onbeforeunload = function () {
+        eventSource.close();
+    };
 });
-
-function realtime() {
-    setTimeout(function() {
-        status();
-        realtime();
-    }, 20000);
-}
-
-function status(){
-    $.ajax({
-        url: "{{ url('/dashboard/listLokasi') }}",
-        dataType: "json",
-        async: true,
-        type: "GET",
-        success: function(data) {
-            $.each(data.items, function(index, item) {
-                var id = item.id+'-'+item.slug;
-                document.getElementById(id).style.backgroundColor = item.status;
-            });
-        }
-    });
-}
-
 </script>
 @endsection
