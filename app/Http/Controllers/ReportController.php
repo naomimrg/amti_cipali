@@ -110,6 +110,7 @@ class ReportController extends Controller
         $getParameter = Sensor::where('id',$id)->first();
         $begin = new DateTime($from_date);
         $end = new DateTime($to_date);
+        $end->modify('+1 day');
 
         $interval = DateInterval::createFromDateString('1 day');
         $period = new DatePeriod($begin, $interval, $end);
@@ -177,7 +178,7 @@ class ReportController extends Controller
             for($i=0;$i<24;$i++){
                 $date = $mewDate.' '.$i.':00:00';
 
-                $datas = DB::table('nat_freq')->where('stationId',$stationId)->where('time', $date)->sum('value');
+                $datas = DB::table('nat_freq')->where('station_id',$stationId)->where('time', $date)->sum('value');
                     $response[] = array(
                         "date" => $date,
                         "value" => $datas
