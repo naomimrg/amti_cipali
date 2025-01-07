@@ -167,6 +167,7 @@ class ReportController extends Controller
         $idUser = Auth::user()->id;
         $begin = new DateTime($from_date);
         $end = new DateTime($to_date);
+        $end->modify('+1 day');
 
         $interval = DateInterval::createFromDateString('1 day');
         $period = new DatePeriod($begin, $interval, $end);
