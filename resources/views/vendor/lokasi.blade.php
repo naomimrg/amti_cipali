@@ -100,56 +100,89 @@
             'csrftoken': '{{ csrf_token() }}'
         }
     });
-
-    $(document).ready(function() {
-        const pathArray = window.location.href.split('/');
-        const idVendor = pathArray[4];
-        const id = pathArray[5];
-        const urlListSpan = "{{ url('/listSpanSSE') }}/" + id;
-
-        let isOpenConnection = true;
-        const eventSource = new EventSource(urlListSpan);
-        eventSource.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-
-            $.each(data.items, function(index, item) {
-                const spanElement = document.getElementById("span_" + item.id);
-
-                if (spanElement) {
-                    $("#span_"+item.id).html('<img src="{{ url("/assets") }}/img/'+item.status+'.png"><h5>'+item.no+'</h5>');
-                } else {
-                    $('#list-span').append('<div class="col-lg"><a href="{{ url("/vendor")}}/'+idVendor+'/'+id+'/live_sensor"><div class="loc-sensor"><div class="list-sensor spanDrag" id="span_'+item.id+'" style="inset:'+item.y+'px auto auto '+item.x+'px;""><img src="{{ url("/assets") }}/img/'+item.status+'.png"><h5>'+item.no+'</h5></div></div></a></div>');
-
-                    $(".spanDrag").draggable({
-                        stop: function(event, ui) {
-                        const id = $(this).attr("id");
-                        const top = ui.position.top;
-                        const left = ui.position.left;
-                        const token = $('meta[name="csrf-token"]').attr('content');
-                        $.ajax({
-                            url: "{{ url('/updatePositionSpan') }}",
-                            type: 'POST',
-                            data: { id: id, top: top, left: left, _token:token},
-                            success: function(response) {
-                            console.log('Position saved:', response);
-                            },
-                            error: function(jqXHR, textStatus, errorThrown) {
-                            console.log('Error:', textStatus, errorThrown);
-                            }
-                        });
-                        }
-                    });
-                }
-            });
-
-        };
-
-        window.onbeforeunload = function () {
-            eventSource.close();
-        };
+    /*$(document).ready(function() {
+        realtime();
     });
 
+    function realtime() {
+        setTimeout(function() {
+            showData();
+            realtime();
+        }, 1000);
+    }*/
+
+    function showData(){
+        var pathArray = window.location.href.split('/');
+        var idVendor = pathArray[4];
+        var id = pathArray[5];
+
+        $.ajax({
+            url: "{{ url('/listSpan') }}/"+id,
+            dataType: "json",
+            async: false,
+            type: "GET",
+            success: function(data) {
+            console.log(data);
+
+                $('#list-span').html('');
+                $.each(data.items, function(index, item) {
+                    $('#list-span').append('<div class="col-lg"><a href="{{ url("/vendor")}}/'+idVendor+'/'+id+'/live_sensor"><div class="loc-sensor"><div class="list-sensor spanDrag" id="span_'+item.id+'" style="inset:'+item.y+'px auto auto '+item.x+'px;""><img src="{{ url("/assets") }}/img/'+item.status+'.png"><h5>'+item.no+'</h5></div></div></a></div>');
+                });
+            }
+        });
+        $(document).ready(function() {
+            $(".spanDrag").draggable({
+                stop: function(event, ui) {
+                var id = $(this).attr("id");
+                var top = ui.position.top;
+                var left = ui.position.left;
+                var token = $('meta[name="csrf-token"]').attr('content');
+                $.ajax({
+                    url: "{{ url('/updatePositionSpan') }}",
+                    type: 'POST',
+                    data: { id: id, top: top, left: left, _token:token},
+                    success: function(response) {
+                    console.log('Position saved:', response);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                    console.log('Error:', textStatus, errorThrown);
+                    }
+                });
+                }
+            });
+        });
+    }
+    showData();
+    $(document).ready(function() {
+        realtime();
+    });
+
+    function realtime() {
+        setTimeout(function() {
+            statusUpdate();
+            realtime();
+        }, 15000);
+    }
+
+    function statusUpdate(){
+        var pathArray = window.location.href.split('/');
+        var idVendor = pathArray[4];
+        var id = pathArray[5];
+
+        $.ajax({
+            url: "{{ url('/listSpan') }}/"+id,
+            dataType: "json",
+            async: true,
+            type: "GET",
+            success: function(data) {
+                $.each(data.items, function(index, item) {
+                    $("#span_"+item.id).html('<img src="{{ url("/assets") }}/img/'+item.status+'.png"><h5>'+item.no+'</h5>');
+                });
+            }
+        });
+    }
     var mode;
+
     function show_modal(data) {
 
         if (mode == "add") {
@@ -188,6 +221,7 @@
         mode = undefined;
         $('#list-span').html('');
         $('#form-field').children('.modal').modal('hide');
+        showData();
     }
 
     function reset_default_hapus() {
