@@ -2,7 +2,7 @@
 @section('title', 'Dashboard')
 @section('style')
 <style>
- #map{ height: 500px }
+ #map{ height: 350px }
  .marker-pin {
   width: 40px;
   height: 40px;

@@ -59,8 +59,7 @@
                                                 type="date" 
                                                 id="datePicker" 
                                                 onchange="updateNatFreqChartByDate()" 
-                                                style="padding: 5px; border: 1px solid #ccc; border-radius: 5px;" 
-                                            />
+                                                style="padding: 5px; border: 1px solid #ccc; border-radius: 5px;"/>
                                         </div>
                                         <canvas id="natFreqChart" style="width: 100%; height: 300px;"></canvas>
                                     </div>
@@ -204,7 +203,7 @@
                     type: 'category',
                     title: {
                         display: true,
-                        text: 'Time (hh:mm)',
+                        text: 'Time',
                     },
                 },
                 y: {
