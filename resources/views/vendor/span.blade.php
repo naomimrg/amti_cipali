@@ -2,10 +2,10 @@
 @section('title', 'Vendor')
 @section('style')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.2.0"></script>
+{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script> --}}
 
 <style>
-
 .filter-list {
     display: flex;
     margin-bottom: 10px;
@@ -35,11 +35,6 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="row" style="height:100%;">
-                                    <!--<div style="padding:0;width:auto;background: white;">
-                                        <div id="sensor-filter" style="padding-left:0;">
-                                            
-                                        </div>
-                                    </div>-->
                                     <div class="col-3" style="padding:0;">
                                         <div class="form-group">
                                             <select id="sensor_id" class="form-control select2" name="sensor_id" data-placeholder="sensor_id" required="required" onchange="updateChart()">
@@ -67,15 +62,11 @@
                                                     style="padding: 5px; border: 1px solid #ccc; border-radius: 5px;"/>
                                             </div>
                                             <div class="legend-container" style="display: flex; gap: 15px; align-items: center;">
-                                                {{-- <div style="display: flex; align-items: center;">
-                                                    <div style="width: 20px; height: 5px; background: rgb(255, 251, 0); margin-right: 5px;"></div>
-                                                    <span>Threshold</span>
-                                                </div> --}}
-                                                <div style="display: flex; align-items: center;">
+                                                <div style="display: flex; align-items: center; margin-left: -10px;">
                                                     <div style="width: 20px; height: 5px; background: rgb(255, 0, 0); margin-right: 5px;"></div>
                                                     <span>Failure</span>
                                                 </div>
-                                                <div style="display: flex; align-items: center;">
+                                                <div style="display: flex; align-items: center; margin-left: -10px;">
                                                     <div style="width: 20px; height: 5px; background: rgb(255, 165, 0); margin-right: 5px;"></div>
                                                     <span>Critical</span>
                                                 </div>
@@ -83,7 +74,6 @@
                                         </div>
                                         <canvas id="natFreqChart" style="width: 100%; height: 300px;"></canvas>
                                     </div>
-                                    
                                 </div>
                             </div>
                         </div>
@@ -211,137 +201,90 @@
     }, 3000);
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
-
 <script>
     let natFreqChart;
     
     function createNatFreqChart() {
-        const ctx = document.getElementById('natFreqChart').getContext('2d');
-        natFreqChart = new Chart(ctx, {
-            type: 'line', 
-            data: {
-                labels: [],
-                datasets: [
-                    {
-                        label: 'X',
-                        data: [],
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                        borderWidth: 2,
-                        tension: 0.2,
-                    },
-                    {
-                        label: 'Y',
-                        data: [],
-                        borderColor: 'rgba(50, 205, 50, 1)',
-                        backgroundColor: 'rgba(50, 205, 50, 0.5)',
-                        borderWidth: 2,
-                        tension: 0.2,
-                    },
-                    {
-                        label: 'Z',
-                        data: [],
-                        borderColor: 'rgba(75, 0, 130, 1)',
-                        backgroundColor: 'rgba(75, 0, 130, 0.5)',
-                        borderWidth: 2,
-                        tension: 0.2,
-                    }
-                ],
-            },
-            options: {
-                scales: {
-                    x: {
-                        type: 'category',
-                        title: {
-                            display: true,
-                            text: 'Time',
-                        },
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Frequency (Hz)',
-                        },
-                        beginAtZero: true,
+    const ctx = document.getElementById('natFreqChart').getContext('2d');
+    natFreqChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'X',
+                    data: [],
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderWidth: 2,
+                    tension: 0.2,
+                },
+                {
+                    label: 'Y',
+                    data: [],
+                    borderColor: 'rgba(50, 205, 50, 1)',
+                    backgroundColor: 'rgba(50, 205, 50, 0.5)',
+                    borderWidth: 2,
+                    tension: 0.2,
+                },
+                {
+                    label: 'Z',
+                    data: [],
+                    borderColor: 'rgba(75, 0, 130, 1)',
+                    backgroundColor: 'rgba(75, 0, 130, 0.5)',
+                    borderWidth: 2,
+                    tension: 0.2,
+                }
+            ],
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'category',
+                    title: {
+                        display: true,
+                        text: 'Time',
                     },
                 },
-                plugins: {
-                    annotation: {
-                        annotations: {
-                            // threshold: {
-                            //     type: 'line',
-                            //     yMin: 1.22,
-                            //     yMax: 1.22,
-                            //     borderColor: 'yellow',
-                            //     borderWidth: 2,
-                            //     label: {
-                            //         content: 'Threshold (1.22)',
-                            //         enabled: true,
-                            //         position: 'end',
-                            //         backgroundColor: 'yellow',
-                            //         color: 'black'
-                            //     }
-                            // },
-                            critical: {
-                                type: 'line',
-                                yMin: 1.10,
-                                yMax: 1.10,
-                                borderColor: 'orange',
-                                borderWidth: 2,
-                                label: {
-                                    content: 'Critical (1.10)',
-                                    enabled: true,
-                                    position: 'end',
-                                    backgroundColor: 'orange',
-                                    color: 'black'
-                                }
-                            },
-                            failure: {
-                                type: 'line',
-                                yMin: 0.98,
-                                yMax: 0.98,
-                                borderColor: 'red',
-                                borderWidth: 2,
-                                label: {
-                                    content: 'Failure (0.98)',
-                                    enabled: true,
-                                    position: 'end',
-                                    backgroundColor: 'red',
-                                    color: 'white'
-                                }
-                            }
-                        }
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Frequency (Hz)',
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                const datasetLabel = context.dataset.label || '';
-                                const yValue = context.raw.y.toFixed(2);
-                                return `${datasetLabel}: ${yValue}`;
-                            },
-                        },
-                    },
-                    legend: {
-                        labels: {
-                            filter: function (legendItem) {
-                                return legendItem.text !== '';
-                            }
-                        }
-                    }
+                    beginAtZero: true,
                 },
             },
-        });
-    }
-    
-    createNatFreqChart();
+            plugins: {
+                annotation: {
+                    annotations: {
+                        critical: {
+                            type: 'line',
+                            yMin: 1.10,
+                            yMax: 1.10,
+                            borderColor: 'orange',
+                            borderWidth: 2,
+                        },
+                        failure: {
+                            type: 'line',
+                            yMin: 0.98,
+                            yMax: 0.98,
+                            borderColor: 'red',
+                            borderWidth: 2,
+                        }
+                    }
+                }
+            }
+        },
+    });
+}
+
+createNatFreqChart();
     
     async function updateNatFreqChart(date) {
         const selectedSensor = document.getElementById('sensor_id').options[document.getElementById('sensor_id').selectedIndex].text;
         const natFreqChartDiv = document.getElementById('natFreqChart').parentElement;
         
-        if (!selectedSensor.startsWith("Accl_AA222_01")) {
+        if (!selectedSensor.startsWith("Accelerometer 1")) {
             natFreqChartDiv.style.display = "none";
             return;
         }
@@ -554,5 +497,61 @@
             return false;
         }
     });
+</script>
+
+<script>
+const customSensorNames = {
+    "Tiltmeter_01": "Tiltmeter 1",
+    "Tiltmeter_02": "Tiltmeter 2",
+    "Accl_AA222_01_E": "Accelerometer 1_Y",
+    "Accl_AA222_01_N": "Accelerometer 1_X",
+    "Accl_AA222_01_U": "Accelerometer 1_Z",
+    "Accl_AA222_02_E": "Accelerometer 2_Y",
+    "Accl_AA222_02_N": "Accelerometer 2_X",
+    "Accl_AA222_02_U": "Accelerometer 2_Z",
+    "Disp_AA222_01_N": "Displacement 1_X",
+    "Disp_AA222_01_E": "Displacement 1_Y",
+    "Disp_AA222_01_U": "Displacement 1_Z",
+    "Disp_AA222_02_N": "Displacement 2_X",
+    "Disp_AA222_02_E": "Displacement 2_Y",
+    "Disp_AA222_02_U": "Displacement 2_Z",
+    "Full_Bridge_01": "Strain Gauge 1",
+    "Full_Bridge_02": "Strain Gauge 2"
+};
+
+function getCustomSensorName(sensorName) {
+    return customSensorNames[sensorName] || sensorName || "Unknown Sensor";
+}
+
+function showData() {
+    var pathArray = window.location.href.split('/');
+    var idVendor = pathArray[4];
+    var id = pathArray[7];
+
+    $.ajax({
+        type: "get",
+        url: "{{ url('/listSensor') }}/" + id,
+        cache: false,
+        success: function(data) {
+            $('#sensor_id').empty();
+
+            $.each(data.items, function(index, item) {
+                let customName = getCustomSensorName(item.sensor_id);
+                $("#sensor_id").append(`<option value="${item.id}" data-sensor="${item.sensor_id}">${customName}</option>`);
+            });
+
+            if (data.items.length > 0) {
+                $("#sensor_id").val(data.items[0].id).trigger('change');
+            }
+        }
+    });
+
+    selectTags = document.querySelectorAll('select');
+    for (var i = 0; i < selectTags.length; i++) {
+        selectTags[i].selectedIndex = 0;
+    }
+}
+
+showData();
 </script>
 @endsection
