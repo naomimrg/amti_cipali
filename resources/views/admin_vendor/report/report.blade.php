@@ -308,7 +308,6 @@
             series2.name = "Ambang Batas Bawah";
             series2.yAxis = valueAxis1;
             series2.stroke = am4core.color("#000000");
-
             
             /*var bullet2 = series2.bullets.push(new am4charts.CircleBullet());
             bullet2.circle.radius = 1;
@@ -429,6 +428,94 @@
             return false;
         }
     });
-    
+</script>
+
+<script type="text/javascript">
+    $.ajaxSetup({
+        headers: {
+            'csrftoken': '{{ csrf_token() }}'
+        }
+    });
+
+    const sensorMapping = {
+        "Tiltmeter_01": "Tiltmeter 1",
+        "Tiltmeter_02": "Tiltmeter 2",
+        "Accl_AA222_01_E": "Accelerometer 1_Y",
+        "Accl_AA222_01_N": "Accelerometer 1_X",
+        "Accl_AA222_01_U": "Accelerometer 1_Z",
+        "Accl_AA222_02_E": "Accelerometer 2_Y",
+        "Accl_AA222_02_N": "Accelerometer 2_X",
+        "Accl_AA222_02_U": "Accelerometer 2_Z",
+        "Disp_AA222_01_N": "Displacement 1_X",
+        "Disp_AA222_01_E": "Displacement 1_Y",
+        "Disp_AA222_01_U": "Displacement 1_Z",
+        "Disp_AA222_02_N": "Displacement 2_X",
+        "Disp_AA222_02_E": "Displacement 2_Y",
+        "Disp_AA222_02_U": "Displacement 2_Z",
+        "Full_Bridge_01": "Strain Gauge 1",
+        "Full_Bridge_02": "Strain Gauge 2"
+    };
+
+    $("#id_vendor").change(function(){
+        var id_vendor = $(this).val();
+        $.ajax({
+            type: "get",
+            url: "{{ url('/listLokasi/') }}/" + id_vendor,
+            cache: false,
+            success: function(data) {
+                if (data) {
+                    $('#id_lokasi').empty().append('<option hidden>-- Pilih Lokasi --</option>');
+                    $('#id_span').empty().append('<option hidden>-- Pilih Span --</option>');
+                    $('#id_sensor').empty().append('<option hidden>-- Pilih Sensor --</option>');
+                    $.each(data.items, function(index, item) {
+                        $("#id_lokasi").append('<option value="' + item.slug + '">' + item.nama_lokasi + '</option>');
+                    });
+                } else {
+                    $('#id_lokasi, #id_span, #id_sensor').empty();
+                }
+            }
+        });
+    });
+
+    $("#id_lokasi").change(function(){
+        var id_lokasi = $(this).val();
+        $.ajax({
+            type: "get",
+            url: "{{ url('/listSpanLokasi/') }}/" + id_lokasi,
+            cache: false,
+            success: function(data) {
+                if (data) {
+                    $('#id_span').empty().append('<option hidden>-- Pilih Span --</option>');
+                    $('#id_sensor').empty().append('<option hidden>-- Pilih Sensor --</option>');
+                    $.each(data.items, function(index, item) {
+                        $("#id_span").append('<option value="' + item.id + '">' + item.nama_span + '</option>');
+                    });
+                } else {
+                    $('#id_span, #id_sensor').empty();
+                }
+            }
+        });
+    });
+
+    $("#id_span").change(function(){
+        var id_span = $(this).val();
+        $.ajax({
+            type: "get",
+            url: "{{ url('/listSensor/') }}/" + id_span,
+            cache: false,
+            success: function(data) {
+                if (data) {
+                    $('#id_sensor').empty().append('<option hidden>-- Pilih Sensor --</option>');
+                    $.each(data.items, function(index, item) {
+                        let sensorName = sensorMapping[item.sensor_id] || item.sensor_id; // Gunakan nama custom jika tersedia
+                        $("#id_sensor").append('<option value="' + item.id + '">' + sensorName + '</option>');
+                    });
+                } else {
+                    $('#id_sensor').empty();
+                }
+            }
+        });
+    });
+
 </script>
 @endsection
