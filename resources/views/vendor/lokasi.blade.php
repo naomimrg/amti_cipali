@@ -87,20 +87,19 @@
 <script type="text/javascript">
 
     $(document).ready(function() {
-            showData();
-
-            $("#open-edit").click(function(){
-                $("#myCanvas").toggleClass("w-100"); // Toggle class di canvas
-                // Toggle class icon
-                let icon = $(this).find("i");
-                if (icon.hasClass("bx-lock-alt")) {
-                    icon.removeClass("bx-lock-alt").addClass("bx-lock-open-alt bx-tada");
-                } else {
-                    icon.removeClass("bx-lock-open-alt bx-tada").addClass("bx-lock-alt");
-                }
-            });
-
+        $("#open-edit").click(function(){
+            $("#myCanvas").toggleClass("w-100"); // Toggle class di canvas
+            // Toggle class icon
+            let icon = $(this).find("i");
+            if (icon.hasClass("bx-lock-alt")) {
+                icon.removeClass("bx-lock-alt").addClass("bx-lock-open-alt bx-tada");
+            } else {
+                icon.removeClass("bx-lock-open-alt bx-tada").addClass("bx-lock-alt");
+            }
         });
+
+    })
+
     
 
 
@@ -147,6 +146,22 @@
                 selectedShape = shape;
                 offsetX = mouseX - shape.x;
                 offsetY = mouseY - shape.y;
+            }
+        });
+    });
+
+    canvas.addEventListener('dblclick', (e) => {
+        const mouseX = e.offsetX;
+        const mouseY = e.offsetY;
+    
+        shapes.forEach(shape => {
+            if (
+                mouseX > shape.x && mouseX < shape.x + 50 &&
+                mouseY > shape.y && mouseY < shape.y + 25
+            ) {
+                alert(`Aku diklik! ID: ${shape.id}`);
+                //window.location.href = "{{ url('/admin_vendor/lokasi') }}/" + shape.id;
+                //window.location.href = "file:///C:/Users/Pongo/Downloads/hexa.html";
             }
         });
     });
