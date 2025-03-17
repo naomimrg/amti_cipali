@@ -5,65 +5,55 @@
 .form-group{
     margin-bottom: 10px;
 }
-.spanDrag {
-    position: absolute;
-    cursor: move;
-    padding: 10px;
-    background-size:cover;
-    background-repeat: no-repeat;
-    width: 75px;
-    height: 120px;
-}
 </style>
 
 @endsection
 @section('content')
 
-                <div class="col-12">
-                    <div class="row">
-                        <div class="col-6">
-                            <h4 class="black-color"><a style="color:black!important;" href="./">{{$vendor->nama_vendor}}</a> - {{$lokasi->nama_lokasi}}</h4>
-                        </div>
-                        <div class="col-6" style="text-align:right;">
-                        <button type="button" data-action="add" style="float:right;margin-bottom: 10px;" class="action btn btn-primary">Tambah Span</button>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="row" style="height:100%;">
-                                <div class="home-jembatan" style="background-image: url('{{ url('/assets') }}/img/lokasi/{{$lokasi->foto}}');">
-                                    <div class="row" style="height:100%;" id="list-span">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12" style="margin-top:10px;">
-                            <div class="d-flex">
-                                <div class="d-flex align-item-center mx-3 my-2">
-                                    <span class="status-circle status-critical"></span>
-                                    <div class="status-info">Critical</div>
-                                </div>
-                                <div class="d-flex align-item-center mx-3  my-2">
-                                    <span class="status-circle status-warning"></span>
-                                    <div class="status-info">Warning</div>
-                                </div>
-                                <div class="d-flex align-item-center mx-3  my-2">
-                                    <span class="status-circle status-good"></span>
-                                    <div class="status-info">Good</div>
-                                </div>
-                                <div class="d-flex align-item-center mx-3  my-2">
-                                    <span class="status-circle status-off"></span>
-                                    <div class="status-info">Offline</div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
+<div class="col-12">
+    <div class="row">
+        <div class="col-6">
+            <h4 class="black-color"><a style="color:black!important;" href="./">{{$vendor->nama_vendor}}</a> - {{$lokasi->nama_lokasi}}</h4>
+        </div>
+        <div class="col-6" style="text-align:right;">
+            <button type="button" data-action="add" style="float:right;margin-bottom: 10px;" class="action btn btn-primary">Tambah Span</button>
+        </div>
+    </div>
+    <div class="row">
+        <div id="open-edit">
+            <i class='bx bx-lock-alt'></i>
+        </div>        
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="myCanvas" class="w-100"></canvas>
                 </div>
             </div>
-            <!-- / Content -->
+        </div> 
+        <div class="col-md-12" style="margin-top:10px;">
+            <div class="d-flex">
+                <div class="d-flex align-item-center mx-3 my-2">
+                    <span class="status-circle status-critical"></span>
+                    <div class="status-info">Critical</div>
+                </div>
+                <div class="d-flex align-item-center mx-3  my-2">
+                    <span class="status-circle status-warning"></span>
+                    <div class="status-info">Warning</div>
+                </div>
+                <div class="d-flex align-item-center mx-3  my-2">
+                    <span class="status-circle status-good"></span>
+                    <div class="status-info">Good</div>
+                </div>
+                <div class="d-flex align-item-center mx-3  my-2">
+                    <span class="status-circle status-off"></span>
+                    <div class="status-info">Offline</div>
+                </div>
 
+            </div>
+        </div>
+    </div>
+</div>
+<!-- / Content -->
 <form id="form-field" autocomplete="off">
     <div class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-md">
@@ -95,211 +85,193 @@
 @section('script')
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
 <script type="text/javascript">
-    $.ajaxSetup({
-        headers: {
-            'csrftoken': '{{ csrf_token() }}'
-        }
-    });
-    /*$(document).ready(function() {
-        realtime();
-    });
 
-    function realtime() {
-        setTimeout(function() {
+    $(document).ready(function() {
             showData();
-            realtime();
-        }, 1000);
-    }*/
 
-    function showData(){
-        var pathArray = window.location.href.split('/');
-        var idVendor = pathArray[4];
-        var id = pathArray[5];
-
-        $.ajax({
-            url: "{{ url('/listSpan') }}/"+id,
-            dataType: "json",
-            async: false,
-            type: "GET",
-            success: function(data) {
-            console.log(data);
-
-                $('#list-span').html('');
-                $.each(data.items, function(index, item) {
-                    $('#list-span').append('<div class="col-lg"><a href="{{ url("/vendor")}}/'+idVendor+'/'+id+'/live_sensor"><div class="loc-sensor"><div class="list-sensor spanDrag" id="span_'+item.id+'" style="inset:'+item.y+'px auto auto '+item.x+'px;""><img src="{{ url("/assets") }}/img/'+item.status+'.png"><h5>'+item.no+'</h5></div></div></a></div>');
-                });
-            }
-        });
-        $(document).ready(function() {
-            $(".spanDrag").draggable({
-                stop: function(event, ui) {
-                var id = $(this).attr("id");
-                var top = ui.position.top;
-                var left = ui.position.left;
-                var token = $('meta[name="csrf-token"]').attr('content');
-                $.ajax({
-                    url: "{{ url('/updatePositionSpan') }}",
-                    type: 'POST',
-                    data: { id: id, top: top, left: left, _token:token},
-                    success: function(response) {
-                    console.log('Position saved:', response);
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                    console.log('Error:', textStatus, errorThrown);
-                    }
-                });
+            $("#open-edit").click(function(){
+                $("#myCanvas").toggleClass("w-100"); // Toggle class di canvas
+                // Toggle class icon
+                let icon = $(this).find("i");
+                if (icon.hasClass("bx-lock-alt")) {
+                    icon.removeClass("bx-lock-alt").addClass("bx-lock-open-alt bx-tada");
+                } else {
+                    icon.removeClass("bx-lock-open-alt bx-tada").addClass("bx-lock-alt");
                 }
             });
+
         });
-    }
-    showData();
-    $(document).ready(function() {
-        realtime();
-    });
+    
 
-    function realtime() {
-        setTimeout(function() {
-            statusUpdate();
-            realtime();
-        }, 15000);
-    }
 
-    function statusUpdate(){
-        var pathArray = window.location.href.split('/');
-        var idVendor = pathArray[4];
-        var id = pathArray[5];
+    <!-- Canvas gambar -->
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
 
-        $.ajax({
-            url: "{{ url('/listSpan') }}/"+id,
-            dataType: "json",
-            async: true,
-            type: "GET",
-            success: function(data) {
-                $.each(data.items, function(index, item) {
-                    $("#span_"+item.id).html('<img src="{{ url("/assets") }}/img/'+item.status+'.png"><h5>'+item.no+'</h5>');
-                });
+    // Load the background image
+    const img = new Image();
+    img.src = "{{ url('/assets') }}/img/lokasi/{{$lokasi->foto}}";
+
+    let shapes = [
+        { id: 1, type: "rectangle", x: 900, y: 250, width: 50, height: 25, color: "black" },
+        { id: 2, type: "circle", x: 925, y: 262, radius: 10, color: "red" },
+        { id: 3, type: "triangle", x: 725, y: 252, size: 20, color: "yellow" },
+        { id: 4, type: "rectangle", x: 516, y: 255, width: 15, height: 15, color: "green" }
+    ];
+
+
+    let selectedShape = null;
+    let offsetX = 0, offsetY = 0;
+
+    img.onload = function() {
+        // Set canvas size to match the image
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // Draw the backg   round image
+        ctx.drawImage(img, 0, 0);
+
+        drawAll();
+
+    };
+
+    canvas.addEventListener('mousedown', (e) => {
+        const mouseX = e.offsetX;
+        const mouseY = e.offsetY;
+
+        shapes.forEach(shape => {
+            if (
+                mouseX > shape.x && mouseX < shape.x + 50 &&
+                mouseY > shape.y && mouseY < shape.y + 25
+            ) {
+                selectedShape = shape;
+                offsetX = mouseX - shape.x;
+                offsetY = mouseY - shape.y;
             }
         });
-    }
-    var mode;
+    });
 
-    function show_modal(data) {
-
-        if (mode == "add") {
-            $('#form-field').children('.modal').find('.modal-title').text("Tambah Span");
-			$('#form-field').find('input[name="nama_span"]').val("");
-            $('#form-field').find('input[name="station_id"]').val("");
-            $('#form-field').find('input[name="id"]').val("");
-            $('#form-field').children('.modal').modal('show');
-        } else if (mode == "edit") {
-
-            $.ajax({
-                url: "{{ url('/vendor') }}/" + data + "/edit",
-                dataType: "json",
-                type: "GET",
-                success: function(data) {
-                    $('#form-field').find('input[name="nama_vendor"]').val(data.waktu_pinjam);
-                    $('#form-field').find('input[name="foto"]').val(data.waktu_dikembalikan);
-                    $('#form-field').find('input[name="kordinat"]').val(data.qty);
-                    $('#form-field').find('input[name="id"]').val(data.id);
-
-                }
-            })
-            $('#form-field').children('.modal').find('.modal-title').text("Edit Vendor");
-            $('#form-field').children('.modal').modal('show');
-
-        } else if (mode == "hapus"){
-            $('#form-field-hapus').children('.modal').find('.modal-title').text("Hapus Vendor");
-            $('#form-field-hapus').find('input[name="id_vendor"]').val(data);
-            $('#form-field-hapus').children('.modal').modal('show');
-        }
-    }
-
-    function reset_default() {
-        $('#form-field')[0].reset();
-        $('#form-field').find('input[name="id"]').val('');
-        mode = undefined;
-        $('#list-span').html('');
-        $('#form-field').children('.modal').modal('hide');
-        showData();
-    }
-
-    function reset_default_hapus() {
-        $('#form-field-hapus')[0].reset();
-        $('#form-field-hapus').find('input[name="id_transaksi"]').val('');
-        mode = undefined;
-        $('#form-field-hapus').children('.modal').modal('hide');
-    }
-
-    function clear() {
-        $('#form-field')[0].reset();
-    }
-
-    function clear_hapus() {
-        $('#form-field-hapus')[0].reset();
-    }
-
-    $(document).on('click', ".action", function() {
-        $('.closemodal').click(function() {
-            $('#form-field').children('.modal').modal('hide');
-            $('#form-field-hapus').children('.modal').modal('hide');
-        });
-        var self = this;
-
-        var action = $(this).attr('data-action');
-		if (action == "add") {
-            mode = "add";
-            clear();
-            show_modal();
-        } else if (action == "edit") {
-            mode = "edit";
-            var data = $(this).attr('data-id');
-            show_modal(data);
-        } else if (action == "hapus") {
-            mode = "hapus";
-            var data = $(this).attr('data-id');
-            show_modal(data);
-        } else if (action == "simpan") {
-            var ids = "";
-
-            var id = $("input[id='id_span']").val();
-            if (id == "") {
-                var tipe = "POST";
-            } else {
-                var tipe = "PUT";
-                var ids = "/"+id;
-            }
-
-            $.ajax({
-                url: "{{ url('/insertSpan') }}" + ids,
-                dataType: "json",
-                data: $('#form-field').serialize() + "&_token={!! csrf_token() !!}",
-                type: tipe,
-                success: function(data) {
-                    if ($.isEmptyObject(data.error)) {
-                        swal({
-                            title: "Success!",
-                            text: data.success,
-                            type: "success",
-                        });
-                    } else {
-                        swal({
-                            title: "Error!",
-                            text: data.error,
-                            type: "error",
-                        });
-                    }
-                    reset_default();
-                }
-            })
-        }
-    })
-    $('form').bind("keypress", function(e) {
-        if (e.keyCode == 13) {
-            e.preventDefault();
-            return false;
+    canvas.addEventListener('mousemove', (e) => {
+        if (selectedShape) {
+            selectedShape.x = e.offsetX - offsetX;
+            selectedShape.y = e.offsetY - offsetY;
+            drawAll();
         }
     });
+
+    canvas.addEventListener('mouseup', () => {
+        if (selectedShape) {
+            console.log(`ID: ${selectedShape.id} | Final Position -> X: ${selectedShape.x}, Y: ${selectedShape.y}`);
+            selectedShape = null; // Hentikan dragging
+        }
+    });
+
+
+    function drawGroupWithCircle(baseX, baseY,status) {
+        drawRoundedRect(baseX, baseY, 50, 25, 15, 'white'); // Rectangle utama
+        drawCircle(baseX + 25, baseY + 12, 10, status); // Circle (posisi relatif)
+    }
+
+    function drawGroupWithTriangle(baseX, baseY,status) {
+        drawRoundedRect(baseX, baseY, 50, 25, 15, 'white'); // Rectangle utama
+        drawTriangle(baseX + 25, baseY + 2, 20, status); // Triangle (posisi relatif)
+    }
+
+    function drawGroupWithRectangle(baseX, baseY,status) {
+        drawRoundedRect(baseX, baseY, 50, 25, 15, 'white'); // Rectangle utama
+        drawRoundedRect(baseX + 16, baseY + 5, 15, 15, 1, status); // Rectangle kecil (posisi relatif)
+    }
+
+    function drawGroupWithHexagon(baseX, baseY,status) {
+        drawRoundedRect(baseX, baseY, 50, 25, 15, 'white'); // Rectangle utama
+        drawHexagon(baseX + 24, baseY + 13, 10, status); // Hexagon (posisi relatif)
+    }
+
+    function drawAll() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0); // Gambar background
+
+        shapes.forEach(shape => {
+            drawRoundedRect(shape.x, shape.y, 50, 25, 15, 'white');
+            
+            if (shape.type === 'circle') {
+                drawCircle(shape.x + 25, shape.y + 12, 10, shape.color);
+            } else if (shape.type === 'triangle') {
+                drawTriangle(shape.x + 25, shape.y + 2, 20, shape.color);
+            } else if (shape.type === 'rectangle') {
+                drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, shape.color);
+            } else if (shape.type === 'hexagon') {
+                drawHexagon(shape.x + 24, shape.y + 13, 10, shape.color);
+            }
+            text_label(shape.x + 40, shape.y + 13, shape.id);
+        });
+    }
+
+    // Function to draw a rounded rectangle
+    function drawRoundedRect(x, y, width, height, radius, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // Function to draw a circle
+    function drawCircle(x, y, radius, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
+    // Function to draw a triangle
+    function drawTriangle(x, y, size, color) {
+        const height = (Math.sqrt(3) / 2) * size; // Height of an equilateral triangle
+        const x1 = x; // Top vertex
+        const y1 = y;
+        const x2 = x - size / 2; // Bottom left vertex
+        const y2 = y + height;
+        const x3 = x + size / 2; // Bottom right vertex
+        const y3 = y + height;
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.lineTo(x3, y3);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // Function to draw a hexagon
+    function drawHexagon(x, y, size, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI / 3) * i; // 60 degrees in radians
+            const xPos = x + size * Math.cos(angle);
+            const yPos = y + size * Math.sin(angle);
+            ctx.lineTo(xPos, yPos);
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function text_label(x, y, text) {
+        ctx.fillStyle = 'black'; // Warna teks
+        ctx.font = '14px Arial'; // Ukuran dan jenis font (sesuaikan sesuai kebutuhan)
+        ctx.textAlign = 'center'; // Rata tengah secara horizontal (opsional)
+        ctx.textBaseline = 'middle'; // Rata tengah secara vertikal (opsional)
+        ctx.fillText(text, x, y);
+    }
 
 </script>
 @endsection

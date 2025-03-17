@@ -17480,7 +17480,7 @@ html:not(.layout-footer-fixed) .content-wrapper {
   }
 }
 .app-brand {
-  display: flex;
+  /* display: flex; */
   flex-grow: 0;
   flex-shrink: 0;
   overflow: hidden;

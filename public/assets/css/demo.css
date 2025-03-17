@@ -122,3 +122,30 @@
   text-align: center;
   margin-top: 1rem;
 }
+
+.nunito-font {
+  font-family: 'Nunito Sans', sans-serif;
+  color: black::hover white;
+}
+
+#open-edit {
+  background-color: #1456A1;
+  height: 30px;
+  width: 30px;
+  position: absolute;
+  z-index: 800;
+  margin-left: 45px;
+  margin-top: 30px;
+  border-radius: 50%;
+  
+  /* Flexbox untuk membuat icon berada di tengah */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#open-edit i {
+  color: #ffffff;
+  font-size: 20px;
+}
+

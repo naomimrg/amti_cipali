@@ -27,6 +27,8 @@
     <link
       href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
       rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+
 
     <link rel="stylesheet" href="{{ url('/assets') }}/vendor/fonts/boxicons.css" />
 
@@ -53,20 +55,14 @@
     @yield('style')
 </head>
 
-<body>
+<body style="background-color: #F2F2F2;">
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
         <!-- Menu -->
-        <div style="padding: 10px;height: 100vh;">
-        <div style="box-shadow: none;border-radius:25px;height:100%;" id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-          <div class="app-brand demo">
-            <a href="#" class="app-brand-link">
-              <span class="app-brand-logo demo">
-                <center><img src="{{ url('/assets') }}/img/gsi-logo-transparent.png" style="width:33%;"></center>
-              </span>
-            </a>
-
+        <div id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme" style="box-shadow: none; height: 100%;">
+            <div class="app-brand-link justify-content-center mt-4 mb-4">
+              <img src="{{ url('/assets') }}/img/logo1.png">
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
               <i class="bx bx-chevron-left bx-sm align-middle"></i>
             </a>
@@ -76,131 +72,120 @@
 
           <ul class="menu-inner py-1">
             @canany(['isSuperAdmin','isAdminGSI'])
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('dashboard') ? 'active' : '' }}">
               <a href="{{ url('/dashboard')}}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                <div data-i18n="dashboard">Home</div>
+                <div class="nunito-font">Home</div>
               </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('parameter') ? 'active' : '' }}">
               <a href="{{ url('/parameter')}}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-cog"></i>
-                <div data-i18n="parameter">Default Sensor</div>
+                <div class="nunito-font">Default Sensor</div>
               </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('client_sensor') ? 'active' : '' }}">
               <a href="{{ url('/client_sensor')}}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-list-check"></i>
-                <div data-i18n="parameter">Sensor Client</div>
+                <div class="nunito-font">Sensor Client</div>
               </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('vendor') ? 'active' : '' }}">
               <a href="{{ url('/vendor')}}" class="menu-link">
-                <i class="menu-icon tf-icons bx bxs-user-detail "></i>
-                <div data-i18n="vendor">Manage User</div>
+                <i class="menu-icon tf-icons bx bxs-user-detail"></i>
+                <div class="nunito-font">Manage User</div>
               </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('user') ? 'active' : '' }}">
               <a href="{{ url('/user')}}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-grid"></i>
-                <div data-i18n="user">Manage Account</div>
+                <div class="nunito-font">Manage Account</div>
               </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('admin') ? 'active' : '' }}">
               <a href="{{ url('/admin')}}" class="menu-link">
                 <i class="menu-icon tf-icons bx bxs-user-badge"></i>
-                <div data-i18n="vendor">Manage Admin</div>
+                <div class="nunito-font">Manage Admin</div>
               </a>
             </li>
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('report') ? 'active' : '' }}">
               <a href="{{ url('/report')}}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-download"></i>
-                <div data-i18n="report">Download Data</div>
+                <div class="nunito-font">Download Data</div>
               </a>
             </li>
             @endcan
+
             @canany(['isAdminVendor','isUser'])
             <li class="menu-item">
               <a href="javascript:void(0)" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                <div data-i18n="Extended UI">Home</div>
+                <div class="nunito-font">Home</div>
               </a>
-              <ul class="menu-sub" id="loc-lists">
-
-              </ul>
+              <ul class="menu-sub" id="loc-lists"></ul>
             </li>
-            <li class="menu-item">
+            <li class="menu-item {{ request()->is('report') ? 'active' : '' }}">
               <a href="{{ url('/report')}}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-download"></i>
-                <div data-i18n="report">Download Data</div>
+                <div class="nunito-font">Download Data</div>
               </a>
             </li>
-
+            
             @endcan
-          </ul>
-          <div style="padding: 20px;">
-          <center>
-          <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="btn" style="background: #f37d14fa;color: white;">
-            <i class="bx bx-power-off me-2"></i>
-            <span class="align-middle">Log Out</span>
-          </a></center>
-          <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-              @csrf
-          </form>
-          </div>
-
-        </div>
-      </div>
-        <!-- / Menu -->
-        <div class="layout-page">
-          <!-- Navbar -->
-
-          <nav style="border-radius: 20px;"
-            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
-            id="layout-navbar">
-            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-                <i class="bx bx-menu bx-sm"></i>
+            <li class="menu-item">
+            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
+                class="menu-link nunito-font">
+                <i class="bx bx-power-off me-2"></i> Log Out
               </a>
-            </div>
+            </li>
+          </ul>
+        
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+              @csrf
+            </form>
+        </div>
+        <!-- end menu -->
 
-            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-            <h5 class="my-0 px-2 black" style="color: black;">Monitoring</h5>
-              <!-- Search -->
-              <div class="navbar-nav align-items-center" style="width: 70%;border-radius: 13px;padding-left: 10px;background: #f3f3f3;">
-                <div class="nav-item d-flex align-items-center" style="    width: 100%;">
-                  <i class="bx bx-search fs-4 lh-0"></i>
-                  <input
-                    type="text"
-                    class="form-control border-0 shadow-none ps-1 ps-sm-2"
-                    placeholder="Search..."
-                    aria-label="Search..." style="background: transparent;width: 100%;">
+        <div class="layout-page">
+        <!-- Navbar -->
+          <nav class="layout-navbar navbar navbar-expand-xl ms-4 align-items-center bg-navbar-theme w-99" id="layout-navbar">
+            <div class="container-fluid d-flex justify-content-between">
+              <!-- Toggle Menu for Mobile -->
+              <div class="layout-menu-toggle navbar-nav align-items-center me-3 d-xl-none">
+                <a class="nav-item nav-link px-0" href="javascript:void(0)">
+                  <i class="bx bx-menu bx-sm"></i>
+                </a>
+              </div>
+
+              <!-- Search Bar -->
+              <div class="d-flex align-items-center flex-grow-1">
+                <div class="layout-menu-toggle navbar-nav align-items-center me-3 d-none d-sm-block">
+                  <i class="bx bx-menu bx-sm"></i>
+              </div>
+
+                <div class="navbar-nav align-items-center flex-grow-1 mx-3" style="border-radius: 13px; padding-left: 10px; background: #f3f3f3;">
+                  <div class="nav-item d-flex align-items-center w-100">
+                    <i class="bx bx-search fs-4 lh-0"></i>
+                    <input type="text" class="form-control border-0 shadow-none ps-2 bg-transparent w-100" placeholder="Search..." aria-label="Search...">
+                  </div>
                 </div>
               </div>
-              <!-- /Search -->
 
+              <!-- Notification & User Profile -->
               <ul class="navbar-nav flex-row align-items-center ms-auto">
-                <!-- Place this tag where you want the button to render. -->
                 <li class="nav-item lh-1 me-3">
                   <i class='bx bx-sm bx-bell'></i>
                 </li>
-
-                <!-- User -->
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
                   <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                    <div class="avatar avatar-online" id="avatar-logo-top">
-
-                    </div>
+                    <div class="avatar avatar-online" id="avatar-logo-top"></div>
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end">
                     <li>
                       <a class="dropdown-item" href="#">
                         <div class="d-flex">
                           <div class="flex-shrink-0 me-3">
-                            <div class="avatar avatar-online" id="avatar-logo-bottom">
-
-
-                            </div>
+                            <div class="avatar avatar-online" id="avatar-logo-bottom"></div>
                           </div>
                           <div class="flex-grow-1">
                             <span class="fw-medium d-block">{{ Auth::user()->name }}</span>
@@ -220,29 +205,28 @@
                     </li>
                   </ul>
                 </li>
-                <!--/ User -->
               </ul>
             </div>
           </nav>
-          <!-- Content wrapper -->
-         <div class="content-wrapper">
-            <!-- Content -->
+        <!-- end navbar -->
 
-            <div class="container-xxl flex-grow-1 container-p-y" style="padding-top:10px!important;">
-              <div class="row">
-              <div class="col-12">
-                  <p><label style="display:none;" class="hl"></label>Show: <span style="color: black;" id="datenow"></span></p>
-                </div>
-        @yield('content')
+        <!-- Content -->
+          <div class="container-fluid d-flex flex-column flex-grow-1">
+            <div class="row">
+              <div class="col-12 py-3 m-2">
+                <!-- <p><label style="display:none;" class="hl"></label>Show: <span style="color: black;" id="datenow"></span></p> -->
+                @yield('content')
+              </div>
+            </div>
+          </div>
+        <!-- end Content -->
 
-        <!-- / Footer -->
-
+        <!-- Footer -->
         <div class="content-backdrop fade"></div>
         </div>
-          <!-- Content wrapper -->
+          <!-- end footer -->
     </div>
         <!-- / Layout page -->
-    </div>
 
       <!-- Overlay -->
       <div class="layout-overlay layout-menu-toggle"></div>
@@ -274,7 +258,7 @@
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="{{ url('/assets') }}/js/sweetalert2.all.min.js"></script>
-    <script type='text/javascript'>
+    <!-- <script type='text/javascript'>
         var months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         var myDays = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jum&#39;at', 'Sabtu'];
         var date = new Date();
@@ -286,7 +270,7 @@
         var year = (yy < 1000) ? yy + 1900 : yy;
         $('#datenow').html(thisDay + ', ' + day + ' ' + months[month] + ' ' + year);
 
-    </script>
+    </script> -->
     @can('isAdminVendor')
 
     <script>
