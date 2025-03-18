@@ -35,6 +35,8 @@
                                                         <th style="color: white;">Sensor ID</th>
                                                         <th style="color: white;">Batas Bawah</th>
                                                         <th style="color: white;">Batas Atas</th>
+                                                        <th style="color: white;">X_Position</th>
+                                                        <th style="color: white;">Y_Position</th>
                                                         <th style="color: white;">Satuan</th>
                                                         <th style="color: white;">Aksi</th>
                                                     </tr>
@@ -147,6 +149,8 @@
                 {data: 'sensorId', name: 'sensorId'},
                 {data: 'batas_bawah', name: 'batas_bawah'},
                 {data: 'batas_atas', name: 'batas_atas'},
+                {data: 'x_position', name: 'x_position'},
+                {data: 'y_position', name: 'y_position'},
                 {data: 'satuan', name: 'satuan'},
                 {data: 'action', name: 'action'},
             ]

@@ -165,185 +165,165 @@
         headers: {
             'csrftoken': '{{ csrf_token() }}'
         }
-    });
+    }); 
     
-    function showData(){
-        var pathArray = window.location.href.split('/');
-        var id = pathArray[4];
-        $.ajax({
-            url: "{{ url('/listLokasiSpan') }}/"+id,
-            dataType: "json",
-            async: false,
-            type: "GET",
-            success: function(data) {	
-                $('#list-span').html('');	
-                $.each(data.items, function(index, item) {
-                    $('#list-span').append('<div class="col-lg"><a href="{{ url("/home")}}/'+id+'/live_sensor "><div class="loc-sensor"><div class="list-sensor spanDrag" id="span_'+item.id+'" style="inset:'+item.y+'px auto auto '+item.x+'px;""><img src="{{ url("/assets") }}/img/'+item.status+'.png"><h5>'+item.no+'</h5></div></div></a></div>');
-                });	
-            }
-        });
-    }
-    showData();
-    $(document).ready(function() {
-        realtime();
-    });
 
-    function realtime() {
-        setTimeout(function() {
-            statusUpdate();
-            realtime();
-        }, 15000);
-    }
-
-    function statusUpdate(){
-        var pathArray = window.location.href.split('/');
-        var id = pathArray[4];
-
-        $.ajax({
-            url: "{{ url('/listLokasiSpan') }}/"+id,
-            dataType: "json",
-            async: false,
-            type: "GET",
-            success: function(data) {		
-                $.each(data.items, function(index, item) {
-                    $("#span_"+item.id).html('<img src="{{ url("/assets") }}/img/'+item.status+'.png"><h5>'+item.no+'</h5>');
-                });	
-            }
-        });
-    }
-
-
+    $(document).ready(function () {
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
     
+        const img = new Image();
+        let shapes = [];
+        let isImageLoaded = false;
+        let isDataLoaded = false;
+        let selectedShape = null; // ⬅ Tambahkan deklarasi di awal
+        let offsetX = 0, offsetY = 0;
     
-    const canvas = document.getElementById('myCanvas');
-    const ctx = canvas.getContext('2d');
-
-    // Load the background image
-    const img = new Image();
-    img.src = "{{ url('/assets') }}/img/lokasi/{{$lokasi->foto}}";
-
-    let shapes = [
-        { id: 1, type: "rectangle", x: 900, y: 250, width: 50, height: 25, color: "black" },
-        { id: 2, type: "circle", x: 925, y: 262, radius: 10, color: "red" },
-        { id: 3, type: "triangle", x: 725, y: 252, size: 20, color: "yellow" },
-        { id: 4, type: "rectangle", x: 516, y: 255, width: 15, height: 15, color: "green" }
-    ];
-
-
-    let selectedShape = null;
-    let offsetX = 0, offsetY = 0;
-
-    img.onload = function() {
-        // Set canvas size to match the image
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        // Draw the backg   round image
-        ctx.drawImage(img, 0, 0);
-
-        drawAll();
-
-    };
-
-    canvas.addEventListener('mousedown', (e) => {
-        const mouseX = e.offsetX;
-        const mouseY = e.offsetY;
-
-        shapes.forEach(shape => {
-            if (
-                mouseX > shape.x && mouseX < shape.x + 50 &&
-                mouseY > shape.y && mouseY < shape.y + 25
-            ) {
-                selectedShape = shape;
-                offsetX = mouseX - shape.x;
-                offsetY = mouseY - shape.y;
-            }
-        });
-    });
-
-    canvas.addEventListener('mousemove', (e) => {
-        if (selectedShape) {
-            selectedShape.x = e.offsetX - offsetX;
-            selectedShape.y = e.offsetY - offsetY;
-            drawAll();
+        // Pasang event listener sebelum menetapkan src
+        img.onload = function() {
+            console.log("Gambar selesai dimuat");
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight * 2.5; // Sesuaikan ukuran
+    
+            isImageLoaded = true;
+            checkAndDraw(); // Cek apakah bisa langsung menggambar
+        };
+    
+        // Atur src gambar, ini memicu `img.onload`
+        img.src = "{{ url('/assets') }}/img/lokasi/{{$lokasi->foto}}";
+    
+        // Mengambil data sensor dari API
+        function fetchSensorData() {
+            $.ajax({
+                url: "/client_sensor/listParameterClient",
+                method: "GET",
+                success: function(response) {
+                    console.log("Data sensor diterima:", response);
+    
+                    if (response.data && response.data.length > 0) {
+                        shapes = response.data.map((item, index) => ({
+                            id: item.sensorId,
+                            type: "circle",
+                            x: Number(item.x_position) + (index * 10),  // Geser X sedikit ini karena masih default 100 semua
+                            y: Number(item.y_position) + (index * 10),  // Geser Y sedikit ini karena masih default 100 semua
+                            radius: 10,
+                            color: "green"
+                        }));
+    
+                        isDataLoaded = true;
+                        console.log("Data sensor selesai dimuat");
+                        checkAndDraw();
+                    } else {
+                        console.log("Tidak ada data sensor ditemukan.");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Terjadi kesalahan saat mengambil data sensor:", error);
+                }
+            });
         }
-    });
 
-    canvas.addEventListener('mouseup', () => {
-        if (selectedShape) {
-            console.log(`ID: ${selectedShape.id} | Final Position -> X: ${selectedShape.x}, Y: ${selectedShape.y}`);
-            selectedShape = null; // Hentikan dragging
-        }
-    });
-
-
-    function drawGroupWithCircle(baseX, baseY,status) {
-        drawRoundedRect(baseX, baseY, 50, 25, 15, 'white'); // Rectangle utama
-        drawCircle(baseX + 25, baseY + 12, 10, status); // Circle (posisi relatif)
-    }
-
-    function drawGroupWithTriangle(baseX, baseY,status) {
-        drawRoundedRect(baseX, baseY, 50, 25, 15, 'white'); // Rectangle utama
-        drawTriangle(baseX + 25, baseY + 2, 20, status); // Triangle (posisi relatif)
-    }
-
-    function drawGroupWithRectangle(baseX, baseY,status) {
-        drawRoundedRect(baseX, baseY, 50, 25, 15, 'white'); // Rectangle utama
-        drawRoundedRect(baseX + 16, baseY + 5, 15, 15, 1, status); // Rectangle kecil (posisi relatif)
-    }
-
-    function drawGroupWithHexagon(baseX, baseY,status) {
-        drawRoundedRect(baseX, baseY, 50, 25, 15, 'white'); // Rectangle utama
-        drawHexagon(baseX + 24, baseY + 13, 10, status); // Hexagon (posisi relatif)
-    }
-
-    function drawAll() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0); // Gambar background
-
-        shapes.forEach(shape => {
-            drawRoundedRect(shape.x, shape.y, 50, 25, 15, 'white');
-            
-            if (shape.type === 'circle') {
-                drawCircle(shape.x + 25, shape.y + 12, 10, shape.color);
-            } else if (shape.type === 'triangle') {
-                drawTriangle(shape.x + 25, shape.y + 2, 20, shape.color);
-            } else if (shape.type === 'rectangle') {
-                drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, shape.color);
-            } else if (shape.type === 'hexagon') {
-                drawHexagon(shape.x + 24, shape.y + 13, 10, shape.color);
-            }
-            text_label(shape.x + 40, shape.y + 13, shape.id);
+        canvas.addEventListener('mousedown', (e) => {
+            const mouseX = e.offsetX;
+            const mouseY = e.offsetY;
+    
+            shapes.forEach(shape => {
+                if (
+                    mouseX > shape.x && mouseX < shape.x + 50 &&
+                    mouseY > shape.y && mouseY < shape.y + 25
+                ) {
+                    selectedShape = shape;
+                    offsetX = mouseX - shape.x;
+                    offsetY = mouseY - shape.y;
+                }
+            });
         });
-    }
 
-    // Function to draw a rounded rectangle
-    function drawRoundedRect(x, y, width, height, radius, color) {
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + width - radius, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        ctx.lineTo(x + width, y + height - radius);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        ctx.lineTo(x + radius, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.closePath();
-        ctx.fill();
-    }
+        canvas.addEventListener('dblclick', (e) => {
+            const mouseX = e.offsetX;
+            const mouseY = e.offsetY;
+        
+            shapes.forEach(shape => {
+                if (
+                    mouseX > shape.x && mouseX < shape.x + 50 &&
+                    mouseY > shape.y && mouseY < shape.y + 25
+                ) {
+                    alert(`Aku diklik! ID: ${shape.id}`);
+                    //window.location.href = "{{ url('/admin_vendor/lokasi') }}/" + shape.id;
+                    //window.location.href = "file:///C:/Users/Pongo/Downloads/hexa.html";
+                }
+            });
+        });
+    
+        canvas.addEventListener('mousemove', (e) => {
+            if (selectedShape) {
+                selectedShape.x = e.offsetX - offsetX;
+                selectedShape.y = e.offsetY - offsetY;
+                drawAll();
+            }
+        });
+    
+        canvas.addEventListener('mouseup', () => {
+            if (selectedShape) {
+                console.log(`ID: ${selectedShape.id} | Final Position -> X: ${selectedShape.x}, Y: ${selectedShape.y}`);
+                selectedShape = null; // Hentikan dragging
+            }
+        });
+    
+        function checkAndDraw() {
+            console.log("Cek apakah semua data siap...");
+            if (isImageLoaded && isDataLoaded) {
+                console.log("Semua data siap, menggambar canvas...");
+                drawAll();
+            }
+        }
+    
+        function drawAll() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    
+            shapes.forEach(shape => {
+                drawRoundedRect(shape.x, shape.y, 50, 25, 15, 'white');
+    
+                if (shape.id.toLowerCase().includes("accl")) {
+                    //drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, shape.color);
+                    drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, 'red');
+                } else if (shape.id.toLowerCase().includes("tiltmeter")) {
+                    drawTriangle(shape.x + 25, shape.y + 2, 20, 'orange');
+                } else if (shape.id.toLowerCase().includes("disp")) {
+                    drawCircle(shape.x + 25, shape.y + 12, 10, 'black');
+                } else if (shape.id.toLowerCase().includes("full")) {
+                    drawHexagon(shape.x + 24, shape.y + 13, 10,'green');
+                }
+    
+                text_label(shape.x + 40, shape.y + 13, shape.id);
+            });
+        }
+    
+        function drawRoundedRect(x, y, width, height, radius, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+            ctx.fill();
+        }
+    
+        function drawCircle(x, y, radius, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fill();
+        }
 
-    // Function to draw a circle
-    function drawCircle(x, y, radius, color) {
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, 2 * Math.PI);
-        ctx.fill();
-    }
-
-    // Function to draw a triangle
-    function drawTriangle(x, y, size, color) {
+        function drawTriangle(x, y, size, color) {
         const height = (Math.sqrt(3) / 2) * size; // Height of an equilateral triangle
         const x1 = x; // Top vertex
         const y1 = y;
@@ -374,17 +354,18 @@
         ctx.closePath();
         ctx.fill();
     }
-
-    function text_label(x, y, text) {
-        ctx.fillStyle = 'black'; // Warna teks
-        ctx.font = '14px Arial'; // Ukuran dan jenis font (sesuaikan sesuai kebutuhan)
-        ctx.textAlign = 'center'; // Rata tengah secara horizontal (opsional)
-        ctx.textBaseline = 'middle'; // Rata tengah secara vertikal (opsional)
-        ctx.fillText(text, x, y);
-    }
-        
     
+        function text_label(x, y, text) {
+            ctx.fillStyle = 'black';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+        }
     
+        // Panggil fetchSensorData setelah gambar mulai dimuat
+        fetchSensorData();
+    });
 
 
 

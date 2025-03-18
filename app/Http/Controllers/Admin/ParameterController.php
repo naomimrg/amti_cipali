@@ -90,6 +90,8 @@ class ParameterController extends Controller
                             'batas_bawah' => $ld->batas_bawah,
                             'batas_atas' => $ld->batas_atas,
                             'satuan' => $ld->satuan,
+                            'x_position' => $ld->x_position,
+                            'y_position' => $ld->y_position,
                             'action' => '<center><button style="width: 100%;" type="button" data-id="'.$ld->id.'" data-action="edit" class="action btn btn-warning btn-sm" data-toggle="tooltip" title="Ubah"><i class="fa fa-pencil"></i> Edit</button>&nbsp;<button style="width: 100%;" type="button" data-id="'.$ld->id.'" data-action="hapus" class="action btn btn-danger btn-sm" data-toggle="tooltip" title="Delete"><i class="fa fa-times"></i> Hapus</button></center>',
                         ]);
                         $i++;
