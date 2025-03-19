@@ -13,7 +13,6 @@
 <div class="col-12">
     <div class="row">
         <div class="col-6">
-            <!-- <h4 class="black-color">{{$vendor->nama_vendor}} - {{$lokasi->nama_lokasi}}</h4> -->
             <h2 class="nunito-font" style="font-weight: bold; color:#202224">Dashboard</h2>
         </div>
     </div>
@@ -70,10 +69,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div id="open-edit">
-            <i class='bx bx-lock-alt'></i>
-        </div>        
+    <div class="row">       
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
@@ -83,92 +79,78 @@
         </div> 
     </div>
     <div class="row mt-4">
-                        <div class="col-md-4">
-                            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                                <div class="card-body d-flex flex-column">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="/assets/img/square-line.png" alt="Gauge" style="width: 20px; height: auto; margin-right: 10px;">
-                                        <div class="flex-grow-1">
-                                            <p class="mb-0 nunito-font" style="color: black;">Accelerometer</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="/assets/img/triangle-line.png" alt="Tiltmeter" style="width: 20px; height: auto; margin-right: 10px;">
-                                        <div class="flex-grow-1">
-                                            <p class="mb-0 nunito-font" style="color: black;">Tiltmeter</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="/assets/img/hexagon-line.png" alt="Strain" style="width: 20px; height: auto; margin-right: 10px;">
-                                        <div class="flex-grow-1">
-                                            <p class="mb-0 nunito-font" style="color: black;">Strain Gauge</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <img src="/assets/img/circle-line.png" alt="Displacement" style="width: 20px; height: auto; margin-right: 10px;">
-                                        <div class="flex-grow-1">
-                                            <p class="mb-0 nunito-font" style="color: black;">Displacement</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                                <div class="card-body d-flex flex-column">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="">
-                                            <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
-                                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                            <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">1,22 mm</p>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Dynamic Deflection</h2>
-                                            <img src="/assets/img/Shade-dynamic.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                                <div class="card-body d-flex flex-column">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="">
-                                            <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
-                                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                            <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">3 Ton</p>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Vehicle load</h2>
-                                            <img src="/assets/img/Shade-vehicle.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+        <div class="col-md-4">
+            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="/assets/img/square-line.png" alt="Gauge" style="width: 20px; height: auto; margin-right: 10px;">
+                        <div class="flex-grow-1">
+                            <p class="mb-0 nunito-font" style="color: black;">Accelerometer</p>
                         </div>
                     </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="/assets/img/triangle-line.png" alt="Tiltmeter" style="width: 20px; height: auto; margin-right: 10px;">
+                        <div class="flex-grow-1">
+                            <p class="mb-0 nunito-font" style="color: black;">Tiltmeter</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="/assets/img/hexagon-line.png" alt="Strain" style="width: 20px; height: auto; margin-right: 10px;">
+                        <div class="flex-grow-1">
+                            <p class="mb-0 nunito-font" style="color: black;">Strain Gauge</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <img src="/assets/img/circle-line.png" alt="Displacement" style="width: 20px; height: auto; margin-right: 10px;">
+                        <div class="flex-grow-1">
+                            <p class="mb-0 nunito-font" style="color: black;">Displacement</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="">
+                            <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
+                            <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">1,22 mm</p>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Dynamic Deflection</h2>
+                            <img src="/assets/img/Shade-dynamic.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="">
+                            <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
+                            <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">3 Ton</p>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Vehicle load</h2>
+                            <img src="/assets/img/Shade-vehicle.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- / Content -->
 @endsection
 @section('script')
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
 <script type="text/javascript">
-
-    // $(document).ready(function() {
-    //     $("#open-edit").click(function(){
-    //         $("#myCanvas").toggleClass("w-100"); // Toggle class di canvas
-    //         // Toggle class icon
-    //         let icon = $(this).find("i");
-    //         if (icon.hasClass("bx-lock-alt")) {
-    //             icon.removeClass("bx-lock-alt").addClass("bx-lock-open-alt bx-tada");
-    //         } else {
-    //             icon.removeClass("bx-lock-open-alt bx-tada").addClass("bx-lock-alt");
-    //         }
-    //     });
-
-    // })
     
     $(document).ready(function () {
         const canvas = document.getElementById('myCanvas');
@@ -268,8 +250,6 @@
     
         canvas.addEventListener('mouseup', () => {
             if (selectedShape) {
-                console.log(`ID: ${selectedShape.idsensor} | Final Position -> X: ${selectedShape.x}, Y: ${selectedShape.y}`);
-
                 // Buat data yang akan dikirim ke API
                 const data = {
                     x_position: selectedShape.x,
@@ -292,7 +272,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Success:', data);
+                    console.log('Success update coordinate sensor');
                 })
                 .catch((error) => {
                     console.error('Error:', error);
