@@ -78,7 +78,6 @@
                             </div>
                         </div>
                     </div>
-                    </div>
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
@@ -182,8 +181,9 @@
         // Pasang event listener sebelum menetapkan src
         img.onload = function() {
             console.log("Gambar selesai dimuat");
+            const aspectRatio = img.width / img.height;
             canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight * 2.5; // Sesuaikan ukuran
+            canvas.height = canvas.clientWidth/aspectRatio; // Sesuaikan ukuran
     
             isImageLoaded = true;
             checkAndDraw(); // Cek apakah bisa langsung menggambar
@@ -203,15 +203,14 @@
                     if (response.data && response.data.length > 0) {
                         shapes = response.data.map((item, index) => ({
                             id: item.sensorId,
-                            type: "circle",
-                            x: Number(item.x_position) + (index * 10),  // Geser X sedikit ini karena masih default 100 semua
-                            y: Number(item.y_position) + (index * 10),  // Geser Y sedikit ini karena masih default 100 semua
+                            idsensor: item.Idsensor,
+                            x: Number(item.x_position),
+                            y: Number(item.y_position), 
                             radius: 10,
-                            color: "green"
                         }));
     
                         isDataLoaded = true;
-                        console.log("Data sensor selesai dimuat");
+                        //console.log("Data sensor selesai dimuat");
                         checkAndDraw();
                     } else {
                         console.log("Tidak ada data sensor ditemukan.");
@@ -223,22 +222,6 @@
             });
         }
 
-        canvas.addEventListener('mousedown', (e) => {
-            const mouseX = e.offsetX;
-            const mouseY = e.offsetY;
-    
-            shapes.forEach(shape => {
-                if (
-                    mouseX > shape.x && mouseX < shape.x + 50 &&
-                    mouseY > shape.y && mouseY < shape.y + 25
-                ) {
-                    selectedShape = shape;
-                    offsetX = mouseX - shape.x;
-                    offsetY = mouseY - shape.y;
-                }
-            });
-        });
-
         canvas.addEventListener('dblclick', (e) => {
             const mouseX = e.offsetX;
             const mouseY = e.offsetY;
@@ -248,32 +231,18 @@
                     mouseX > shape.x && mouseX < shape.x + 50 &&
                     mouseY > shape.y && mouseY < shape.y + 25
                 ) {
-                    alert(`Aku diklik! ID: ${shape.id}`);
+                    alert(`Aku diklik! ID: ${shape.idsensor}`);
                     //window.location.href = "{{ url('/admin_vendor/lokasi') }}/" + shape.id;
                     //window.location.href = "file:///C:/Users/Pongo/Downloads/hexa.html";
                 }
             });
         });
-    
-        canvas.addEventListener('mousemove', (e) => {
-            if (selectedShape) {
-                selectedShape.x = e.offsetX - offsetX;
-                selectedShape.y = e.offsetY - offsetY;
-                drawAll();
-            }
-        });
-    
-        canvas.addEventListener('mouseup', () => {
-            if (selectedShape) {
-                console.log(`ID: ${selectedShape.id} | Final Position -> X: ${selectedShape.x}, Y: ${selectedShape.y}`);
-                selectedShape = null; // Hentikan dragging
-            }
-        });
+
     
         function checkAndDraw() {
-            console.log("Cek apakah semua data siap...");
+            //console.log("Cek apakah semua data siap...");
             if (isImageLoaded && isDataLoaded) {
-                console.log("Semua data siap, menggambar canvas...");
+                //console.log("Semua data siap, menggambar canvas...");
                 drawAll();
             }
         }
@@ -286,7 +255,6 @@
                 drawRoundedRect(shape.x, shape.y, 50, 25, 15, 'white');
     
                 if (shape.id.toLowerCase().includes("accl")) {
-                    //drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, shape.color);
                     drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, 'red');
                 } else if (shape.id.toLowerCase().includes("tiltmeter")) {
                     drawTriangle(shape.x + 25, shape.y + 2, 20, 'orange');
@@ -296,7 +264,7 @@
                     drawHexagon(shape.x + 24, shape.y + 13, 10,'green');
                 }
     
-                text_label(shape.x + 40, shape.y + 13, shape.id);
+                text_label(shape.x + 40, shape.y + 13, shape.idsensor);
             });
         }
     
@@ -324,36 +292,36 @@
         }
 
         function drawTriangle(x, y, size, color) {
-        const height = (Math.sqrt(3) / 2) * size; // Height of an equilateral triangle
-        const x1 = x; // Top vertex
-        const y1 = y;
-        const x2 = x - size / 2; // Bottom left vertex
-        const y2 = y + height;
-        const x3 = x + size / 2; // Bottom right vertex
-        const y3 = y + height;
-
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.lineTo(x3, y3);
-        ctx.closePath();
-        ctx.fill();
-    }
-
-    // Function to draw a hexagon
-    function drawHexagon(x, y, size, color) {
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-            const angle = (Math.PI / 3) * i; // 60 degrees in radians
-            const xPos = x + size * Math.cos(angle);
-            const yPos = y + size * Math.sin(angle);
-            ctx.lineTo(xPos, yPos);
+            const height = (Math.sqrt(3) / 2) * size; // Height of an equilateral triangle
+            const x1 = x; // Top vertex
+            const y1 = y;
+            const x2 = x - size / 2; // Bottom left vertex
+            const y2 = y + height;
+            const x3 = x + size / 2; // Bottom right vertex
+            const y3 = y + height;
+    
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.lineTo(x3, y3);
+            ctx.closePath();
+            ctx.fill();
         }
-        ctx.closePath();
-        ctx.fill();
-    }
+    
+        // Function to draw a hexagon
+        function drawHexagon(x, y, size, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 3) * i; // 60 degrees in radians
+                const xPos = x + size * Math.cos(angle);
+                const yPos = y + size * Math.sin(angle);
+                ctx.lineTo(xPos, yPos);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
     
         function text_label(x, y, text) {
             ctx.fillStyle = 'black';

@@ -87,6 +87,7 @@ class ParameterController extends Controller
                             'span' => $gS->nama_span,
                             'nama_parameter' => $parameter->nama_parameter,
                             'sensorId' => $ld->nama_sensor,
+                            'Idsensor' => $ld->id,
                             'batas_bawah' => $ld->batas_bawah,
                             'batas_atas' => $ld->batas_atas,
                             'satuan' => $ld->satuan,
@@ -229,21 +230,46 @@ class ParameterController extends Controller
             return response()->json(['error'=>'Sensor Gagal Diubah.']);
         }
     }
-    public function updateData(Request $request, $id)
-    {  
-        $checkData = Sensor::join('span','span.id','=','sensor.id_span')->join('lokasi','lokasi.id','=','span.id_lokasi')->where('sensor.id',$id)->where('sensor.isDeleted',0)->first();
-       
+    public function updateData(Request $request, $id){
+        // Memeriksa apakah sensor dengan ID yang diberikan ada dan tidak dihapus
+        $checkData = Sensor::join('span', 'span.id', '=', 'sensor.id_span')
+            ->join('lokasi', 'lokasi.id', '=', 'span.id_lokasi')
+            ->where('sensor.id', $id)
+            ->where('sensor.isDeleted', 0)
+            ->first();
+
+        if (!$checkData) {
+            return response()->json(['error' => 'Sensor tidak ditemukan atau sudah dihapus.'], 404);
+        }
+
+        // Mengambil sensor berdasarkan ID
         $sensor = Sensor::find($id);
-        $sensor->batas_atas = $request->input('batas_atas');
-        $sensor->nama_sensor = $request->input('sensorId');
-        $sensor->batas_bawah = $request->input('batas_bawah');
-        $sensor->satuan = $request->input('satuan');
-    
-        
-        if($sensor->save()){
-            return response()->json(['success'=>'Sensor Berhasil Diubah.']);
-        }else{
-            return response()->json(['error'=>'Sensor Gagal Diubah.']);
+
+        // Memperbarui kolom yang disertakan dalam permintaan
+        if ($request->has('batas_atas')) {
+            $sensor->batas_atas = $request->input('batas_atas');
+        }
+        if ($request->has('sensorId')) {
+            $sensor->nama_sensor = $request->input('sensorId');
+        }
+        if ($request->has('batas_bawah')) {
+            $sensor->batas_bawah = $request->input('batas_bawah');
+        }
+        if ($request->has('satuan')) {
+            $sensor->satuan = $request->input('satuan');
+        }
+        if ($request->has('x_position')) {
+            $sensor->x_position = $request->input('x_position');
+        }
+        if ($request->has('y_position')) {
+            $sensor->y_position = $request->input('y_position');
+        }
+
+        // Menyimpan perubahan
+        if ($sensor->save()) {
+            return response()->json(['success' => 'Data sensor berhasil diperbarui.']);
+        } else {
+            return response()->json(['error' => 'Gagal memperbarui data sensor.'], 500);
         }
     }
     
