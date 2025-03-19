@@ -85,6 +85,7 @@ class ParameterController extends Controller
                             'nama_client' => $gC->nama_vendor,
                             'lokasi' => $gL->nama_lokasi,
                             'span' => $gS->nama_span,
+                            'id_span' => $gS->id,
                             'nama_parameter' => $parameter->nama_parameter,
                             'sensorId' => $ld->nama_sensor,
                             'Idsensor' => $ld->id,

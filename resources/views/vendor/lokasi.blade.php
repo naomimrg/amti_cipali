@@ -156,19 +156,19 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 
-    $(document).ready(function() {
-        $("#open-edit").click(function(){
-            $("#myCanvas").toggleClass("w-100"); // Toggle class di canvas
-            // Toggle class icon
-            let icon = $(this).find("i");
-            if (icon.hasClass("bx-lock-alt")) {
-                icon.removeClass("bx-lock-alt").addClass("bx-lock-open-alt bx-tada");
-            } else {
-                icon.removeClass("bx-lock-open-alt bx-tada").addClass("bx-lock-alt");
-            }
-        });
+    // $(document).ready(function() {
+    //     $("#open-edit").click(function(){
+    //         $("#myCanvas").toggleClass("w-100"); // Toggle class di canvas
+    //         // Toggle class icon
+    //         let icon = $(this).find("i");
+    //         if (icon.hasClass("bx-lock-alt")) {
+    //             icon.removeClass("bx-lock-alt").addClass("bx-lock-open-alt bx-tada");
+    //         } else {
+    //             icon.removeClass("bx-lock-open-alt bx-tada").addClass("bx-lock-alt");
+    //         }
+    //     });
 
-    })
+    // })
     
     $(document).ready(function () {
         const canvas = document.getElementById('myCanvas');
@@ -183,7 +183,7 @@
     
         // Pasang event listener sebelum menetapkan src
         img.onload = function() {
-            console.log("Gambar selesai dimuat");
+            //console.log("Gambar selesai dimuat");
             const aspectRatio = img.width / img.height;
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientWidth/aspectRatio; // Sesuaikan ukuran
@@ -201,11 +201,13 @@
                 url: "/client_sensor/listParameterClient",
                 method: "GET",
                 success: function(response) {
-                    console.log("Data sensor diterima:", response);
+                    //console.log("Data sensor diterima:", response);
     
                     if (response.data && response.data.length > 0) {
                         shapes = response.data.map((item, index) => ({
                             id: item.sensorId,
+                            idsensor: item.Idsensor,
+                            id_span: item.id_span,
                             idsensor: item.Idsensor,
                             x: Number(item.x_position),  // Geser X sedikit ini karena masih default 100 semua
                             y: Number(item.y_position),  // Geser Y sedikit ini karena masih default 100 semua
@@ -213,7 +215,7 @@
                         }));
     
                         isDataLoaded = true;
-                        console.log("Data sensor selesai dimuat");
+                        //console.log("Data sensor selesai dimuat");
                         checkAndDraw();
                     } else {
                         console.log("Tidak ada data sensor ditemukan.");
@@ -244,15 +246,14 @@
         canvas.addEventListener('dblclick', (e) => {
             const mouseX = e.offsetX;
             const mouseY = e.offsetY;
+            const currentUrl = "{{ url()->current() }}"; // Mendapatkan URL saat ini
         
             shapes.forEach(shape => {
                 if (
                     mouseX > shape.x && mouseX < shape.x + 50 &&
                     mouseY > shape.y && mouseY < shape.y + 25
                 ) {
-                    alert(`Aku diklik! ID: ${shape.idsensor}`);
-                    //window.location.href = "{{ url('/admin_vendor/lokasi') }}/" + shape.id;
-                    //window.location.href = "file:///C:/Users/Pongo/Downloads/hexa.html";
+                    window.location.href = currentUrl + "/live_sensor/" + shape.id_span;
                 }
             });
         });
@@ -261,7 +262,6 @@
             if (selectedShape) {
                 selectedShape.x = e.offsetX - offsetX;
                 selectedShape.y = e.offsetY - offsetY;
-                console.log(`ID: ${selectedShape.idsensor} | Final Position -> X: ${selectedShape.x}, Y: ${selectedShape.y}`);
                 drawAll();
             }
         });
@@ -304,9 +304,9 @@
 
     
         function checkAndDraw() {
-            console.log("Cek apakah semua data siap...");
+            //console.log("Cek apakah semua data siap...");
             if (isImageLoaded && isDataLoaded) {
-                console.log("Semua data siap, menggambar canvas...");
+                //console.log("Semua data siap, menggambar canvas...");
                 drawAll();
             }
         }
@@ -319,17 +319,16 @@
                 drawRoundedRect(shape.x, shape.y, 50, 25, 15, 'white');
     
                 if (shape.id.toLowerCase().includes("accl")) {
-                    //drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, shape.color);
                     drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, 'red');
                 } else if (shape.id.toLowerCase().includes("tiltmeter")) {
                     drawTriangle(shape.x + 25, shape.y + 2, 20, 'orange');
                 } else if (shape.id.toLowerCase().includes("disp")) {
-                    drawCircle(shape.x + 25, shape.y + 12, 10, 'black');
+                    drawCircle(shape.x + 20, shape.y + 12, 10, 'black');
                 } else if (shape.id.toLowerCase().includes("full")) {
                     drawHexagon(shape.x + 24, shape.y + 13, 10,'green');
                 }
     
-                text_label(shape.x + 40, shape.y + 13, shape.id);
+                text_label(shape.x + 40, shape.y + 13, shape.idsensor);
             });
         }
     

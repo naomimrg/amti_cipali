@@ -204,6 +204,7 @@
                         shapes = response.data.map((item, index) => ({
                             id: item.sensorId,
                             idsensor: item.Idsensor,
+                            id_span: item.id_span,
                             x: Number(item.x_position),
                             y: Number(item.y_position), 
                             radius: 10,
@@ -225,15 +226,16 @@
         canvas.addEventListener('dblclick', (e) => {
             const mouseX = e.offsetX;
             const mouseY = e.offsetY;
+            const currentUrl = "{{ url()->current() }}"; // Mendapatkan URL saat ini
+
+        // Misalkan Anda memiliki shape yang dipilih
         
             shapes.forEach(shape => {
                 if (
                     mouseX > shape.x && mouseX < shape.x + 50 &&
                     mouseY > shape.y && mouseY < shape.y + 25
                 ) {
-                    alert(`Aku diklik! ID: ${shape.idsensor}`);
-                    //window.location.href = "{{ url('/admin_vendor/lokasi') }}/" + shape.id;
-                    //window.location.href = "file:///C:/Users/Pongo/Downloads/hexa.html";
+                    window.location.href = currentUrl + "/live_sensor/" + shape.id_span;
                 }
             });
         });
