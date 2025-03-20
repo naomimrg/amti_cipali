@@ -24,14 +24,15 @@
                                 <div class="card" style="padding:10px">
                                     <div class="table-body">
                                         <div class="table-responsive" style="overflow-x: hidden;">
-                                            <table id="table-parameter" class="table table-bordered" style="font-size: 11px;">
+                                            <table id="table-parameter" class="table table-bordered table-responsive" style="font-size: 11px;">
                                                 <thead style="background: #0ec8cf;color: white;">
                                                     <tr class=" text-center">
                                                         <th style="color: white;">No</th>
                                                         <th style="color: white;">Nama Client</th>
                                                         <th style="color: white;">Lokasi</th>
                                                         <th style="color: white;">Span</th>
-                                                        <th style="color: white;">Sensor</th>
+                                                        <th style="color: white;">Nama Sensor</th>
+                                                        <th style="color: white;">Jenis Sensor</th>
                                                         <th style="color: white;">Sensor ID</th>
                                                         <th style="color: white;">Batas Bawah</th>
                                                         <th style="color: white;">Batas Atas</th>
@@ -66,8 +67,12 @@
                         <input type="text" class="form-control" value="" placeholder="Nama Client" name="nama_client" id="nama_client" disabled>
                     </div>
                     <div class="form-group">
+                        <label><b>Jenis Sensor</b></label>
+                        <input type="text" class="form-control" value="" placeholder="Jenis Sensor" name="jenis_sensor" id="jenis_sensor" disabled>
+                    </div>
+                    <div class="form-group">
                         <label><b>Nama Sensor</b></label>
-                        <input type="text" class="form-control" value="" placeholder="Nama Sensor" name="nama_parameter" id="nama_parameter" disabled>
+                        <input type="text" class="form-control" value="" placeholder="Nama Sensor" name="nama_sensor" id="nama_sensor">
                     </div>
                     <div class="form-group">
                         <label><b>Sensor ID</b></label>
@@ -145,6 +150,7 @@
                 {data: 'nama_client', name: 'nama_client'},
                 {data: 'lokasi', name: 'lokasi'},
                 {data: 'span', name: 'span'},
+                {data: 'nama_sensor', name: 'nama_sensor'},
                 {data: 'nama_parameter', name: 'nama_parameter'},
                 {data: 'sensorId', name: 'sensorId'},
                 {data: 'batas_bawah', name: 'batas_bawah'},
@@ -168,7 +174,8 @@
                 type: "GET",
                 success: function(data) {
                     $('#form-field').find('input[name="nama_client"]').val(data.nama_client);
-                    $('#form-field').find('input[name="nama_parameter"]').val(data.nama_sensor);
+                    $('#form-field').find('input[name="jenis_sensor"]').val(data.jenis_sensor);
+                    $('#form-field').find('input[name="nama_sensor"]').val(data.nama_sensor);
                     $('#form-field').find('input[name="sensorId"]').val(data.sensorId);
                     $('#form-field').find('input[name="lokasi"]').val(data.lokasi);
                     $('#form-field').find('input[name="span"]').val(data.span);

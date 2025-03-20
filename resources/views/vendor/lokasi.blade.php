@@ -12,9 +12,6 @@
 
 <div class="col-12">
     <div class="row">
-        <div class="col-6">
-            <h2 class="nunito-font" style="font-weight: bold; color:#202224">Dashboard</h2>
-        </div>
     </div>
     <div class="row">
         <div class="col-md-4">
@@ -180,17 +177,17 @@
         // Mengambil data sensor dari API
         function fetchSensorData() {
             $.ajax({
-                url: "/client_sensor/listParameterClient",
+                url: "/client_sensor/listSensorClient",
                 method: "GET",
                 success: function(response) {
-                    //console.log("Data sensor diterima:", response);
     
-                    if (response.data && response.data.length > 0) {
-                        shapes = response.data.map((item, index) => ({
-                            id: item.sensorId,
-                            idsensor: item.Idsensor,
+                    if (response && response.length > 0) {
+                        //console.log(response);
+                        shapes = response.map((item, index) => ({
+                            id: item.id,
                             id_span: item.id_span,
-                            idsensor: item.Idsensor,
+                            number: item.sensor_name.split('_').pop(),
+                            sensor_name: item.sensor_name,
                             x: Number(item.x_position),  // Geser X sedikit ini karena masih default 100 semua
                             y: Number(item.y_position),  // Geser Y sedikit ini karena masih default 100 semua
                             radius: 10,
@@ -235,7 +232,7 @@
                     mouseX > shape.x && mouseX < shape.x + 50 &&
                     mouseY > shape.y && mouseY < shape.y + 25
                 ) {
-                    window.location.href = currentUrl + "/live_sensor/" + shape.id_span;
+                    window.location.href = currentUrl + "/live_sensor/" + shape.id_span+"?id="+shape.id;
                 }
             });
         });
@@ -294,21 +291,22 @@
         function drawAll() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            console.log(shapes);
     
             shapes.forEach(shape => {
                 drawRoundedRect(shape.x, shape.y, 50, 25, 15, 'white');
     
-                if (shape.id.toLowerCase().includes("accl")) {
+                if (shape.sensor_name.toLowerCase().includes("accelerometer")) {
                     drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, 'red');
-                } else if (shape.id.toLowerCase().includes("tiltmeter")) {
+                } else if (shape.sensor_name.toLowerCase().includes("tiltmeter")) {
                     drawTriangle(shape.x + 25, shape.y + 2, 20, 'orange');
-                } else if (shape.id.toLowerCase().includes("disp")) {
+                } else if (shape.sensor_name.toLowerCase().includes("displacement")) {
                     drawCircle(shape.x + 20, shape.y + 12, 10, 'black');
-                } else if (shape.id.toLowerCase().includes("full")) {
+                } else if (shape.sensor_name.toLowerCase().includes("full_bridge")) {
                     drawHexagon(shape.x + 24, shape.y + 13, 10,'green');
                 }
     
-                text_label(shape.x + 40, shape.y + 13, shape.idsensor);
+                text_label(shape.x + 40, shape.y + 13, shape.number);
             });
         }
     

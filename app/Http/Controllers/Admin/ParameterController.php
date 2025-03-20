@@ -86,6 +86,7 @@ class ParameterController extends Controller
                             'lokasi' => $gL->nama_lokasi,
                             'span' => $gS->nama_span,
                             'id_span' => $gS->id,
+                            'nama_sensor' => $ld->sensor_name,
                             'nama_parameter' => $parameter->nama_parameter,
                             'sensorId' => $ld->nama_sensor,
                             'Idsensor' => $ld->id,
@@ -103,6 +104,50 @@ class ParameterController extends Controller
             }
         }
         return Datatables::of($list_data)->rawColumns(['action'])->make(true);
+    }
+    public function listSensorClient()
+    {
+        $id = Auth::user()->id;
+        $list_data = new Collection;
+        $i = 1;
+    
+        // Mengambil semua vendor yang tidak dihapus
+        $getClient = DB::table('vendor')->where('isDeleted', 0)->get();
+    
+        foreach ($getClient as $gC) {
+            // Mengambil lokasi untuk setiap vendor
+            $getLokasi = DB::table('lokasi')->where('id_vendor', $gC->id)->where('isDeleted', 0)->get();
+    
+            foreach ($getLokasi as $gL) {
+                // Mengambil span untuk setiap lokasi
+                $getSpan = DB::table('span')->where('id_lokasi', $gL->id)->where('isDeleted', 0)->get();
+    
+                foreach ($getSpan as $gS) {
+                    // Mengambil parameter untuk setiap span
+                    $getParameters = DB::table('sensor')
+                    ->select('sensor_name', DB::raw('MIN(id) as id'), DB::raw('MAX(x_position) as x_position'), DB::raw('MAX(y_position) as y_position'))
+                    ->where('id_span', $gS->id)
+                    ->where('isDeleted', 0)
+                    ->groupBy('sensor_name')
+                    ->get();
+                
+    
+                    // Lakukan sesuatu dengan $getParameter jika diperlukan
+                    foreach ($getParameters as $sensors) {
+                        // Tambahkan ke $list_data atau lakukan operasi lain
+                        $list_data->push([
+                            'id' => $sensors->id,
+                            'sensor_name' => $sensors->sensor_name,
+                            'id_span' => $gS->id,
+                            'x_position' => $sensors->x_position,
+                            'y_position' => $sensors->y_position,
+                        ]);
+                    }
+                }
+            }
+        }
+    
+        return response()->json($list_data);
     }
 
     /**
@@ -158,10 +203,11 @@ class ParameterController extends Controller
             'nama_client' => $getClient->nama_vendor,
             'lokasi' => $getLokasi->nama_lokasi,
             'span' => $getSpan->nama_span,
-            'nama_sensor' => $getParameter->nama_parameter,
+            'jenis_sensor' => $getParameter->nama_parameter,
             'sensorId' => $data->nama_sensor,
             'batas_bawah' => $data->batas_bawah,
             'batas_atas' => $data->batas_atas,
+            'nama_sensor' => $data->sensor_name,
             'satuan' => $data->satuan
         ];
         
@@ -184,7 +230,8 @@ class ParameterController extends Controller
                 'id' => $data->id,
                 'lokasi' => $getLokasi->nama_lokasi,
                 'span' => $getSpan->nama_span,
-                'nama_sensor' => $getParameter->nama_parameter,
+                'jenis_sensor' => $getParameter->nama_parameter,
+                'nama_sensor' => $data->sensor_name,
                 'sensorId' => $data->nama_sensor,
                 'batas_bawah' => $data->batas_bawah,
                 'batas_atas' => $data->batas_atas,
@@ -264,6 +311,9 @@ class ParameterController extends Controller
         }
         if ($request->has('y_position')) {
             $sensor->y_position = $request->input('y_position');
+        }
+        if ($request->has('nama_sensor')) {
+            $sensor->sensor_name = $request->input('nama_sensor');
         }
 
         // Menyimpan perubahan
