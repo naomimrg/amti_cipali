@@ -281,17 +281,7 @@ class VendorController extends Controller
 		}else{
             return response()->json(['error'=>'Akses ditolak.']);
         }
-        /*if($getUser->id_vendor == $checkData->id_vendor){
-            $span = Span::find($id);
-            $span->isDeleted=1;
-            if($span->save()){
-                return response()->json(['success'=>'Span Berhasil Dihapus.']);
-            }else{
-                return response()->json(['error'=>'Span Gagal Dihapus.']);
-            }
-        }else{
-            return response()->json(['error'=>'Akses ditolak.']);
-        }*/
+
     }
 
     public function chartList()
@@ -368,5 +358,58 @@ class VendorController extends Controller
     
         return response()->json($response);
     }
+
+    public function currentValue($lokasiId)
+{
+    $spanIds = DB::table('span')
+        ->where('id_lokasi', $lokasiId) // Ambil semua span di lokasi ini
+        ->pluck('id');
+
+    $sensors = DB::table('sensor')
+        ->leftJoin('log_data', function ($join) {
+            $join->on('sensor.id', '=', 'log_data.id_sensor');
+        })
+        ->whereIn('sensor.id_span', $spanIds)
+        ->select(
+            'sensor.sensor_name',
+            DB::raw("NOW() AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Jakarta' as latest_time"), // Gunakan waktu saat ini
+            DB::raw('COALESCE(MAX(log_data.value), 0) as max_value') // Jika tidak ada data, set 0
+        )
+        ->groupBy('sensor.sensor_name')
+        ->get();
+
+    // Ambil batas_bawah dan batas_atas dari tabel sensor, lalu tentukan status
+    $sensors->transform(function ($sensor) {
+        $sensorData = DB::table('sensor')
+            ->where('sensor_name', $sensor->sensor_name)
+            ->first(['batas_bawah', 'batas_atas']);
+
+        $batas_bawah = $sensorData->batas_bawah ?? 0;
+        $batas_atas = $sensorData->batas_atas ?? 100;
+        $value = $sensor->max_value;
+
+        // Tentukan status berdasarkan nilai sensor
+        if ($value == 0) {
+            $sensor->status = 'black';
+        } elseif ($value < $batas_bawah) {
+            $sensor->status = 'green';
+        } elseif ($value > $batas_bawah && $value < $batas_atas) {
+            $sensor->status = 'orange';
+        } elseif ($value > $batas_atas) {
+            $sensor->status = 'red';
+        } else {
+            $sensor->status = 'black';
+        }
+
+        return $sensor;
+    });
+
+    return response()->json([
+        'status' => 'success',
+        'data' => $sensors
+    ]);
+}
+
+
 
 }

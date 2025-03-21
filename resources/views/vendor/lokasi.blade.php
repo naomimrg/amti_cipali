@@ -291,7 +291,6 @@
         function drawAll() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            console.log(shapes);
     
             shapes.forEach(shape => {
                 drawRoundedRect(shape.x, shape.y, 50, 25, 15, 'white');

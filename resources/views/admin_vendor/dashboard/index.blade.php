@@ -21,8 +21,6 @@
                 <div class="col-12">
                     <div class="row">
                         <div class="col-6">
-                            <!-- <h4 class="black-color">{{$vendor->nama_vendor}} - {{$lokasi->nama_lokasi}}</h4> -->
-                            <h2 class="nunito-font" style="font-weight: bold; color:#202224">Dashboard</h2>
                         </div>
                     </div>
                     <div class="row">

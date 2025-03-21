@@ -62,7 +62,12 @@
         <!-- Menu -->
         <div id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme" style="box-shadow: none; height: 100%;">
             <div class="app-brand-link justify-content-center mt-4 mb-4">
+            @canany(['isSuperAdmin','isAdminGSI'])
               <img src="{{ url('/assets') }}/img/logo1.png">
+            @endcanany
+            @canany(['isAdminVendor','isUser'])
+              <img id="logo_vendor" src="" style="width: 150px; height:auto;">
+            @endcanany
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
               <i class="bx bx-chevron-left bx-sm align-middle"></i>
             </a>
@@ -258,19 +263,7 @@
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="{{ url('/assets') }}/js/sweetalert2.all.min.js"></script>
-    <!-- <script type='text/javascript'>
-        var months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-        var myDays = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jum&#39;at', 'Sabtu'];
-        var date = new Date();
-        var day = date.getDate();
-        var month = date.getMonth();
-        var thisDay = date.getDay(),
-            thisDay = myDays[thisDay];
-        var yy = date.getYear();
-        var year = (yy < 1000) ? yy + 1900 : yy;
-        $('#datenow').html(thisDay + ', ' + day + ' ' + months[month] + ' ' + year);
-
-    </script> -->
+    
     @can('isAdminVendor')
 
     <script>
@@ -291,9 +284,11 @@
         url: "{{ url('/getProfile') }}",
         dataType: "json",
         success: function (data) {
-
+          let newImageUrl = "{{ url('/assets') }}/img/" + data.image;
             $('#avatar-logo-top').append('<img src="{{ url("/assets") }}/img/'+data.image+'" alt class="w-px-40 h-auto rounded-circle" />');
             $('#avatar-logo-bottom').append('<img src="{{ url("/assets") }}/img/'+data.image+'" alt class="w-px-40 h-auto rounded-circle" />');
+            $('#logo_vendor').attr('src', newImageUrl);
+
         }
     });
 	  </script>
