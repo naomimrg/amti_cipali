@@ -342,8 +342,32 @@ class ParameterController extends Controller
         }
     }
 	
-    public function destroy($id)
+    public function updateKordinat(Request $request, $id)
     {
-        //
+        //ambil sensor berdasarkan id
+        $sensor = Sensor::find($id);
+        if (!$sensor) {
+            return response()->json(['error' => 'Sensor tidak ditemukan.'], 404);
+        }
+        //periksa apakah sensor sudah dihapus
+        if ($sensor->isDeleted == 1) {
+            return response()->json(['error' => 'Sensor sudah dihapus.'], 400);
+        }
+        $request->validate([
+            'x_position' => 'required|numeric',
+            'y_position' => 'required|numeric',
+        ]);
+        //ambil semua sensor yang memiliki sensor name yang sama
+        $affectedRows = Sensor::where('sensor_name', $sensor->sensor_name)
+        ->update([
+                'x_position' => $request->input('x_position'),
+                'y_position' => $request->input('y_position'),
+            ]);
+
+        if ($affectedRows > 0) {
+            return response()->json(['success' => 'Kordinat sensor berhasil diperbarui.']);
+        } else {
+            return response()->json(['error' => 'Gagal memperbarui kordinat sensor.'], 500);
+        }
     }
 }

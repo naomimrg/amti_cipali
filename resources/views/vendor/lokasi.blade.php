@@ -254,7 +254,7 @@
                 };
 
                 // Mengirim permintaan PUT ke API
-                fetch(`/client_sensor/${selectedShape.idsensor}`, {
+                fetch(`/client_sensor/updateKordinat/${selectedShape.id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
