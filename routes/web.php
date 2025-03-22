@@ -48,12 +48,12 @@ Route::group(['middleware' => ['auth']], function() {
 	Route::delete('/client_sensor/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'deleteSensor']);
     Route::resource('/parameter', 'App\Http\Controllers\Admin\ParameterController');
 
+    Route::get('/client_sensor/status/{lokasiId}', [App\Http\Controllers\VendorController::class, 'currentValue']);
 
     Route::get('/vendor/{id}/{lokasiId}', [App\Http\Controllers\Admin\VendorController::class, 'lokasiList']);
     Route::get('/vendor/{id}/{lokasiId}/live_sensor', [App\Http\Controllers\Admin\VendorController::class, 'listLiveSensor']);
     Route::get('/vendor/{id}/{lokasiId}/live_sensor/{spanId}', [App\Http\Controllers\Admin\VendorController::class, 'spanList']);
     Route::get('/vendor/listVendor', [App\Http\Controllers\Admin\VendorController::class, 'listVendor']);
-    Route::get('/vendor/{lokasiId}', [App\Http\Controllers\VendorController::class, 'currentValue']);
     Route::get('/listLokasi/{id}', [App\Http\Controllers\Admin\VendorController::class, 'listLokasi']);
     Route::get('/listSpan/{id}', [App\Http\Controllers\Admin\VendorController::class, 'listSpan']);
     Route::get('/listSpanSSE/{id}', [App\Http\Controllers\Admin\VendorController::class, 'listSpanSSE']);

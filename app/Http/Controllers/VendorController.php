@@ -359,56 +359,77 @@ class VendorController extends Controller
         return response()->json($response);
     }
 
-    public function currentValue($lokasiId)
-{
-    $spanIds = DB::table('span')
-        ->where('id_lokasi', $lokasiId) // Ambil semua span di lokasi ini
-        ->pluck('id');
-
-    $sensors = DB::table('sensor')
-        ->leftJoin('log_data', function ($join) {
-            $join->on('sensor.id', '=', 'log_data.id_sensor');
-        })
-        ->whereIn('sensor.id_span', $spanIds)
-        ->select(
-            'sensor.sensor_name',
-            DB::raw("NOW() AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Jakarta' as latest_time"), // Gunakan waktu saat ini
-            DB::raw('COALESCE(MAX(log_data.value), 0) as max_value') // Jika tidak ada data, set 0
-        )
-        ->groupBy('sensor.sensor_name')
-        ->get();
-
-    // Ambil batas_bawah dan batas_atas dari tabel sensor, lalu tentukan status
-    $sensors->transform(function ($sensor) {
-        $sensorData = DB::table('sensor')
-            ->where('sensor_name', $sensor->sensor_name)
-            ->first(['batas_bawah', 'batas_atas']);
-
-        $batas_bawah = $sensorData->batas_bawah ?? 0;
-        $batas_atas = $sensorData->batas_atas ?? 100;
-        $value = $sensor->max_value;
-
-        // Tentukan status berdasarkan nilai sensor
-        if ($value == 0) {
-            $sensor->status = 'black';
-        } elseif ($value < $batas_bawah) {
-            $sensor->status = 'green';
-        } elseif ($value > $batas_bawah && $value < $batas_atas) {
-            $sensor->status = 'orange';
-        } elseif ($value > $batas_atas) {
-            $sensor->status = 'red';
-        } else {
-            $sensor->status = 'black';
+    public function currentValue($lokasiSlug)
+    {
+        $to_date = date('Y-m-d H:i:s'); 
+        $from_date = date('Y-m-d H:i:s', strtotime('-3 seconds'));
+    
+        // 🔹 Cari lokasi berdasarkan slug
+        $lokasi = DB::table('lokasi')->where('slug', $lokasiSlug)->first();
+        if (!$lokasi) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Lokasi tidak ditemukan'
+            ], 404);
         }
+    
+        // 🔹 Ambil ID lokasi dari slug yang ditemukan
+        $lokasiId = $lokasi->id;
+    
+        // 🔹 Ambil ID span berdasarkan lokasi ID
+        $spanIds = DB::table('span')
+            ->where('id_lokasi', $lokasiId)
+            ->pluck('id');
+    
+        // 🔹 Ambil data sensor
+        $sensors = DB::table('sensor')
+            ->leftJoin('log_data', function ($join) use ($from_date, $to_date) {
+                $join->on('sensor.id', '=', 'log_data.id_sensor')
+                    ->whereBetween('log_data.time', [$from_date, $to_date]); 
+            })
+            ->whereIn('sensor.id_span', $spanIds)
+            ->select(
+                'sensor.sensor_name',
+                DB::raw("'$to_date' as latest_time"), 
+                DB::raw('COALESCE(MAX(log_data.value), 0) as max_value') 
+            )
+            ->groupBy('sensor.sensor_name')
+            ->get();
+    
+        // 🔹 Tentukan status berdasarkan nilai sensor
+        $sensors->transform(function ($sensor) {
+            $sensorData = DB::table('sensor')
+                ->where('sensor_name', $sensor->sensor_name)
+                ->first(['batas_bawah', 'batas_atas']);
+    
+            $batas_bawah = $sensorData->batas_bawah ?? 45;
+            $batas_atas = $sensorData->batas_atas ?? 55;
+            $value = $sensor->max_value;
+    
+            if ($value == 0) {
+                $sensor->status = 'black';
+            } elseif ($value < $batas_bawah) {
+                $sensor->status = 'green';
+            } elseif ($value > $batas_bawah && $value < $batas_atas) {
+                $sensor->status = 'orange';
+            } elseif ($value > $batas_atas) {
+                $sensor->status = 'red';
+            } else {
+                $sensor->status = 'black';
+            }
+    
+            return $sensor;
+        });
+    
+        return response()->json([
+            'status' => 'success',
+            'data' => $sensors
+        ]);
+    }
+    
 
-        return $sensor;
-    });
+    
 
-    return response()->json([
-        'status' => 'success',
-        'data' => $sensors
-    ]);
-}
 
 
 

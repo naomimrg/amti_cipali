@@ -9,7 +9,6 @@
 
 @endsection
 @section('content')
-
 <div class="col-12">
     <div class="row">
     </div>
@@ -75,6 +74,7 @@
             </div>
         </div> 
     </div>
+    
     <div class="row mt-4">
         <div class="col-md-4">
             <div class="card mb-4" style="border-radius: 20px; height: 200px;">
@@ -191,6 +191,7 @@
                             x: Number(item.x_position),  // Geser X sedikit ini karena masih default 100 semua
                             y: Number(item.y_position),  // Geser Y sedikit ini karena masih default 100 semua
                             radius: 10,
+                            color:"green",
                         }));
     
                         isDataLoaded = true;
@@ -204,6 +205,39 @@
                     console.error("Terjadi kesalahan saat mengambil data sensor:", error);
                 }
             });
+        }
+
+        const apiUrl = "/client_sensor/status/{{ $lokasi->slug }}"; // Ganti dengan URL slug yang sesuai
+        // 🔹 Fungsi Fetch Data dari API dan Update Shape
+        async function fetchSensorStatus() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    // Update warna setiap shape berdasarkan status API
+                    data.data.forEach(sensor => {
+                        let shape = shapes.find(s => s.sensor_name === sensor.sensor_name);
+                        if (shape) {
+                            shape.color = getStatusColor(sensor.status);
+                        }
+                    });
+
+                    drawAll(); // 🔹 Redraw canvas setelah update warna
+                }
+            } catch (error) {
+                console.error("Error fetching sensor status:", error);
+            }
+        }
+        // 🔹 Mapping Status API ke Warna
+        function getStatusColor(status) {
+            switch (status) {
+                case "black": return "black";
+                case "green": return "green";
+                case "orange": return "orange";
+                case "red": return "red";
+                default: return "green";
+            }
         }
 
         canvas.addEventListener('mousedown', (e) => {
@@ -291,20 +325,22 @@
         function drawAll() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    
+
             shapes.forEach(shape => {
                 drawRoundedRect(shape.x, shape.y, 50, 25, 15, 'white');
-    
+                
+                let color = shape.color;
+                
                 if (shape.sensor_name.toLowerCase().includes("accelerometer")) {
-                    drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, 'red');
+                    drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, color);
                 } else if (shape.sensor_name.toLowerCase().includes("tiltmeter")) {
-                    drawTriangle(shape.x + 25, shape.y + 2, 20, 'orange');
+                    drawTriangle(shape.x + 25, shape.y + 2, 20, color);
                 } else if (shape.sensor_name.toLowerCase().includes("displacement")) {
-                    drawCircle(shape.x + 20, shape.y + 12, 10, 'black');
+                    drawCircle(shape.x + 20, shape.y + 12, 10, color);
                 } else if (shape.sensor_name.toLowerCase().includes("full_bridge")) {
-                    drawHexagon(shape.x + 24, shape.y + 13, 10,'green');
+                    drawHexagon(shape.x + 24, shape.y + 13, 10, color);
                 }
-    
+
                 text_label(shape.x + 40, shape.y + 13, shape.number);
             });
         }
@@ -371,7 +407,9 @@
             ctx.textBaseline = 'middle';
             ctx.fillText(text, x, y);
         }
-    
+
+        // 🔹 Jalankan Fetch Data API Setiap 10 Detik
+        setInterval(fetchSensorStatus, 10000);
         // Panggil fetchSensorData setelah gambar mulai dimuat
         fetchSensorData();
     });
