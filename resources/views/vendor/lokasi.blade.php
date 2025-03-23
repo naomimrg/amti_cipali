@@ -11,18 +11,16 @@
 @section('content')
 <div class="col-12">
     <div class="row">
-    </div>
-    <div class="row">
         <div class="col-md-4">
             <div class="card mb-4" style="border-radius: 20px; height: 200px;">
                 <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="">
+                    <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
+                        <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
                             <img src="/assets/img/gauge.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                            <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">24 Hz (Hertz)</p>
+                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">?</p>
                         </div>
-                        <div class="flex-grow-1">
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Natural Frequency</h2>
                             <img src="/assets/img/Shade-natural.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
                         </div>
@@ -33,13 +31,13 @@
         <div class="col-md-4">
             <div class="card mb-4" style="border-radius: 20px; height: 200px;">
                 <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="">
+                <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
+                    <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
                             <img src="/assets/img/gauge70.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                            <p id="strain-value"  class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">?</p>
+                            <p id="strain-value" class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">?</p>
                         </div>
-                        <div class="flex-grow-1">
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Strain Gauge</h2>
                             <img src="/assets/img/Shade-strain.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
                         </div>
@@ -50,13 +48,13 @@
         <div class="col-md-4">
             <div class="card mb-4" style="border-radius: 20px; height: 200px;">
                 <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="">
+                    <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
+                        <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
                             <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
                             <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">1,22 mm</p>
                         </div>
-                        <div class="flex-grow-1">
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Static Deflection</h2>
                             <img src="/assets/img/Shade-static.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
                         </div>
@@ -110,13 +108,13 @@
         <div class="col-md-4">
             <div class="card mb-4" style="border-radius: 20px; height: 200px;">
                 <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="">
+                    <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
+                        <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
                             <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                            <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">1,22 mm</p>
+                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">1,22 mm</p>
                         </div>
-                        <div class="flex-grow-1">
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Dynamic Deflection</h2>
                             <img src="/assets/img/Shade-dynamic.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
                         </div>
@@ -127,13 +125,13 @@
         <div class="col-md-4">
             <div class="card mb-4" style="border-radius: 20px; height: 200px;">
                 <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="">
+                    <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
+                        <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
                             <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                            <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">3 Ton</p>
+                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">3 Ton</p>
                         </div>
-                        <div class="flex-grow-1">
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Vehicle load</h2>
                             <img src="/assets/img/Shade-vehicle.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
                         </div>
@@ -141,6 +139,7 @@
                 </div>
             </div>
         </div>
+        
     </div>
 </div>
 <!-- / Content -->
@@ -428,15 +427,12 @@
             ctx.fillText(text, x, y);
         }
 
+        // 🔹 Jalankan Fetch Data API Setiap 10 Detik
+        setInterval(fetchSensorStatus, 5000);
+        setInterval(natFreqCurrentValue, 5000);
+        
         // Panggil fetchSensorData setelah gambar mulai dimuat
         fetchSensorData();
-        natFreqCurrentValue();
-        fetchSensorData();
-        fetchSensorStatus();
-
-        // jalankan dengan interval 1 menit
-        setInterval(fetchSensorStatus, 5000);
-        setInterval(natFreqCurrentValue, 1800000);
     });
 
 
