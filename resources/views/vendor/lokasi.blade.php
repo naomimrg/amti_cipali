@@ -435,7 +435,7 @@
         fetchSensorStatus();
 
         // jalankan dengan interval 1 menit
-        setInterval(fetchSensorStatus, 60000);
+        setInterval(fetchSensorStatus, 5000);
         setInterval(natFreqCurrentValue, 1800000);
     });
 

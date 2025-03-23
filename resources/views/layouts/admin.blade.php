@@ -164,7 +164,7 @@
 
               <!-- Search Bar -->
               <div class="d-flex align-items-center flex-grow-1">
-                <div class="layout-menu-toggle navbar-nav align-items-center me-3 d-none d-sm-block">
+                <div class="layout-menu-toggle navbar-nav align-items-center me-3 d-none d-xl-block">
                   <i class="bx bx-menu bx-sm"></i>
               </div>
 
