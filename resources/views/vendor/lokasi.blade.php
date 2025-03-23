@@ -246,6 +246,19 @@
                 default: return "green";
             }
         }
+        // fetch current value natfreq
+        async function natFreqCurrentValue() {
+            try {
+                const response = await fetch("/live_sensor/currentnatfreq?lokasi={{ $lokasi->id }}");
+                const data = await response.json();
+                
+                if (data.status === "success") {
+                    document.getElementById("value_natfreq").innerText = `${data.max_value} Hz`;
+                }
+                } catch (error) {
+                    console.error("Error fetching sensor natfreq status:", error);
+                }
+            }
 
         canvas.addEventListener('mousedown', (e) => {
             const mouseX = e.offsetX;
@@ -415,10 +428,15 @@
             ctx.fillText(text, x, y);
         }
 
-        // 🔹 Jalankan Fetch Data API Setiap 10 Detik
-        setInterval(fetchSensorStatus, 10000);
         // Panggil fetchSensorData setelah gambar mulai dimuat
         fetchSensorData();
+        natFreqCurrentValue();
+        fetchSensorData();
+        fetchSensorStatus();
+
+        // jalankan dengan interval 1 menit
+        setInterval(fetchSensorStatus, 60000);
+        setInterval(natFreqCurrentValue, 1800000);
     });
 
 

@@ -358,6 +358,66 @@ class VendorController extends Controller
     
         return response()->json($response);
     }
+    public function CurrentNatFreq(Request $request)
+    {
+        // Ambil waktu saat ini dengan format "Y-m-d H:00:00"
+        $to_date = date('Y-m-d H:00:00'); 
+        $from_date = date('Y-m-d H:00:00', strtotime('-1 hour'));
+
+        $lokasi_id = $request->query('lokasi');
+
+        if (!$lokasi_id) {
+            return response()->json(['status' => 'error', 'message' => 'Missing required parameters'], 400);
+        }
+
+        // Ambil span pertama berdasarkan lokasi_id
+        $span = DB::table('span')
+            ->where('id_lokasi', $lokasi_id)
+            ->first();
+
+        if (!$span) {
+            return response()->json(['status' => 'error', 'message' => 'Span not found'], 404);
+        }
+
+        $station_id = $span->stationId;
+
+        // Query untuk mendapatkan data natural frequency dengan nilai tertinggi per axis
+        $natFreqData = DB::table('nat_freq')
+            ->select(
+                DB::raw("MAX(CASE WHEN axis = 'X' THEN value ELSE NULL END) as x"),
+                DB::raw("MAX(CASE WHEN axis = 'Y' THEN value ELSE NULL END) as y"),
+                DB::raw("MAX(CASE WHEN axis = 'Z' THEN value ELSE NULL END) as z"),
+                DB::raw("GREATEST(
+                    COALESCE(MAX(CASE WHEN axis = 'X' THEN value ELSE NULL END), 0),
+                    COALESCE(MAX(CASE WHEN axis = 'Y' THEN value ELSE NULL END), 0),
+                    COALESCE(MAX(CASE WHEN axis = 'Z' THEN value ELSE NULL END), 0)
+                ) as max_value"),
+                DB::raw("MAX(time) as time") // Ambil waktu terbaru
+            )
+            ->where('station_id', $station_id)
+            ->whereBetween('time', [$from_date, $to_date])
+            ->first();
+
+        // Jika tidak ada data ditemukan
+        if (!$natFreqData || ($natFreqData->x === null && $natFreqData->y === null && $natFreqData->z === null)) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'No data found',
+                'max_value' => 0,
+                'time' => $to_date, // Gunakan to_date sebagai default waktu
+            ], 200);
+        }
+
+        // Format response JSON
+        return response()->json([
+            'status' => 'success',
+            'time' => $natFreqData->time ?? $to_date,
+            'x' => $natFreqData->x ?? 0,
+            'y' => $natFreqData->y ?? 0,
+            'z' => $natFreqData->z ?? 0,
+            'max_value' => $natFreqData->max_value ?? 0,
+        ]);
+    }
 
     public function currentValue($lokasiSlug)
     {

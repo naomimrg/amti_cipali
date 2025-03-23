@@ -23,6 +23,7 @@
                         <div class="col-6">
                         </div>
                     </div>
+                    <!-- <p>{{$lokasi->id}}</p> -->
                     <div class="row">
                         <div class="col-md-4">
                             <div class="card mb-4" style="border-radius: 20px; height: 200px;">
@@ -31,7 +32,7 @@
                                         <div class="">
                                             <img src="/assets/img/gauge.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                            <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">24 Hz (Hertz)</p>
+                                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">?</p>
                                         </div>
                                         <div class="flex-grow-1">
                                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Natural Frequency</h2>
@@ -48,7 +49,7 @@
                                         <div class="">
                                             <img src="/assets/img/gauge70.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                            <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">1,22 Microstrain</p>
+                                            <p id="strain-value" class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">?</p>
                                         </div>
                                         <div class="flex-grow-1">
                                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Strain Gauge</h2>
@@ -237,6 +238,14 @@
                             shape.color = getStatusColor(sensor.status);
                         }
                     });
+                    // 🔹 Update nilai sensor "Full_Bridge_1"
+                    const fullBridgeSensor = data.data.find(s => s.sensor_name === "Full_Bridge_1");
+                    if (fullBridgeSensor) {
+                        document.getElementById("strain-value").innerText = `${fullBridgeSensor.max_value} Microstrain`;
+                    } else {
+                        document.getElementById("stain-value").innerText = "No data";
+                    }
+
 
                     drawAll(); // 🔹 Redraw canvas setelah update warna
                 }
@@ -254,6 +263,22 @@
                 default: return "green";
             }
         }
+
+        // fetch current value natfreq
+        async function natFreqCurrentValue() {
+            try {
+                const response = await fetch("/live_sensor/currentnatfreq?lokasi={{ $lokasi->id }}");
+                const data = await response.json();
+                
+                if (data.status === "success") {
+                    document.getElementById("value_natfreq").innerText = `${data.max_value} Hz`;
+                }
+                } catch (error) {
+                    console.error("Error fetching sensor natfreq status:", error);
+                }
+            }
+
+
         canvas.addEventListener('dblclick', (e) => {
             const mouseX = e.offsetX;
             const mouseY = e.offsetY;
@@ -366,11 +391,14 @@
             ctx.fillText(text, x, y);
         }
         
-        // 🔹 Jalankan Fetch Data API Setiap 10 Detik
-        setInterval(fetchSensorStatus, 10000);
-        
         // Panggil fetchSensorData setelah gambar mulai dimuat
         fetchSensorData();
+        natFreqCurrentValue();
+        fetchSensorData();
+
+        // jalankan dengan interval 5 detik
+        setInterval(fetchSensorStatus, 5000);
+        setInterval(natFreqCurrentValue, 1800000);
     });
 
 
