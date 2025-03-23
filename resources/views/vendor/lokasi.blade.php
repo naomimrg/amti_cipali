@@ -18,7 +18,7 @@
                         <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
                             <img src="/assets/img/gauge.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">?</p>
+                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">? Hz</p>
                         </div>
                         <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Natural Frequency</h2>
@@ -35,7 +35,7 @@
                     <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
                             <img src="/assets/img/gauge70.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                            <p id="strain-value" class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">?</p>
+                            <p id="strain-value" class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">? Microstain</p>
                         </div>
                         <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Strain Gauge</h2>
@@ -52,7 +52,7 @@
                         <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
                             <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                            <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">1,22 mm</p>
+                            <p class="mb-0 nunito-font" id="static-deflection" style="font-size: 14px; color:#161313;">? mm</p>
                         </div>
                         <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Static Deflection</h2>
@@ -112,7 +112,7 @@
                         <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
                             <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">1,22 mm</p>
+                            <p class="mb-0 nunito-font" id="dynamic-deflection" style="font-size: 14px; color:#161313;">? mm</p>
                         </div>
                         <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Dynamic Deflection</h2>
@@ -129,7 +129,7 @@
                         <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
                             <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">3 Ton</p>
+                            <p class="mb-0 nunito-font" id="vehicle-load" style="font-size: 14px; color:#161313;">3 Ton</p>
                         </div>
                         <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
                             <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Vehicle load</h2>
@@ -222,11 +222,26 @@
                         }
                     });
                     // 🔹 Update nilai sensor "Full_Bridge_1"
-                    const fullBridgeSensor = data.data.find(s => s.sensor_name === "Full_Bridge_1");
+                    const fullBridgeSensor = data.data.find(s => s.sensor_name.includes("Full_Bridge"));
+
                     if (fullBridgeSensor) {
                         document.getElementById("strain-value").innerText = `${fullBridgeSensor.max_value} Microstrain`;
                     } else {
                         document.getElementById("stain-value").innerText = "No data";
+                    }
+
+                    const staticDeflection = data.data.find(s => s.sensor_name.includes("Tiltmeter"));
+                    if (staticDeflection) {
+                        document.getElementById("static-deflection").innerText = `${staticDeflection.max_value} mm`;
+                    }else{
+                        document.getElementById("static-deflection").innerText = "No data";
+                    }
+
+                    const dynamicDeflection = data.data.find(s => s.sensor_name.includes("Displacement"));
+                    if (dynamicDeflection) {
+                        document.getElementById("dynamic-deflection").innerText = `${dynamicDeflection.max_value} mm`;
+                    }else{
+                        document.getElementById("dynamic-deflection").innerText = "No data";
                     }
 
                     drawAll(); // 🔹 Redraw canvas setelah update warna

@@ -18,144 +18,138 @@
 
 @endsection
 @section('content')
-                <div class="col-12">
-                    <div class="row">
-                        <div class="col-6">
-                        </div>
-                    </div>
-                    <!-- <p>{{$lokasi->id}}</p> -->
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                                <div class="card-body d-flex flex-column">
-                                    <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
-                                        <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                                            <img src="/assets/img/gauge.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
-                                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">?</p>
-                                        </div>
-                                        <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                            <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Natural Frequency</h2>
-                                            <img src="/assets/img/Shade-natural.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                                        </div>
-                                    </div>
-                                </div>
+    <div class="col-12">
+        <!-- <p>{{$lokasi->id}}</p> -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
+                            <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
+                                <img src="/assets/img/gauge.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                                <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
+                                <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">? Hz</p>
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
+                                <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Natural Frequency</h2>
+                                <img src="/assets/img/Shade-natural.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                                <div class="card-body d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
-                                    <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                                            <img src="/assets/img/gauge70.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
-                                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                            <p id="strain-value" class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">?</p>
-                                        </div>
-                                        <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                            <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Strain Gauge</h2>
-                                            <img src="/assets/img/Shade-strain.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                                <div class="card-body d-flex flex-column">
-                                    <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
-                                        <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                                            <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
-                                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                            <p class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">1,22 mm</p>
-                                        </div>
-                                        <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                            <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Static Deflection</h2>
-                                            <img src="/assets/img/Shade-static.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body"> 
-                                    <canvas id="myCanvas" class="w-100"></canvas>
-                                </div>
-                            </div>
-                        </div>                        
-                    </div>
-                    <div class="row mt-4">
-                        <div class="col-md-4">
-                            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                                <div class="card-body d-flex flex-column">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="/assets/img/square-line.png" alt="Gauge" style="width: 20px; height: auto; margin-right: 10px;">
-                                        <div class="flex-grow-1">
-                                            <p class="mb-0 nunito-font" style="color: black;">Accelerometer</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="/assets/img/triangle-line.png" alt="Tiltmeter" style="width: 20px; height: auto; margin-right: 10px;">
-                                        <div class="flex-grow-1">
-                                            <p class="mb-0 nunito-font" style="color: black;">Tiltmeter</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <img src="/assets/img/hexagon-line.png" alt="Strain" style="width: 20px; height: auto; margin-right: 10px;">
-                                        <div class="flex-grow-1">
-                                            <p class="mb-0 nunito-font" style="color: black;">Strain Gauge</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <img src="/assets/img/circle-line.png" alt="Displacement" style="width: 20px; height: auto; margin-right: 10px;">
-                                        <div class="flex-grow-1">
-                                            <p class="mb-0 nunito-font" style="color: black;">Displacement</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                                <div class="card-body d-flex flex-column">
-                                    <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
-                                        <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                                            <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
-                                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">1,22 mm</p>
-                                        </div>
-                                        <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                            <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Dynamic Deflection</h2>
-                                            <img src="/assets/img/Shade-dynamic.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                                <div class="card-body d-flex flex-column">
-                                    <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
-                                        <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                                            <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
-                                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">3 Ton</p>
-                                        </div>
-                                        <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                            <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Vehicle load</h2>
-                                            <img src="/assets/img/Shade-vehicle.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
                     </div>
                 </div>
             </div>
+            <div class="col-md-4">
+                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                    <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
+                        <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
+                                <img src="/assets/img/gauge70.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                                <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
+                                <p id="strain-value" class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">? Microstain</p>
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
+                                <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Strain Gauge</h2>
+                                <img src="/assets/img/Shade-strain.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
+                            <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
+                                <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                                <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
+                                <p class="mb-0 nunito-font" id="static-deflection" style="font-size: 14px; color:#161313;">? mm</p>
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
+                                <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Static Deflection</h2>
+                                <img src="/assets/img/Shade-static.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body"> 
+                        <canvas id="myCanvas" class="w-100"></canvas>
+                    </div>
+                </div>
+            </div>                        
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="/assets/img/square-line.png" alt="Gauge" style="width: 20px; height: auto; margin-right: 10px;">
+                            <div class="flex-grow-1">
+                                <p class="mb-0 nunito-font" style="color: black;">Accelerometer</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="/assets/img/triangle-line.png" alt="Tiltmeter" style="width: 20px; height: auto; margin-right: 10px;">
+                            <div class="flex-grow-1">
+                                <p class="mb-0 nunito-font" style="color: black;">Tiltmeter</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="/assets/img/hexagon-line.png" alt="Strain" style="width: 20px; height: auto; margin-right: 10px;">
+                            <div class="flex-grow-1">
+                                <p class="mb-0 nunito-font" style="color: black;">Strain Gauge</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <img src="/assets/img/circle-line.png" alt="Displacement" style="width: 20px; height: auto; margin-right: 10px;">
+                            <div class="flex-grow-1">
+                                <p class="mb-0 nunito-font" style="color: black;">Displacement</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
+                            <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
+                                <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                                <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
+                                <p class="mb-0 nunito-font" id="dynamic-deflection" style="font-size: 14px; color:#161313;">? mm</p>
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
+                                <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Dynamic Deflection</h2>
+                                <img src="/assets/img/Shade-dynamic.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
+                            <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
+                                <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                                <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
+                                <p class="mb-0 nunito-font" id="vehicle-load" style="font-size: 14px; color:#161313;">3 Ton</p>
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
+                                <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Vehicle load</h2>
+                                <img src="/assets/img/Shade-vehicle.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
            
 @endsection
 @section('script')
@@ -245,6 +239,20 @@
                         document.getElementById("strain-value").innerText = `${fullBridgeSensor.max_value} Microstrain`;
                     } else {
                         document.getElementById("stain-value").innerText = "No data";
+                    }
+
+                    const staticDeflection = data.data.find(s => s.sensor_name.includes("Tiltmeter"));
+                    if (staticDeflection) {
+                        document.getElementById("static-deflection").innerText = `${staticDeflection.max_value} mm`;
+                    }else{
+                        document.getElementById("static-deflection").innerText = "No data";
+                    }
+
+                    const dynamicDeflection = data.data.find(s => s.sensor_name.includes("Displacement"));
+                    if (dynamicDeflection) {
+                        document.getElementById("dynamic-deflection").innerText = `${dynamicDeflection.max_value} mm`;
+                    }else{
+                        document.getElementById("dynamic-deflection").innerText = "No data";
                     }
 
 
