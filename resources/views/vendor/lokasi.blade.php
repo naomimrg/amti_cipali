@@ -5,18 +5,22 @@
 .form-group{
     margin-bottom: 10px;
 }
+
 </style>
 
 @endsection
 @section('content')
 <div class="col-12">
+    <!-- card atas -->
     <div class="row">
         <div class="col-md-4">
             <div class="card mb-4" style="border-radius: 20px; height: 200px;">
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
                         <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                            <img src="/assets/img/gauge.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                            <div class="gauge-container">
+                                <canvas id="gaugeCanvas1" width="130" height="130"></canvas>
+                            </div>
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
                             <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">? Hz</p>
                         </div>
@@ -33,7 +37,9 @@
                 <div class="card-body d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
                     <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                            <img src="/assets/img/gauge70.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                            <div class="gauge-container">
+                                <canvas id="gaugeCanvas2" width="130" height="130"></canvas>
+                            </div>
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
                             <p id="strain-value" class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">? Microstain</p>
                         </div>
@@ -50,7 +56,9 @@
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
                         <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                            <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                            <div class="gauge-container">
+                                <canvas id="gaugeCanvas3" width="130" height="130"></canvas>
+                            </div>
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
                             <p class="mb-0 nunito-font" id="static-deflection" style="font-size: 14px; color:#161313;">? mm</p>
                         </div>
@@ -63,6 +71,8 @@
             </div>
         </div>
     </div>
+    <!-- end card atas -->
+    <!-- canvas -->
     <div class="row">       
         <div class="col-12">
             <div class="card">
@@ -72,7 +82,8 @@
             </div>
         </div> 
     </div>
-    
+    <!-- end canvas -->
+    <!-- card bawah -->
     <div class="row mt-4">
         <div class="col-md-4">
             <div class="card mb-4" style="border-radius: 20px; height: 200px;">
@@ -110,7 +121,9 @@
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
                         <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                            <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                            <div class="gauge-container">
+                                <canvas id="gaugeCanvas4" width="130" height="130"></canvas>
+                            </div>
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
                             <p class="mb-0 nunito-font" id="dynamic-deflection" style="font-size: 14px; color:#161313;">? mm</p>
                         </div>
@@ -127,7 +140,9 @@
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
                         <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                            <img src="/assets/img/gauge20.png" alt="Gauge" class="mb-2" style="width: 100%; max-width: 80px;">
+                            <div class="gauge-container">
+                                <canvas id="gaugeCanvas5" width="130" height="130"></canvas>
+                            </div>
                             <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
                             <p class="mb-0 nunito-font" id="vehicle-load" style="font-size: 14px; color:#161313;">3 Ton</p>
                         </div>
@@ -141,6 +156,7 @@
         </div>
         
     </div>
+    <!-- endcard bawah -->
 </div>
 <!-- / Content -->
 @endsection
@@ -274,7 +290,8 @@
                 }
             }
 
-        canvas.addEventListener('mousedown', (e) => {
+        
+            canvas.addEventListener('mousedown', (e) => {
             const mouseX = e.offsetX;
             const mouseY = e.offsetY;
     
@@ -289,6 +306,7 @@
                 }
             });
         });
+
 
         canvas.addEventListener('dblclick', (e) => {
             const mouseX = e.offsetX;
@@ -448,6 +466,68 @@
         
         // Panggil fetchSensorData setelah gambar mulai dimuat
         fetchSensorData();
+
+        // gauge handler
+        function drawGauge(canvasId, color, value) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) - 20;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan canvas
+
+            // Menggambar lingkaran latar belakang
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.stroke();
+
+            // Menggambar nilai gauge
+            const endAngle = (value / 100) * 2 * Math.PI;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle - Math.PI / 2);
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = color; // Warna gauge
+            ctx.stroke();
+
+            // Menambahkan garis pembatas setiap 10%
+            for (let i = 0; i <= 10; i++) {
+                const angle = (i / 10) * 2 * Math.PI - Math.PI / 2;
+                ctx.beginPath();
+                ctx.moveTo(centerX + Math.cos(angle) * (radius - 12), centerY + Math.sin(angle) * (radius - 12));
+                ctx.lineTo(centerX + Math.cos(angle) * (radius+12), centerY + Math.sin(angle) * (radius + 12));
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#fff'; // Warna garis pembatas
+                ctx.stroke();
+            }
+
+            // Menambahkan teks nilai
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 25px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(value + '%', centerX, centerY); // Menampilkan nilai di tengah
+        }
+
+        function getRealTimeData() {
+            return Math.floor(Math.random() * 101); // Nilai antara 0 dan 100
+        }
+
+        function updateGauge(canvasId, color) {
+            const value = getRealTimeData(); // Dapatkan nilai real-time
+            drawGauge(canvasId, color, value); // Gambar gauge dengan nilai baru
+            setTimeout(() => updateGauge(canvasId, color), 1000); // Memperbarui gauge setiap detik
+        }
+
+        // Mulai memperbarui semua gauge
+        updateGauge('gaugeCanvas1', '#FF0E0E');
+        updateGauge('gaugeCanvas2', '#E9E225');
+        updateGauge('gaugeCanvas3', '#16A799');
+        updateGauge('gaugeCanvas4', '#16A799');
+        updateGauge('gaugeCanvas5', '#000000');
+
     });
 
 
