@@ -237,35 +237,31 @@
                             shape.color = getStatusColor(sensor.status);
                         }
                     });
-                    // 🔹 Update nilai sensor "Full_Bridge_1"
-                    const fullBridgeSensor = data.data.find(s => s.sensor_name.includes("Full_Bridge"));
 
-                    if (fullBridgeSensor) {
-                        document.getElementById("strain-value").innerText = `${fullBridgeSensor.max_value} Microstrain`;
-                    } else {
-                        document.getElementById("stain-value").innerText = "No data";
-                    }
+                    // Update nilai sensor berdasarkan nama sensor
+                    updateSensorValue(data.data, "Full_Bridge", "strain-value", 'gaugeCanvas2');
+                    updateSensorValue(data.data, "Tiltmeter", "static-deflection", 'gaugeCanvas3');
+                    updateSensorValue(data.data, "Displacement", "dynamic-deflection", 'gaugeCanvas4');
 
-                    const staticDeflection = data.data.find(s => s.sensor_name.includes("Tiltmeter"));
-                    if (staticDeflection) {
-                        document.getElementById("static-deflection").innerText = `${staticDeflection.max_value} mm`;
-                    }else{
-                        document.getElementById("static-deflection").innerText = "No data";
-                    }
-
-                    const dynamicDeflection = data.data.find(s => s.sensor_name.includes("Displacement"));
-                    if (dynamicDeflection) {
-                        document.getElementById("dynamic-deflection").innerText = `${dynamicDeflection.max_value} mm`;
-                    }else{
-                        document.getElementById("dynamic-deflection").innerText = "No data";
-                    }
-
-                    drawAll(); // 🔹 Redraw canvas setelah update warna
+                    drawAll(); // Redraw canvas setelah update warna
                 }
             } catch (error) {
                 console.error("Error fetching sensor status:", error);
             }
         }
+        // Fungsi untuk memperbarui nilai dan menggambar gauge
+        function updateSensorValue(sensors, sensorNamePart, elementId, canvasId) {
+            const sensor = sensors.find(s => s.sensor_name.includes(sensorNamePart));
+            const element = document.getElementById(elementId);
+
+            if (sensor) {
+                element.innerText = `${sensor.max_value} ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
+                drawGauge(canvasId, parseInt(sensor.max_value), parseInt(sensor.batas_atas), parseInt(sensor.batas_bawah));
+            } else {
+                element.innerText = "No data";
+            }
+        }
+        
         // 🔹 Mapping Status API ke Warna
         function getStatusColor(status) {
             switch (status) {
@@ -281,11 +277,10 @@
             try {
                 const response = await fetch("/live_sensor/currentnatfreq?lokasi={{ $lokasi->id }}");
                 const data = await response.json();
-                console.log(data);
+                //console.log(data);
                 
                 if (data.status === "success") {
-                    //const value = parseInt(data.max_value); // Nilai sensor yang didapat
-                    const value = 13; // Nilai sensor yang didapat
+                    const value = parseInt(data.max_value); // Nilai sensor yang didapat
                     const maxValue = 55; // Nilai maksimum (misalnya, 55 Hz)
                     const warningValue = 45; // Nilai ambang batas peringatan (misalnya, 45 Hz)
 
@@ -293,7 +288,7 @@
                     document.getElementById("value_natfreq").innerText = `${value} Hz`;
                     
                     // Menggambar gauge berdasarkan nilai, maxValue, dan warningValue
-                    drawGauge2('gaugeCanvas1', value, maxValue, warningValue);
+                    drawGauge('gaugeCanvas1', value, maxValue, warningValue);
                 }
             } catch (error) {
                 console.error("Error fetching sensor natfreq status:", error);
@@ -472,69 +467,8 @@
             ctx.fillText(text, x, y);
         }
 
-        // 🔹 Jalankan Fetch Data API Setiap 10 Detik
-        setInterval(fetchSensorStatus, 5000);
-        setInterval(natFreqCurrentValue, 5000);
-        
-        // Panggil fetchSensorData setelah gambar mulai dimuat
-        fetchSensorData();
-
-        // gauge handler
-        function drawGauge(canvasId, color, value) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const radius = Math.min(centerX, centerY) - 20;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan canvas
-
-            // Menggambar lingkaran latar belakang
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.lineWidth = 15;
-            ctx.strokeStyle = '#e0e0e0';
-            ctx.stroke();
-
-            // Menggambar nilai gauge
-            const endAngle = (value / 100) * 2 * Math.PI;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle - Math.PI / 2);
-            ctx.lineWidth = 15;
-            ctx.strokeStyle = color; // Warna gauge
-            ctx.stroke();
-
-            // Menambahkan garis pembatas setiap 10%
-            for (let i = 0; i <= 10; i++) {
-                const angle = (i / 10) * 2 * Math.PI - Math.PI / 2;
-                ctx.beginPath();
-                ctx.moveTo(centerX + Math.cos(angle) * (radius - 12), centerY + Math.sin(angle) * (radius - 12));
-                ctx.lineTo(centerX + Math.cos(angle) * (radius+12), centerY + Math.sin(angle) * (radius + 12));
-                ctx.lineWidth = 3;
-                ctx.strokeStyle = '#fff'; // Warna garis pembatas
-                ctx.stroke();
-            }
-
-            // Menambahkan teks nilai
-            ctx.fillStyle = '#333';
-            ctx.font = 'bold 25px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(value + '%', centerX, centerY); // Menampilkan nilai di tengah
-        }
-
-        function getRealTimeData() {
-            return Math.floor(Math.random() * 101); // Nilai antara 0 dan 100
-        }
-
-        function updateGauge(canvasId, color) {
-            const value = getRealTimeData(); // Dapatkan nilai real-time
-            drawGauge(canvasId, color, value); // Gambar gauge dengan nilai baru
-            setTimeout(() => updateGauge(canvasId, color), 1000); // Memperbarui gauge setiap detik
-        }
-
-        //gauge 2
-        function drawGauge2(canvasId, value, maxValue, warningValue) {
+        //gauge handler
+        function drawGauge(canvasId, value, maxValue, warningValue) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
             const centerX = canvas.width / 2;
@@ -547,31 +481,23 @@
             let color;
             let percentage;
 
-            // Jika nilai 0, gunakan hitam dan tampilkan "!"
+            // Hitung persentase terlebih dahulu
+            percentage = ((value / maxValue) * 100).toFixed(0);
+
+            // Tentukan warna dan persentase berdasarkan kondisi
             if (value == 0) {
                 color = '#000000'; // Hitam untuk nilai 0
-                percentage = 100; // Set persentase ke 100% karena gauge full (hitam)
-            }
-            // Jika nilai kurang dari 0, gunakan hijau
-            else if (value < 0) {
+                percentage = 100;  // Persentase 100% karena gauge full
+            } else if (value < 0) {
                 color = '#16A799'; // Hijau untuk nilai negatif
-                // Persentase untuk nilai negatif diatur ke -100% jika sangat rendah
-                percentage = -100;
-            }
-            // Jika nilai lebih dari atau sama dengan maxValue, gunakan merah (100%)
-            else if (value >= maxValue) {
-                color = '#FF0E0E'; // Merah
-                percentage = 100; // Persentase 100%
-            }
-            // Jika nilai lebih besar atau sama dengan warningValue (peringatan), gunakan kuning (Warning)
-            else if (value >= warningValue) {
+                percentage = ((value / maxValue) * 100).toFixed(0); // Persentase untuk nilai negatif
+            } else if (value >= maxValue) {
+                color = '#FF0E0E'; // Merah untuk nilai lebih dari atau sama dengan maxValue
+                percentage = 100;  // Persentase 100%
+            } else if (value >= warningValue) {
                 color = '#E9E225'; // Kuning (Warning)
-                percentage = ((value / maxValue) * 100).toFixed(0); // Persentase
-            }
-            // Jika nilai kurang dari warningValue, gunakan hijau
-            else {
-                color = '#16A799'; // Hijau
-                percentage = ((value / maxValue) * 100).toFixed(0); // Persentase
+            } else {
+                color = '#16A799'; // Hijau untuk nilai yang lebih rendah dari warningValue
             }
 
             // Menggambar lingkaran latar belakang
@@ -613,18 +539,19 @@
                 ctx.fillText(percentage + '%', centerX, centerY); // Teks persen jika value != 0
             }
         }
+        drawGauge('gaugeCanvas1', 10, 50, 30);
+        drawGauge('gaugeCanvas2', 10, 50, 30);
+        drawGauge('gaugeCanvas3', -20, 50, 30);
+        drawGauge('gaugeCanvas4', 10, 50, 30);
+        drawGauge('gaugeCanvas5', 10, 50, 30);
 
 
-
-
-
-        // Mulai memperbarui semua gauge
-        //updateGauge('gaugeCanvas1', '#FF0E0E');
-        updateGauge('gaugeCanvas2', '#E9E225');
-        updateGauge('gaugeCanvas3', '#16A799');
-        updateGauge('gaugeCanvas4', '#16A799');
-        updateGauge('gaugeCanvas5', '#000000');
-
+        // 🔹 Jalankan Fetch Data API Setiap 10 Detik
+        setInterval(fetchSensorStatus, 5000);
+        setInterval(natFreqCurrentValue, 5000);
+        
+        // Panggil fetchSensorData setelah gambar mulai dimuat
+        fetchSensorData();
     });
 
 

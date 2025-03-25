@@ -451,7 +451,7 @@ class VendorController extends Controller
             ->select(
                 'sensor.sensor_name',
                 DB::raw("'$to_date' as latest_time"), 
-                DB::raw('COALESCE(MAX(log_data.value), 0) as max_value') 
+                DB::raw('COALESCE(MAX(log_data.value), 0) as max_value')
             )
             ->groupBy('sensor.sensor_name')
             ->get();
@@ -477,6 +477,8 @@ class VendorController extends Controller
             } else {
                 $sensor->status = 'black';
             }
+            $sensor->batas_atas = $batas_atas;
+            $sensor->batas_bawah = $batas_bawah;
     
             return $sensor;
         });
