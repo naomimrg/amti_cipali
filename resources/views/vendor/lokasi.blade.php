@@ -276,19 +276,31 @@
                 default: return "green";
             }
         }
-        // fetch current value natfreq
+
         async function natFreqCurrentValue() {
             try {
                 const response = await fetch("/live_sensor/currentnatfreq?lokasi={{ $lokasi->id }}");
                 const data = await response.json();
+                console.log(data);
                 
                 if (data.status === "success") {
-                    document.getElementById("value_natfreq").innerText = `${data.max_value} Hz`;
+                    //const value = parseInt(data.max_value); // Nilai sensor yang didapat
+                    const value = 13; // Nilai sensor yang didapat
+                    const maxValue = 55; // Nilai maksimum (misalnya, 55 Hz)
+                    const warningValue = 45; // Nilai ambang batas peringatan (misalnya, 45 Hz)
+
+                    // Menampilkan nilai natfreq dalam format Hz
+                    document.getElementById("value_natfreq").innerText = `${value} Hz`;
+                    
+                    // Menggambar gauge berdasarkan nilai, maxValue, dan warningValue
+                    drawGauge2('gaugeCanvas1', value, maxValue, warningValue);
                 }
-                } catch (error) {
-                    console.error("Error fetching sensor natfreq status:", error);
-                }
+            } catch (error) {
+                console.error("Error fetching sensor natfreq status:", error);
             }
+        }
+
+
 
         
             canvas.addEventListener('mousedown', (e) => {
@@ -521,8 +533,93 @@
             setTimeout(() => updateGauge(canvasId, color), 1000); // Memperbarui gauge setiap detik
         }
 
+        //gauge 2
+        function drawGauge2(canvasId, value, maxValue, warningValue) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) - 20;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan canvas
+
+            // Menentukan warna dan persentase berdasarkan nilai
+            let color;
+            let percentage;
+
+            // Jika nilai 0, gunakan hitam dan tampilkan "!"
+            if (value == 0) {
+                color = '#000000'; // Hitam untuk nilai 0
+                percentage = 100; // Set persentase ke 100% karena gauge full (hitam)
+            }
+            // Jika nilai kurang dari 0, gunakan hijau
+            else if (value < 0) {
+                color = '#16A799'; // Hijau untuk nilai negatif
+                // Persentase untuk nilai negatif diatur ke -100% jika sangat rendah
+                percentage = -100;
+            }
+            // Jika nilai lebih dari atau sama dengan maxValue, gunakan merah (100%)
+            else if (value >= maxValue) {
+                color = '#FF0E0E'; // Merah
+                percentage = 100; // Persentase 100%
+            }
+            // Jika nilai lebih besar atau sama dengan warningValue (peringatan), gunakan kuning (Warning)
+            else if (value >= warningValue) {
+                color = '#E9E225'; // Kuning (Warning)
+                percentage = ((value / maxValue) * 100).toFixed(0); // Persentase
+            }
+            // Jika nilai kurang dari warningValue, gunakan hijau
+            else {
+                color = '#16A799'; // Hijau
+                percentage = ((value / maxValue) * 100).toFixed(0); // Persentase
+            }
+
+            // Menggambar lingkaran latar belakang
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.stroke();
+
+            // Menggambar nilai gauge berdasarkan persentase yang dihitung
+            const endAngle = (percentage / 100) * 2 * Math.PI; // Menghitung end angle dari persentase
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle - Math.PI / 2);
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = color; // Warna gauge sesuai dengan kondisi
+            ctx.stroke();
+
+            // Menambahkan garis pembatas setiap 10%
+            for (let i = 0; i <= 10; i++) {
+                const angle = (i / 10) * 2 * Math.PI - Math.PI / 2;
+                ctx.beginPath();
+                ctx.moveTo(centerX + Math.cos(angle) * (radius - 12), centerY + Math.sin(angle) * (radius - 12));
+                ctx.lineTo(centerX + Math.cos(angle) * (radius + 12), centerY + Math.sin(angle) * (radius + 12));
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#fff'; // Warna garis pembatas
+                ctx.stroke();
+            }
+
+            // Menambahkan teks nilai
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 25px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Tampilkan "%" jika bukan 0, atau "!" jika value == 0
+            if (value === 0) {
+                ctx.fillText('off', centerX, centerY); // Teks "!" jika value = 0
+            } else {
+                ctx.fillText(percentage + '%', centerX, centerY); // Teks persen jika value != 0
+            }
+        }
+
+
+
+
+
         // Mulai memperbarui semua gauge
-        updateGauge('gaugeCanvas1', '#FF0E0E');
+        //updateGauge('gaugeCanvas1', '#FF0E0E');
         updateGauge('gaugeCanvas2', '#E9E225');
         updateGauge('gaugeCanvas3', '#16A799');
         updateGauge('gaugeCanvas4', '#16A799');
