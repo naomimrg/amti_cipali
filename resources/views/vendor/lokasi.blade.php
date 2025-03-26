@@ -178,10 +178,11 @@
         // Pasang event listener sebelum menetapkan src
         img.onload = function() {
             //console.log("Gambar selesai dimuat");
+
             const aspectRatio = img.width / img.height;
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientWidth/aspectRatio; // Sesuaikan ukuran
-    
+            
             isImageLoaded = true;
             checkAndDraw(); // Cek apakah bisa langsung menggambar
         };
@@ -203,8 +204,8 @@
                             id_span: item.id_span,
                             number: item.sensor_name.split('_').pop(),
                             sensor_name: item.sensor_name,
-                            x: Number(item.x_position),  // Geser X sedikit ini karena masih default 100 semua
-                            y: Number(item.y_position),  // Geser Y sedikit ini karena masih default 100 semua
+                            x: Number(item.x_position),
+                            y: Number(item.y_position), 
                             radius: 10,
                             color:"green",
                         }));
@@ -255,7 +256,7 @@
             const element = document.getElementById(elementId);
 
             if (sensor) {
-                element.innerText = `${sensor.max_value} ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
+                element.innerText = `${sensor.max_value.toFixed(1)} ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
                 drawGauge(canvasId, parseInt(sensor.max_value), parseInt(sensor.batas_atas), parseInt(sensor.batas_bawah));
             } else {
                 element.innerText = "No data";
@@ -528,13 +529,13 @@
 
             // Menambahkan teks nilai
             ctx.fillStyle = '#333';
-            ctx.font = 'bold 25px Arial';
+            ctx.font = 'bold 20px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
             // Tampilkan "%" jika bukan 0, atau "!" jika value == 0
             if (value === 0) {
-                ctx.fillText('off', centerX, centerY); // Teks "!" jika value = 0
+                ctx.fillText('--', centerX, centerY); // Teks "!" jika value = 0
             } else {
                 ctx.fillText(percentage + '%', centerX, centerY); // Teks persen jika value != 0
             }
@@ -545,13 +546,14 @@
         drawGauge('gaugeCanvas4', 10, 50, 30);
         drawGauge('gaugeCanvas5', 10, 50, 30);
 
+        
+        // Panggil fetchSensorData setelah gambar mulai dimuat
+        fetchSensorData();
 
         // 🔹 Jalankan Fetch Data API Setiap 10 Detik
         setInterval(fetchSensorStatus, 5000);
         setInterval(natFreqCurrentValue, 5000);
         
-        // Panggil fetchSensorData setelah gambar mulai dimuat
-        fetchSensorData();
     });
 
 

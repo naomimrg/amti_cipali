@@ -264,7 +264,7 @@
             const element = document.getElementById(elementId);
 
             if (sensor) {
-                element.innerText = `${sensor.max_value} ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
+                element.innerText = `${sensor.max_value.toFixed(1)} ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
                 drawGauge(canvasId, parseInt(sensor.max_value), parseInt(sensor.batas_atas), parseInt(sensor.batas_bawah));
             } else {
                 element.innerText = "No data";
@@ -484,13 +484,13 @@
 
             // Menambahkan teks nilai
             ctx.fillStyle = '#333';
-            ctx.font = 'bold 25px Arial';
+            ctx.font = 'bold 20px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
             // Tampilkan "%" jika bukan 0, atau "!" jika value == 0
             if (value === 0) {
-                ctx.fillText('off', centerX, centerY); // Teks "!" jika value = 0
+                ctx.fillText('--', centerX, centerY); // Teks "!" jika value = 0
             } else {
                 ctx.fillText(percentage + '%', centerX, centerY); // Teks persen jika value != 0
             }
@@ -502,12 +502,13 @@
         drawGauge('gaugeCanvas5', 10, 50, 30);
 
 
+        // Panggil fetchSensorData setelah gambar mulai dimuat
+        fetchSensorData();
+
         // 🔹 Jalankan Fetch Data API Setiap 10 Detik
         setInterval(fetchSensorStatus, 5000);
         setInterval(natFreqCurrentValue, 5000);
         
-        // Panggil fetchSensorData setelah gambar mulai dimuat
-        fetchSensorData();
 
     });
 
