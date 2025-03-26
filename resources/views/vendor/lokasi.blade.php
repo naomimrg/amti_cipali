@@ -256,8 +256,9 @@
             const element = document.getElementById(elementId);
 
             if (sensor) {
-                element.innerText = `${sensor.max_value.toFixed(1)} ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
-                drawGauge(canvasId, parseInt(sensor.max_value), parseInt(sensor.batas_atas), parseInt(sensor.batas_bawah));
+                const value = sensor.max_value.toFixed(1); 
+                element.innerText = `${value} ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
+                drawGauge(canvasId, parseInt(value), parseInt(sensor.batas_atas), parseInt(sensor.batas_bawah));
             } else {
                 element.innerText = "No data";
             }
