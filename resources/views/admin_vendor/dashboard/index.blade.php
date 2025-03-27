@@ -277,11 +277,13 @@
             const sensor = sensors.find(s => s.sensor_name.includes(sensorNamePart));
             const element = document.getElementById(elementId);
 
-            if (sensor) {
-                element.innerText = `${parseInt(sensor.max_value)} ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
-                drawGauge(canvasId, parseInt(sensor.max_value), parseInt(sensor.batas_atas), parseInt(sensor.batas_bawah));
+            if (sensor.max_value !== null) {
+                const sensorValue = parseFloat(sensor.max_value);
+                element.innerText = `${sensorValue.toFixed(2)} ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
+                drawGauge(canvasId, sensorValue.toFixed(2), parseInt(sensor.batas_atas), parseInt(sensor.batas_bawah));
             } else {
-                element.innerText = "No data";
+                element.innerText = `0 ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
+                drawGauge(canvasId, 0, parseInt(sensor.batas_atas), parseInt(sensor.batas_bawah));
             }
         }
         // 🔹 Mapping Status API ke Warna
@@ -504,7 +506,7 @@
             
             // Tampilkan "%" jika bukan 0, atau "!" jika value == 0
             if (value === 0) {
-                ctx.fillText('--', centerX, centerY); // Teks "!" jika value = 0
+                ctx.fillText('--', centerX, centerY); // Teks "--" jika value = 0
             } else {
                 ctx.fillText(percentage + '%', centerX, centerY); // Teks persen jika value != 0
             }

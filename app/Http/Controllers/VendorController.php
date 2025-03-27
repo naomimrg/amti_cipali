@@ -451,7 +451,8 @@ class VendorController extends Controller
             ->select(
                 'sensor.sensor_name',
                 DB::raw("'$to_date' as latest_time"), 
-                DB::raw('COALESCE(MAX(log_data.value), 0) as max_value')
+                DB::raw("MAX(log_data.value) as max_value"),
+                // DB::raw('COALESCE(MAX(log_data.value)) as max_value')
             )
             ->groupBy('sensor.sensor_name')
             ->get();
@@ -466,8 +467,9 @@ class VendorController extends Controller
             $batas_atas = $sensorData->batas_atas ?? 55;
             $value = $sensor->max_value;
     
-            if ($value == 0) {
+            if (is_null($value)) {
                 $sensor->status = 'black';
+                $sensor->max_value = null ;
             } elseif ($value < $batas_bawah) {
                 $sensor->status = 'green';
             } elseif ($value > $batas_bawah && $value < $batas_atas) {
