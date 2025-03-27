@@ -73,7 +73,10 @@
     </div>
     <!-- end card atas -->
     <!-- canvas -->
-    <div class="row">       
+    <div class="row">
+        <div id="open-edit">
+            <i class='bx bx-lock-alt'></i>
+        </div>        
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
@@ -174,14 +177,25 @@
         let isDataLoaded = false;
         let selectedShape = null; // ⬅ Tambahkan deklarasi di awal
         let offsetX = 0, offsetY = 0;
+
+        $("#open-edit").click(function(){
+             $("#myCanvas").toggleClass("w-100"); // Toggle class di canvas
+             // Toggle class icon
+             let icon = $(this).find("i");
+             if (icon.hasClass("bx-lock-alt")) {
+                 icon.removeClass("bx-lock-alt").addClass("bx-lock-open-alt bx-tada");
+             } else {
+                 icon.removeClass("bx-lock-open-alt bx-tada").addClass("bx-lock-alt");
+             }
+         });
+
+
+
     
         // Pasang event listener sebelum menetapkan src
         img.onload = function() {
-            //console.log("Gambar selesai dimuat");
-
-            const aspectRatio = img.width / img.height;
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientWidth/aspectRatio; // Sesuaikan ukuran
+            canvas.width = img.width;
+            canvas.height = img.height;
             
             isImageLoaded = true;
             checkAndDraw(); // Cek apakah bisa langsung menggambar
@@ -296,10 +310,7 @@
             }
         }
 
-
-
-        
-            canvas.addEventListener('mousedown', (e) => {
+        canvas.addEventListener('mousedown', (e) => {
             const mouseX = e.offsetX;
             const mouseY = e.offsetY;
     
