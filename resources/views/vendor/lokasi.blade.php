@@ -79,11 +79,26 @@
         </div>        
         <div class="col-12">
             <div class="card">
-                <div class="card-body">
+                <div class="card-body card-body-canvas">
                     <canvas id="myCanvas" class="w-100"></canvas>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="d-flex justify-content-center w-100 ">
+                            <div class="d-flex">
+                                <div class="sensor-indicator" style="background-color: #37B401;" title="Normal"></div>
+                                <p class="font-indicator">Normal</p>
+
+                                <div class="sensor-indicator" style="background-color: #FECD08;" title="Warning"></div>
+                                <p class="font-indicator">Warning</p>
+
+                                <div class="sensor-indicator" style="background-color: #FB0707;" title="Critical"></div>
+                                <p class="font-indicator">Critical</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div> 
+        </div>
+
     </div>
     <!-- end canvas -->
     <!-- card bawah -->

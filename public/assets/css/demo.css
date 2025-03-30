@@ -158,6 +158,26 @@
   margin-top: -20px;
 }
 
+.sensor-indicator {
+  width: 60px; /* Lebar indikator */
+  height: 15px; /* Tinggi indikator */
+  border-radius: 15px; /* Membuat indikator berbentuk lingkaran */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 5px; /* Jarak antar indikator */
+  color: white; /* Warna teks */
+  font-weight: bold; /* Menebalkan teks */
+}
+.font-indicator {
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  color: black;
+  margin-bottom: 0; /* Agar tidak ada margin bawah seperti mb-0 */
+}
+
+
+
 
 
 @media screen and (min-width: 1200px) and (max-width: 1600px) {
@@ -165,3 +185,92 @@
 
 
 }
+
+
+/* mobile */
+@media screen and (max-width: 480px) {
+  .font-indicator {
+    font-size: 10px;
+    margin-top: -3px;
+  }
+  .sensor-indicator {
+    width: 30px; /* Lebar indikator */
+    height: 10px; /* Tinggi indikator */
+    border-radius: 5px; /* Membuat indikator berbentuk lingkaran */
+    margin-right: 5px;
+  }
+
+  .card-body-canvas {
+    padding: 0.5rem;
+  }
+
+
+}
+
+@media (max-width: 390px) {
+  /* Agar setiap card berada dalam satu kolom di layar kecil */
+  .col-md-4 {
+      width: 100%;
+  }
+
+  /* Ubah tinggi card agar lebih fleksibel */
+  .card {
+      height: auto !important;
+      padding: 3px;
+      border-radius: 10px!important;
+  }
+
+  /* Atur ulang layout agar lebih vertikal */
+  .card-body {
+      display: flex;
+      flex-direction: column;
+      padding: 5px;
+  }
+
+  /* Atur gauge (canvas) agar ukurannya lebih kecil */
+  .gauge-container canvas {
+      width: 100px !important;
+      height: 100px !important;
+      margin-top: 14px;
+  }
+
+  /* Sesuaikan font-size agar tetap terbaca di layar kecil */
+  .card-title {
+      font-size: 20px !important;
+      text-align: center;
+  }
+
+  p.nunito-font {
+      font-size: 12px !important;
+  }
+
+  /* Sesuaikan ukuran gambar agar tidak terlalu besar */
+  .card-body img {
+      max-width: 200px;
+      width: 80%;
+      height: auto;
+      margin-top: 10px;
+  }
+
+  /* Hilangkan margin kiri (ms-5) agar tidak mendorong gambar ke kanan */
+  .ms-5 {
+      margin-left: 0 !important;
+  }
+
+  #open-edit {
+    height: 10px;
+    width: 10px!important;
+    margin-left: 25px;
+    margin-top: 10px;
+    border-radius: 20%;
+  }
+  #open-edit i {
+    color: #ffffff;
+    font-size: 8px;
+  }
+  
+}
+
+
+
+
