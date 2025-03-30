@@ -87,7 +87,7 @@
             </div> 
             <div class="col-12">
                 <div class="card">
-                    <div class="card-body"> 
+                    <div class="card-body card-body-canvas"> 
                         <canvas id="myCanvas" class="w-100"></canvas>
                     </div>
                 </div>
