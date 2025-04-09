@@ -572,11 +572,11 @@
                 ctx.fillText(percentage + '%', centerX, centerY); // Teks persen jika value != 0
             }
         }
-        drawGauge('gaugeCanvas1', 10, 50, 30);
-        drawGauge('gaugeCanvas2', 10, 50, 30);
-        drawGauge('gaugeCanvas3', -20, 50, 30);
-        drawGauge('gaugeCanvas4', 10, 50, 30);
-        drawGauge('gaugeCanvas5', 10, 50, 30);
+        drawGauge('gaugeCanvas1', 0, 50, 30);
+        drawGauge('gaugeCanvas2', 0, 50, 30);
+        drawGauge('gaugeCanvas3', 0, 50, 30);
+        drawGauge('gaugeCanvas4', 0, 50, 30);
+        drawGauge('gaugeCanvas5', 0, 50, 30);
 
         
         // Panggil fetchSensorData setelah gambar mulai dimuat
