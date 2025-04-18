@@ -5,15 +5,6 @@
 .form-group{
     margin-bottom: 10px;
 }
-.spanDrag {
-    position: absolute;
-    cursor: move;
-    padding: 10px;
-    background-size:cover;
-    background-repeat: no-repeat;
-    width: 75px;
-    height: 120px;
-}
 </style>
 
 @endsection
@@ -33,7 +24,9 @@
                                 <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">? Hz</p>
                             </div>
                             <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Natural Frequency</h2>
+                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                    <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Natural Frequency</h2>
+                                </a>
                                 <img src="/assets/img/Shade-natural.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
                             </div>
                         </div>
@@ -52,7 +45,9 @@
                                 <p id="strain-value" class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">? Microstain</p>
                             </div>
                             <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Strain Gauge</h2>
+                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                    <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Strain Gauge</h2>
+                                </a>
                                 <img src="/assets/img/Shade-strain.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
                             </div>
                         </div>
@@ -71,7 +66,9 @@
                                 <p class="mb-0 nunito-font" id="static-deflection" style="font-size: 14px; color:#161313;">? mm</p>
                             </div>
                             <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Static Deflection</h2>
+                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                    <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Static Deflection</h2>
+                                </a>
                                 <img src="/assets/img/Shade-static.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
                             </div>
                         </div>
@@ -89,6 +86,20 @@
                 <div class="card">
                     <div class="card-body card-body-canvas"> 
                         <canvas id="myCanvas" class="w-100"></canvas>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="d-flex justify-content-center w-100 ">
+                            <div class="d-flex mx-auto">
+                                <div class="sensor-indicator" style="background-color: #37B401;" title="Normal"></div>
+                                <p class="font-indicator me-3">Normal</p>
+
+                                <div class="sensor-indicator" style="background-color: #FECD08;" title="Warning"></div>
+                                <p class="font-indicator me-3">Warning</p>
+
+                                <div class="sensor-indicator" style="background-color: #FB0707;" title="Critical"></div>
+                                <p class="font-indicator me-3">Critical</p>
+                            </div>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>                        
@@ -139,7 +150,9 @@
                                 <p class="mb-0 nunito-font" id="dynamic-deflection" style="font-size: 14px; color:#161313;">? mm</p>
                             </div>
                             <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Dynamic Deflection</h2>
+                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                    <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Dynamic Deflection</h2>
+                                </a>
                                 <img src="/assets/img/Shade-dynamic.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
                             </div>
                         </div>
@@ -158,7 +171,9 @@
                                 <p class="mb-0 nunito-font" id="vehicle-load" style="font-size: 14px; color:#161313;">3 Ton</p>
                             </div>
                             <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <h2 class="card-title ms-3 mb-0 nunito-font" style="color:#161313;">Vehicle load</h2>
+                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                    <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Vehicle load</h2>
+                                </a>
                                 <img src="/assets/img/Shade-vehicle.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
                             </div>
                         </div>
@@ -228,10 +243,10 @@
                             id_span: item.id_span,
                             number: item.sensor_name.split('_').pop(),
                             sensor_name: item.sensor_name,
-                            x: Number(item.x_position),  // Geser X sedikit ini karena masih default 100 semua
-                            y: Number(item.y_position),  // Geser Y sedikit ini karena masih default 100 semua
+                            x: Number(item.x_position),
+                            y: Number(item.y_position), 
                             radius: 10,
-                            color:"green",
+                            color:"black",
                         }));
     
                         isDataLoaded = true;
@@ -431,14 +446,6 @@
             ctx.textBaseline = 'middle';
             ctx.fillText(text, x, y);
         }
-        
-        // 🔹 Jalankan Fetch Data API Setiap 10 Detik
-        setInterval(fetchSensorStatus, 5000);
-        setInterval(natFreqCurrentValue, 5000);
-        
-        // Panggil fetchSensorData setelah gambar mulai dimuat
-        fetchSensorData();
-
         //gauge handler
         function drawGauge(canvasId, value, maxValue, warningValue) {
             const canvas = document.getElementById(canvasId);
@@ -520,8 +527,10 @@
 
         // Panggil fetchSensorData setelah gambar mulai dimuat
         fetchSensorData();
+        fetchSensorStatus();
+        natFreqCurrentValue();
 
-        // 🔹 Jalankan Fetch Data API Setiap 10 Detik
+        // 🔹 Jalankan Fetch Data API Setiap 5 Detik
         setInterval(fetchSensorStatus, 5000);
         setInterval(natFreqCurrentValue, 5000);
         

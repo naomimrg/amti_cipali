@@ -7226,9 +7226,7 @@ a.invert-bg-dark:focus {
   text-transform: uppercase;
   font-size: 0.75rem;
   letter-spacing: 1px;
-}
-.table:not(.table-dark) th {
-  color: #566a7f;
+  color: white;
 }
 
 .table-border-bottom-0 tr:last-child td,
