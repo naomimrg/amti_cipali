@@ -41,6 +41,7 @@
                     </div>
                     <div class="form-group">
                         <label><b>Foto</b></label>
+                        <label><span style="font-size: 12px; color: red">*Harap masukan gambar dengan ratio 3:1 (1920x640)</span></label>
                         <input type="file" class="form-control" name="image">
                     </div>
                     <div class="form-group">
@@ -75,7 +76,7 @@
                         <input type="text" class="form-control" value="" placeholder="Masukkan Nama Lokasi" name="nama_lokasis" id="nama_lokasis">
                     </div>
                     <div class="form-group">
-                        <label><b>Foto</b></label>
+                        <label><b>Foto <span>Masukan gambar dengan ratio 3:1 (1920x640)</span></b></label>
                         <input type="file" class="form-control" name="foto">
                     </div>
                     <div class="form-group">

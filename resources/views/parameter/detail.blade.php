@@ -11,42 +11,42 @@
 @endsection
 @section('content')
 <div class="col-12">
-<div class="row">
-    <div class="col-6">
-        <h5 class="black-color">Daftar Sensor Client</h5>
-    </div>
     <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body p-3">
-                    <div class="table-responsive">
-                        <table id="table-parameter" class="table table-bordered table-hover table-sm mb-0" style="font-size: 11px;">
-                            <thead class="text-center" style="background-color: #0ec8cf; ">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Client</th>
-                                    <th>Lokasi</th>
-                                    <th>Span</th>
-                                    <th>Nama Sensor</th>
-                                    <th>Jenis Sensor</th>
-                                    <th>Sensor ID</th>
-                                    <th>Batas Bawah</th>
-                                    <th>Batas Atas</th>
-                                    <th>X_Position</th>
-                                    <th>Y_Position</th>
-                                    <th>Satuan</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Data akan muncul di sini -->
-                            </tbody>
-                        </table>
+        <div class="col-6">
+            <h5 class="black-color">Daftar Sensor Client</h5>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="table-responsive">
+                            <table id="table-parameter" class="table table-bordered table-hover table-sm mb-0" style="font-size: 11px;">
+                                <thead class="text-center" style="background-color: #0ec8cf; ">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Client</th>
+                                        <th>Lokasi</th>
+                                        <th>Span</th>
+                                        <th>Nama Sensor</th>
+                                        <th>Jenis Sensor</th>
+                                        <th>Sensor ID</th>
+                                        <th>Batas Bawah</th>
+                                        <th>Batas Atas</th>
+                                        <th>X_Position</th>
+                                        <th>Y_Position</th>
+                                        <th>Satuan</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data akan muncul di sini -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 </div>
             <!-- / Content -->
 <form id="form-field" autocomplete="off">
