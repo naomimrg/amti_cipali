@@ -6,17 +6,17 @@
 </style>
 @endsection
 @section('content')
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-6">
-                            <h4 class="black-color"><a style="color:black!important;" href="../">{{$vendor->nama_vendor}}</a> - <a style="color:black!important;" href="./">{{$lokasi->nama_lokasi}}</a></h4>
-                            </div>
-                        </div>
-                        <div class="row" id="list-span">
-                        
-                        </div>
-                    </div>
-                </div>
+<div class="col-12">
+    <div class="row">
+        <div class="col-6">
+            <h4 class="black-color"><a style="color:black!important;" href="../">{{$vendor->nama_vendor}}</a> - <a style="color:black!important;" href="./">{{$lokasi->nama_lokasi}}</a></h4>
+        </div>
+    </div>
+    <div class="row" id="list-span">
+    
+    </div>
+</div>
+
 <form id="form-field-edit" enctype="multipart/form-data" autocomplete="off" >
     <div class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-md">

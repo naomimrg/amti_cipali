@@ -15,16 +15,6 @@
   margin: -15px 0 0 -15px;
 }
 
-.marker-pin::after {
-    /*content: '';
-    width: 24px;
-    height: 24px;
-    margin: 3px 0 0 3px;
-    background: #fff;
-    position: absolute;
-    border-radius: 50%;*/
- }
-
 .custom-div-icon i {
    position: absolute;
    width: 22px;

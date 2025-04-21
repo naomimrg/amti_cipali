@@ -264,22 +264,6 @@ class VendorController extends Controller
         return response()->json(['items' => $data]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $preSlug = $request->input('nama_vendor');
@@ -331,18 +315,6 @@ class VendorController extends Controller
             }
         }
         if($lokasi->save()){
-            /*$lokasiId = $lokasi->id;
-            $spanCount = $request->input('span');
-            if($spanCount != "" && $spanCount > 0){
-                for($i=1;$i<=$spanCount;$i++){
-                    $nama_span = 'Span '.$i.'';
-                    $span = new Span;
-                    $span->nama_span = $nama_span;
-                    $span->id_lokasi = $lokasiId;
-                    $span->save();
-                }
-            }*/
-
             return response()->json(['success'=>'Data Berhasil Disimpan.']);
         }else{
             return response()->json(['error'=>'Data Gagal Disimpan.']);
@@ -386,12 +358,6 @@ class VendorController extends Controller
 
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         $getVendor = Vendor::where('slug',$id)->where('isDeleted',0)->first();
@@ -450,17 +416,6 @@ class VendorController extends Controller
         return view('vendor.live_sensor',$data);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-
-    }
-
     public function editVendor($id)
     {
         $vendor = Vendor::find($id);
@@ -472,13 +427,6 @@ class VendorController extends Controller
         echo json_encode($lokasi);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $preSlug = $request->input('nama_vendor');
@@ -612,12 +560,6 @@ class VendorController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         $vendor = Vendor::find($id);

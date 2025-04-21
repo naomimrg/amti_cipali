@@ -10,45 +10,44 @@
 
 @endsection
 @section('content')
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-6">
-                                <h5 class="black-color">Daftar Sensor Client</h5>
-                            </div>
-                            <div class="col-6" style="text-align:right;">
-                                <!--<button type="button" data-action="add" style="float:right;margin-bottom: 10px;" class="action btn btn-primary">Tambah User</button>-->
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xl-12 col-lg-12">
-                                <div class="card" style="padding:10px">
-                                    <div class="table-body">
-                                        <div class="table-responsive" style="overflow-x: hidden;">
-                                            <table id="table-parameter" class="table table-bordered" style="font-size: 11px;">
-                                                <thead style="background: #0ec8cf;color: white;">
-                                                    <tr class=" text-center">
-                                                        <th style="color: white;">No</th>
-                                                        <th style="color: white;">Nama Client</th>
-                                                        <th style="color: white;">Lokasi</th>
-                                                        <th style="color: white;">Span</th>
-                                                        <th style="color: white;">Sensor</th>
-                                                        <th style="color: white;">Sensor ID</th>
-                                                        <th style="color: white;">Batas Bawah</th>
-                                                        <th style="color: white;">Batas Atas</th>
-                                                        <th style="color: white;">Satuan</th>
-                                                        <th style="color: white;">Aksi</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
-                                        </div>   
-                                    </div>
-                                </div>
-                            </div>
+<div class="col-12">
+    <div class="row">
+        <div class="col-6">
+            <h5 class="black-color">Daftar Sensor Client</h5>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="table-responsive">
+                            <table id="table-parameter" class="table table-bordered table-hover table-sm mb-0" style="font-size: 11px;">
+                                <thead class="text-center" style="background-color: #0ec8cf; ">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Client</th>
+                                        <th>Lokasi</th>
+                                        <th>Span</th>
+                                        <th>Nama Sensor</th>
+                                        <th>Jenis Sensor</th>
+                                        <th>Sensor ID</th>
+                                        <th>Batas Bawah</th>
+                                        <th>Batas Atas</th>
+                                        <th>X_Position</th>
+                                        <th>Y_Position</th>
+                                        <th>Satuan</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data akan muncul di sini -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+</div>
             <!-- / Content -->
 <form id="form-field" autocomplete="off">
     <div class="modal fade" tabindex="-1" role="dialog">
@@ -64,12 +63,16 @@
                         <input type="text" class="form-control" value="" placeholder="Nama Client" name="nama_client" id="nama_client" disabled>
                     </div>
                     <div class="form-group">
+                        <label><b>Jenis Sensor</b></label>
+                        <input type="text" class="form-control" value="" placeholder="Jenis Sensor" name="jenis_sensor" id="jenis_sensor" disabled>
+                    </div>
+                    <div class="form-group">
                         <label><b>Nama Sensor</b></label>
-                        <input type="text" class="form-control" value="" placeholder="Nama Sensor" name="nama_parameter" id="nama_parameter" disabled>
+                        <input type="text" class="form-control" value="" placeholder="Nama Sensor" name="nama_sensor" id="nama_sensor">
                     </div>
                     <div class="form-group">
                         <label><b>Sensor ID</b></label>
-                        <input type="text" class="form-control" value="" placeholder="Sensor ID" name="sensorId" id="sensorId">
+                        <input type="text" class="form-control" value="" placeholder="Sensor ID" name="sensorId" id="sensorId" disabled>
                     </div>
                     <div class="form-group">
                         <label><b>Lokasi</b></label>
@@ -143,10 +146,13 @@
                 {data: 'nama_client', name: 'nama_client'},
                 {data: 'lokasi', name: 'lokasi'},
                 {data: 'span', name: 'span'},
+                {data: 'nama_sensor', name: 'nama_sensor'},
                 {data: 'nama_parameter', name: 'nama_parameter'},
                 {data: 'sensorId', name: 'sensorId'},
                 {data: 'batas_bawah', name: 'batas_bawah'},
                 {data: 'batas_atas', name: 'batas_atas'},
+                {data: 'x_position', name: 'x_position'},
+                {data: 'y_position', name: 'y_position'},
                 {data: 'satuan', name: 'satuan'},
                 {data: 'action', name: 'action'},
             ]
@@ -164,7 +170,8 @@
                 type: "GET",
                 success: function(data) {
                     $('#form-field').find('input[name="nama_client"]').val(data.nama_client);
-                    $('#form-field').find('input[name="nama_parameter"]').val(data.nama_sensor);
+                    $('#form-field').find('input[name="jenis_sensor"]').val(data.jenis_sensor);
+                    $('#form-field').find('input[name="nama_sensor"]').val(data.nama_sensor);
                     $('#form-field').find('input[name="sensorId"]').val(data.sensorId);
                     $('#form-field').find('input[name="lokasi"]').val(data.lokasi);
                     $('#form-field').find('input[name="span"]').val(data.span);

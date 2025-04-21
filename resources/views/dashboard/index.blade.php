@@ -15,16 +15,6 @@
   margin: -15px 0 0 -15px;
 }
 
-.marker-pin::after {
-    /*content: '';
-    width: 24px;
-    height: 24px;
-    margin: 3px 0 0 3px;
-    background: #fff;
-    position: absolute;
-    border-radius: 50%;*/
- }
-
 .custom-div-icon i {
    position: absolute;
    width: 22px;
@@ -41,35 +31,35 @@
 '></script>
 @endsection
 @section('content')
-                    <div class="col-12">
-                        <div class="row" style="height:100%;">
-                            <div id="map"></div>
-                            <div class="col-md-12" style="margin-top: 20px;">
-                                <div class="d-flex">
-                                    <div class="d-flex align-item-center mx-3 my-2">
-                                        <span class="status-circle status-critical"></span>
-                                        <div class="status-info">Critical</div>
-                                    </div>
-                                    <div class="d-flex align-item-center mx-3  my-2">
-                                        <span class="status-circle status-warning"></span>
-                                        <div class="status-info">Warning</div>
-                                    </div>
-                                    <div class="d-flex align-item-center mx-3  my-2">
-                                        <span class="status-circle status-good"></span>
-                                        <div class="status-info">Good</div>
-                                    </div>
-                                    <div class="d-flex align-item-center mx-3  my-2">
-                                        <span class="status-circle status-off"></span>
-                                        <div class="status-info">Offline</div>
-                                    </div>
-
-                                </div>
+                    
+                    <div class="row" style="height:100%;">
+                        <div class="card shadow-sm">
+                            <div class="card-body p-2 py-4">
+                                <div id="map" class="leaflet-container" style="height: 500px; width: 100%; z-index: 0;"></div>
                             </div>
                         </div>
+                        <div class="col-md-12" style="margin-top: 20px;">
+                            <div class="d-flex">
+                                <div class="d-flex align-item-center mx-3 my-2">
+                                    <span class="status-circle status-critical"></span>
+                                    <div class="status-info">Critical</div>
+                                </div>
+                                <div class="d-flex align-item-center mx-3  my-2">
+                                    <span class="status-circle status-warning"></span>
+                                    <div class="status-info">Warning</div>
+                                </div>
+                                <div class="d-flex align-item-center mx-3  my-2">
+                                    <span class="status-circle status-good"></span>
+                                    <div class="status-info">Good</div>
+                                </div>
+                                <div class="d-flex align-item-center mx-3  my-2">
+                                    <span class="status-circle status-off"></span>
+                                    <div class="status-info">Offline</div>
+                                </div>
 
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
             <!-- / Content -->
 @endsection
 @section('script')

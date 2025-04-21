@@ -41,11 +41,14 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/parameter/list-parameter', [App\Http\Controllers\Admin\ParameterController::class, 'listParameter']);
     Route::get('/client_sensor', [App\Http\Controllers\Admin\ParameterController::class, 'sensor_client']);
     Route::get('/client_sensor/listParameterClient', [App\Http\Controllers\Admin\ParameterController::class, 'listParameterClient']);
+    Route::get('/client_sensor/listSensorClient', [App\Http\Controllers\Admin\ParameterController::class, 'listSensorClient']);
     Route::put('/client_sensor/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'updateData']);
+    Route::put('/client_sensor/updateKordinat/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'updateKordinat']);
     Route::get('/client_sensor/{id}/edit', [App\Http\Controllers\Admin\ParameterController::class, 'editData']);
 	Route::delete('/client_sensor/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'deleteSensor']);
     Route::resource('/parameter', 'App\Http\Controllers\Admin\ParameterController');
 
+    Route::get('/client_sensor/status/{lokasiId}', [App\Http\Controllers\VendorController::class, 'currentValue']);
 
     Route::get('/vendor/{id}/{lokasiId}', [App\Http\Controllers\Admin\VendorController::class, 'lokasiList']);
     Route::get('/vendor/{id}/{lokasiId}/live_sensor', [App\Http\Controllers\Admin\VendorController::class, 'listLiveSensor']);
@@ -90,6 +93,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/updateSpan', [App\Http\Controllers\VendorController::class, 'updateSpan']);
     Route::get('/home/{id}', [App\Http\Controllers\VendorController::class, 'index']);
     Route::get('/live_sensor/natFreqChartList', [App\Http\Controllers\VendorController::class, 'natFreqChartList']);
+    Route::get('/live_sensor/currentnatfreq', [App\Http\Controllers\VendorController::class, 'CurrentNatFreq']);
 
     //Report
     Route::get('/report/list-report', [App\Http\Controllers\ReportController::class, 'listReport']);

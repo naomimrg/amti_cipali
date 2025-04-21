@@ -85,11 +85,16 @@ class ParameterController extends Controller
                             'nama_client' => $gC->nama_vendor,
                             'lokasi' => $gL->nama_lokasi,
                             'span' => $gS->nama_span,
+                            'id_span' => $gS->id,
+                            'nama_sensor' => $ld->sensor_name,
                             'nama_parameter' => $parameter->nama_parameter,
                             'sensorId' => $ld->nama_sensor,
+                            'Idsensor' => $ld->id,
                             'batas_bawah' => $ld->batas_bawah,
                             'batas_atas' => $ld->batas_atas,
                             'satuan' => $ld->satuan,
+                            'x_position' => $ld->x_position,
+                            'y_position' => $ld->y_position,
                             'action' => '<center><button style="width: 100%;" type="button" data-id="'.$ld->id.'" data-action="edit" class="action btn btn-warning btn-sm" data-toggle="tooltip" title="Ubah"><i class="fa fa-pencil"></i> Edit</button>&nbsp;<button style="width: 100%;" type="button" data-id="'.$ld->id.'" data-action="hapus" class="action btn btn-danger btn-sm" data-toggle="tooltip" title="Delete"><i class="fa fa-times"></i> Hapus</button></center>',
                         ]);
                         $i++;
@@ -100,45 +105,52 @@ class ParameterController extends Controller
         }
         return Datatables::of($list_data)->rawColumns(['action'])->make(true);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function listSensorClient()
     {
-        //
+        $id = Auth::user()->id;
+        $list_data = new Collection;
+        $i = 1;
+    
+        // Mengambil semua vendor yang tidak dihapus
+        $getClient = DB::table('vendor')->where('isDeleted', 0)->get();
+    
+        foreach ($getClient as $gC) {
+            // Mengambil lokasi untuk setiap vendor
+            $getLokasi = DB::table('lokasi')->where('id_vendor', $gC->id)->where('isDeleted', 0)->get();
+    
+            foreach ($getLokasi as $gL) {
+                // Mengambil span untuk setiap lokasi
+                $getSpan = DB::table('span')->where('id_lokasi', $gL->id)->where('isDeleted', 0)->get();
+    
+                foreach ($getSpan as $gS) {
+                    // Mengambil parameter untuk setiap span
+                    $getParameters = DB::table('sensor')
+                    ->select('sensor_name', DB::raw('MIN(id) as id'), DB::raw('MAX(x_position) as x_position'), DB::raw('MAX(y_position) as y_position'))
+                    ->where('id_span', $gS->id)
+                    ->where('isDeleted', 0)
+                    ->groupBy('sensor_name')
+                    ->get();
+                
+    
+                    // Lakukan sesuatu dengan $getParameter jika diperlukan
+                    foreach ($getParameters as $sensors) {
+                        // Tambahkan ke $list_data atau lakukan operasi lain
+                        $list_data->push([
+                            'id' => $sensors->id,
+                            'sensor_name' => $sensors->sensor_name,
+                            'id_span' => $gS->id,
+                            'x_position' => $sensors->x_position,
+                            'y_position' => $sensors->y_position,
+                        ]);
+                    }
+                }
+            }
+        }
+    
+        return response()->json($list_data);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function editData($id)
     {
         $getUser = User::where('id', Auth::user()->id)->first();
@@ -154,10 +166,11 @@ class ParameterController extends Controller
             'nama_client' => $getClient->nama_vendor,
             'lokasi' => $getLokasi->nama_lokasi,
             'span' => $getSpan->nama_span,
-            'nama_sensor' => $getParameter->nama_parameter,
+            'jenis_sensor' => $getParameter->nama_parameter,
             'sensorId' => $data->nama_sensor,
             'batas_bawah' => $data->batas_bawah,
             'batas_atas' => $data->batas_atas,
+            'nama_sensor' => $data->sensor_name,
             'satuan' => $data->satuan
         ];
         
@@ -180,7 +193,8 @@ class ParameterController extends Controller
                 'id' => $data->id,
                 'lokasi' => $getLokasi->nama_lokasi,
                 'span' => $getSpan->nama_span,
-                'nama_sensor' => $getParameter->nama_parameter,
+                'jenis_sensor' => $getParameter->nama_parameter,
+                'nama_sensor' => $data->sensor_name,
                 'sensorId' => $data->nama_sensor,
                 'batas_bawah' => $data->batas_bawah,
                 'batas_atas' => $data->batas_atas,
@@ -227,21 +241,49 @@ class ParameterController extends Controller
             return response()->json(['error'=>'Sensor Gagal Diubah.']);
         }
     }
-    public function updateData(Request $request, $id)
-    {  
-        $checkData = Sensor::join('span','span.id','=','sensor.id_span')->join('lokasi','lokasi.id','=','span.id_lokasi')->where('sensor.id',$id)->where('sensor.isDeleted',0)->first();
-       
+    public function updateData(Request $request, $id){
+        // Memeriksa apakah sensor dengan ID yang diberikan ada dan tidak dihapus
+        $checkData = Sensor::join('span', 'span.id', '=', 'sensor.id_span')
+            ->join('lokasi', 'lokasi.id', '=', 'span.id_lokasi')
+            ->where('sensor.id', $id)
+            ->where('sensor.isDeleted', 0)
+            ->first();
+
+        if (!$checkData) {
+            return response()->json(['error' => 'Sensor tidak ditemukan atau sudah dihapus.'], 404);
+        }
+
+        // Mengambil sensor berdasarkan ID
         $sensor = Sensor::find($id);
-        $sensor->batas_atas = $request->input('batas_atas');
-        $sensor->nama_sensor = $request->input('sensorId');
-        $sensor->batas_bawah = $request->input('batas_bawah');
-        $sensor->satuan = $request->input('satuan');
-    
-        
-        if($sensor->save()){
-            return response()->json(['success'=>'Sensor Berhasil Diubah.']);
-        }else{
-            return response()->json(['error'=>'Sensor Gagal Diubah.']);
+
+        // Memperbarui kolom yang disertakan dalam permintaan
+        if ($request->has('batas_atas')) {
+            $sensor->batas_atas = $request->input('batas_atas');
+        }
+        if ($request->has('sensorId')) {
+            $sensor->nama_sensor = $request->input('sensorId');
+        }
+        if ($request->has('batas_bawah')) {
+            $sensor->batas_bawah = $request->input('batas_bawah');
+        }
+        if ($request->has('satuan')) {
+            $sensor->satuan = $request->input('satuan');
+        }
+        if ($request->has('x_position')) {
+            $sensor->x_position = $request->input('x_position');
+        }
+        if ($request->has('y_position')) {
+            $sensor->y_position = $request->input('y_position');
+        }
+        if ($request->has('nama_sensor')) {
+            $sensor->sensor_name = $request->input('nama_sensor');
+        }
+
+        // Menyimpan perubahan
+        if ($sensor->save()) {
+            return response()->json(['success' => 'Data sensor berhasil diperbarui.']);
+        } else {
+            return response()->json(['error' => 'Gagal memperbarui data sensor.'], 500);
         }
     }
     
@@ -263,8 +305,32 @@ class ParameterController extends Controller
         }
     }
 	
-    public function destroy($id)
+    public function updateKordinat(Request $request, $id)
     {
-        //
+        //ambil sensor berdasarkan id
+        $sensor = Sensor::find($id);
+        if (!$sensor) {
+            return response()->json(['error' => 'Sensor tidak ditemukan.'], 404);
+        }
+        //periksa apakah sensor sudah dihapus
+        if ($sensor->isDeleted == 1) {
+            return response()->json(['error' => 'Sensor sudah dihapus.'], 400);
+        }
+        $request->validate([
+            'x_position' => 'required|numeric',
+            'y_position' => 'required|numeric',
+        ]);
+        //ambil semua sensor yang memiliki sensor name yang sama
+        $affectedRows = Sensor::where('sensor_name', $sensor->sensor_name)
+        ->update([
+                'x_position' => $request->input('x_position'),
+                'y_position' => $request->input('y_position'),
+            ]);
+
+        if ($affectedRows > 0) {
+            return response()->json(['success' => 'Kordinat sensor berhasil diperbarui.']);
+        } else {
+            return response()->json(['error' => 'Gagal memperbarui kordinat sensor.'], 500);
+        }
     }
 }
