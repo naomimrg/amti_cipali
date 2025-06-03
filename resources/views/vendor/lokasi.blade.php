@@ -232,35 +232,35 @@
         // Mengambil data sensor dari API
         function fetchSensorData() {
             $.ajax({
-                url: "/client_sensor/listSensorClient",
+                url: "/client_sensor/listSensorClient/{{ $lokasi->id }}",
                 method: "GET",
                 success: function(response) {
-    
-                    if (response && response.length > 0) {
-                        //console.log(response);
-                        shapes = response.map((item, index) => ({
+                    console.log(response); // DEBUG: tampilkan data dari server
+                    if (response && response.data && response.data.length > 0) {
+                        shapes = response.data.map((item, index) => ({
                             id: item.id,
                             id_span: item.id_span,
                             number: item.sensor_name.split('_').pop(),
                             sensor_name: item.sensor_name,
                             x: Number(item.x_position),
-                            y: Number(item.y_position), 
+                            y: Number(item.y_position),
                             radius: 10,
                             color:"black",
-                        }));
-    
-                        isDataLoaded = true;
-                        //console.log("Data sensor selesai dimuat");
-                        checkAndDraw();
+                    }));
+                    isDataLoaded = true;
+                    checkAndDraw();
                     } else {
                         console.log("Tidak ada data sensor ditemukan.");
+                        
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error("Terjadi kesalahan saat mengambil data sensor:", error);
+                    console.error("Error:", error);
                 }
             });
         }
+
+
 
         const apiUrl = "/client_sensor/status/{{ $lokasi->slug }}"; // Ganti dengan URL slug yang sesuai
         // 🔹 Fungsi Fetch Data dari API dan Update Shape
@@ -418,7 +418,7 @@
     
         function checkAndDraw() {
             //console.log("Cek apakah semua data siap...");
-            if (isImageLoaded && isDataLoaded) {
+            if (isImageLoaded ) {
                 //console.log("Semua data siap, menggambar canvas...");
                 drawAll();
             }
