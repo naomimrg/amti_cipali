@@ -379,6 +379,7 @@ class VendorController extends Controller
         $getLokasi = DB::table('lokasi')->where('slug',$lokasiId)->where('isDeleted',0)->first();
         $data['vendor'] = $getVendor;
         $data['lokasi'] = $getLokasi;
+        // dd($data);
         $id = Auth::user()->id;
         $getUser = User::where('id', $id)->first();
         if($getUser->role == 'Admin Vendor' || $getUser->role == 'User'){

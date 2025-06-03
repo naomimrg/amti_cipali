@@ -105,50 +105,72 @@ class ParameterController extends Controller
         }
         return Datatables::of($list_data)->rawColumns(['action'])->make(true);
     }
-    public function listSensorClient()
+
+    public function listSensorByLokasi($lokasi_id)
     {
-        $id = Auth::user()->id;
-        $list_data = new Collection;
-        $i = 1;
-    
-        // Mengambil semua vendor yang tidak dihapus
-        $getClient = DB::table('vendor')->where('isDeleted', 0)->get();
-    
-        foreach ($getClient as $gC) {
-            // Mengambil lokasi untuk setiap vendor
-            $getLokasi = DB::table('lokasi')->where('id_vendor', $gC->id)->where('isDeleted', 0)->get();
-    
-            foreach ($getLokasi as $gL) {
-                // Mengambil span untuk setiap lokasi
-                $getSpan = DB::table('span')->where('id_lokasi', $gL->id)->where('isDeleted', 0)->get();
-    
-                foreach ($getSpan as $gS) {
-                    // Mengambil parameter untuk setiap span
-                    $getParameters = DB::table('sensor')
-                    ->select('sensor_name', DB::raw('MIN(id) as id'), DB::raw('MAX(x_position) as x_position'), DB::raw('MAX(y_position) as y_position'))
-                    ->where('id_span', $gS->id)
-                    ->where('isDeleted', 0)
-                    ->groupBy('sensor_name')
-                    ->get();
-                
-    
-                    // Lakukan sesuatu dengan $getParameter jika diperlukan
-                    foreach ($getParameters as $sensors) {
-                        // Tambahkan ke $list_data atau lakukan operasi lain
-                        $list_data->push([
-                            'id' => $sensors->id,
-                            'sensor_name' => $sensors->sensor_name,
-                            'id_span' => $gS->id,
-                            'x_position' => $sensors->x_position,
-                            'y_position' => $sensors->y_position,
-                        ]);
-                    }
-                }
+        $lokasi = DB::table('lokasi')
+            ->where('id', $lokasi_id)
+            ->where('isDeleted', 0)
+            ->first();
+
+        if (!$lokasi) {
+            return response()->json(['error' => 'Lokasi tidak ditemukan'], 404);
+        }
+
+        $list_data = new \Illuminate\Support\Collection;
+
+        // Ambil semua span dari lokasi
+        $getSpan = DB::table('span')
+            ->where('id_lokasi', $lokasi->id)
+            ->where('isDeleted', 0)
+            ->get();
+
+        foreach ($getSpan as $gS) {
+            // Ambil sensor berdasarkan span
+            $getParameters = DB::table('sensor')
+                ->select(
+                    'sensor_name',
+                    DB::raw('MIN(id) as id'),
+                    DB::raw('MAX(x_position) as x_position'),
+                    DB::raw('MAX(y_position) as y_position')
+                )
+                ->where('id_span', $gS->id)
+                ->where('isDeleted', 0)
+                ->groupBy('sensor_name')
+                ->get();
+
+            foreach ($getParameters as $sensors) {
+                $list_data->push([
+                    'id' => $sensors->id,
+                    'sensor_name' => $sensors->sensor_name,
+                    'id_span' => $gS->id,
+                    'x_position' => $sensors->x_position,
+                    'y_position' => $sensors->y_position,
+                ]);
             }
         }
-    
-        return response()->json($list_data);
+
+        $sensorExists = $list_data->isNotEmpty();
+
+        if ($sensorExists) {
+            // Kalau data sensor ditemukan, kirim response success dengan data
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data sensor ditemukan',
+                'data' => $list_data
+            ]);
+        } else {
+            // Kalau tidak ada data sensor
+            return response()->json([
+                'status' => 'empty',
+                'message' => 'Tidak ada data sensor ditemukan',
+                'data' => []
+            ]);
+        }
     }
+
+
+
 
 
     public function editData($id)
