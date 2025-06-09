@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth']], function() {
     //Parameter
     Route::get('/parameter/list-parameter', [App\Http\Controllers\Admin\ParameterController::class, 'listParameter']);
     Route::get('/client_sensor/listParameterClient', [App\Http\Controllers\Admin\ParameterController::class, 'listParameterClient']);
+    Route::get('/client_sensor', [App\Http\Controllers\Admin\ParameterController::class, 'sensor_client']);
     Route::get('/client_sensor/listSensorClient/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'listSensorByLokasi']);
     Route::put('/client_sensor/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'updateData']);
     Route::put('/client_sensor/updateKordinat/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'updateKordinat']);
@@ -49,8 +50,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::get('/client_sensor/status/{lokasiId}', [App\Http\Controllers\VendorController::class, 'currentValue']);
 
-    Route::get('/vendor/{id}/{lokasiId}', [App\Http\Controllers\Admin\VendorController::class, 'lokasiList']);
-    Route::get('/vendor/{id}/{lokasiId}/live_sensor', [App\Http\Controllers\Admin\VendorController::class, 'listLiveSensor']);
+    Route::get('/vendor/{id}/{lokasiId}', [App\Http\Controllers\Admin\VendorController::class, 'lokasiList'])->name('vendor.lokasi');
+    Route::get('/vendor/{id}/{lokasiId}/live_sensor', [App\Http\Controllers\Admin\VendorController::class, 'listLiveSensor'])->name('live_sensor');
     Route::get('/vendor/{id}/{lokasiId}/live_sensor/{spanId}', [App\Http\Controllers\Admin\VendorController::class, 'spanList']);
     Route::get('/vendor/listVendor', [App\Http\Controllers\Admin\VendorController::class, 'listVendor']);
     Route::get('/listLokasi/{id}', [App\Http\Controllers\Admin\VendorController::class, 'listLokasi']);
@@ -72,8 +73,6 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/insertLokasi', [App\Http\Controllers\Admin\VendorController::class, 'insertLokasi']);
     Route::post('/insertSpan', [App\Http\Controllers\Admin\VendorController::class, 'insertSpan']);
     Route::post('/insertSensor', [App\Http\Controllers\Admin\VendorController::class, 'insertSensor']);
-
-
 
     Route::resource('/vendor', 'App\Http\Controllers\Admin\VendorController');
 

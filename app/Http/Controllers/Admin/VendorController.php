@@ -368,45 +368,66 @@ class VendorController extends Controller
             return redirect('/404');
         }else{
             return view('vendor.vendor',$data);
+            
         }
 
     }
 
     public function lokasiList($id, $lokasiId)
-    {
+        {
+            $getVendor = Vendor::where('slug', $id)->where('isDeleted', 0)->first();
+            $getLokasi = DB::table('lokasi')->where('slug', $lokasiId)->where('isDeleted', 0)->first();
 
-        $getVendor = Vendor::where('slug',$id)->where('isDeleted',0)->first();
-        $getLokasi = DB::table('lokasi')->where('slug',$lokasiId)->where('isDeleted',0)->first();
-        $data['vendor'] = $getVendor;
-        $data['lokasi'] = $getLokasi;
-        // dd($data);
-        $id = Auth::user()->id;
-        $getUser = User::where('id', $id)->first();
-        if($getUser->role == 'Admin Vendor' || $getUser->role == 'User'){
-            return redirect('/404');
-        }else{
-            return view('vendor.lokasi',$data);
+            if (!$getVendor || !$getLokasi) {
+                return redirect('/404');
+            }
+
+            $data['vendor'] = $getVendor;
+            $data['lokasi'] = $getLokasi;
+
+            $user = Auth::user();
+            if ($user->role == 'Admin Vendor' || $user->role == 'User') {
+                return redirect('/404');
+            }
+
+            // ✅ Cek apakah request ini datang dari halaman dashboard
+            $referer = request()->headers->get('referer');
+            if ($referer && str_contains($referer, '/dashboard')) {
+                return view('vendor.lokasi', $data);
+            }
+
+            // ✅ Kalau bukan dari dashboard, lakukan pengecekan span
+            $spanCount = DB::table('span')
+                ->where('id_lokasi', $getLokasi->id)
+                ->where('isDeleted', 0)
+                ->count();
+
+            if ($spanCount > 1) {
+                return redirect()->route('live_sensor', [$id, $lokasiId]);
+            }
+
+            return view('vendor.lokasi', $data);
         }
-    }
+
 
     public function spanList($id, $lokasiId, $spanId)
-    {
-        $getVendor = Vendor::where('slug',$id)->where('isDeleted',0)->first();
-        $getLokasi = DB::table('lokasi')->where('slug',$lokasiId)->where('isDeleted',0)->first();
-        $getSpan = DB::table('span')->where('id',$spanId)->where('isDeleted',0)->first();
-        $getParameter = DB::table('parameter')->where('isDeleted',0)->get();
-        $data['vendor'] = $getVendor;
-        $data['lokasi'] = $getLokasi;
-        $data['span'] = $getSpan;
-        $data['sensor'] = $getParameter;
-        $id = Auth::user()->id;
-        $getUser = User::where('id', $id)->first();
-        if($getUser->role == 'Admin Vendor' || $getUser->role == 'User'){
-            return redirect('/404');
-        }else{
-            return view('vendor.span',$data);
+        {
+            $getVendor = Vendor::where('slug',$id)->where('isDeleted',0)->first();
+            $getLokasi = DB::table('lokasi')->where('slug',$lokasiId)->where('isDeleted',0)->first();
+            $getSpan = DB::table('span')->where('id',$spanId)->where('isDeleted',0)->first();
+            $getParameter = DB::table('parameter')->where('isDeleted',0)->get();
+            $data['vendor'] = $getVendor;
+            $data['lokasi'] = $getLokasi;
+            $data['span'] = $getSpan;
+            $data['sensor'] = $getParameter;
+            $id = Auth::user()->id;
+            $getUser = User::where('id', $id)->first();
+            if($getUser->role == 'Admin Vendor' || $getUser->role == 'User'){
+                return redirect('/404');
+            }else{
+                return view('vendor.span',$data);
+            }
         }
-    }
 
     public function listLiveSensor($id, $lokasiId){
         $getUser = DB::table('users')->where('id', Auth::user()->id)->first();
@@ -415,7 +436,7 @@ class VendorController extends Controller
         $data['vendor'] = $getVendor;
         $data['lokasi'] = $getLokasi;
         return view('vendor.live_sensor',$data);
-    }
+     }
 
     public function editVendor($id)
     {

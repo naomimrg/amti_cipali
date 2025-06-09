@@ -232,32 +232,30 @@
         // Mengambil data sensor dari API
         function fetchSensorData() {
             $.ajax({
-                url: "/client_sensor/listSensorClient",
+                url: "/client_sensor/listSensorClient/{{ $lokasi->id }}",
                 method: "GET",
                 success: function(response) {
-    
-                    if (response && response.length > 0) {
-                        //console.log(response);
-                        shapes = response.map((item, index) => ({
+                    console.log(response); // DEBUG: tampilkan data dari server
+                    if (response && response.data && response.data.length > 0) {
+                        shapes = response.data.map((item, index) => ({
                             id: item.id,
                             id_span: item.id_span,
                             number: item.sensor_name.split('_').pop(),
                             sensor_name: item.sensor_name,
                             x: Number(item.x_position),
-                            y: Number(item.y_position), 
+                            y: Number(item.y_position),
                             radius: 10,
                             color:"black",
-                        }));
-    
-                        isDataLoaded = true;
-                        //console.log("Data sensor selesai dimuat");
-                        checkAndDraw();
+                    }));
+                    isDataLoaded = true;
+                    checkAndDraw();
                     } else {
                         console.log("Tidak ada data sensor ditemukan.");
+                        
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error("Terjadi kesalahan saat mengambil data sensor:", error);
+                    console.error("Error:", error);
                 }
             });
         }
@@ -319,7 +317,9 @@
                 //console.log(data);
                 
                 if (data.status === "success") {
-                    const value = parseInt(data.max_value); // Nilai sensor yang didapat
+                    // Mendapatkan nilai natfreq sensor
+                    // console.log(data.max_value);
+                    const value = parseInt(data.z); // Nilai sensor yang didapat dari axis z
                     const maxValue = 55; // Nilai maksimum (misalnya, 55 Hz)
                     const warningValue = 45; // Nilai ambang batas peringatan (misalnya, 45 Hz)
 
