@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth']], function() {
     //Parameter
     Route::get('/parameter/list-parameter', [App\Http\Controllers\Admin\ParameterController::class, 'listParameter']);
     Route::get('/client_sensor/listParameterClient', [App\Http\Controllers\Admin\ParameterController::class, 'listParameterClient']);
+    Route::get('/client_sensor', [App\Http\Controllers\Admin\ParameterController::class, 'sensor_client']);
     Route::get('/client_sensor/listSensorClient/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'listSensorByLokasi']);
     Route::put('/client_sensor/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'updateData']);
     Route::put('/client_sensor/updateKordinat/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'updateKordinat']);
