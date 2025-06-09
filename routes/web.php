@@ -74,8 +74,6 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/insertSpan', [App\Http\Controllers\Admin\VendorController::class, 'insertSpan']);
     Route::post('/insertSensor', [App\Http\Controllers\Admin\VendorController::class, 'insertSensor']);
 
-
-
     Route::resource('/vendor', 'App\Http\Controllers\Admin\VendorController');
 
     //Admin Vendor
