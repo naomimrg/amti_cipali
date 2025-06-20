@@ -232,35 +232,34 @@
         // Mengambil data sensor dari API
         function fetchSensorData() {
             $.ajax({
-                url: "/client_sensor/listSensorClient",
+                url: "/client_sensor/listSensorClient/{{ $lokasi->id }}",
                 method: "GET",
                 success: function(response) {
-    
-                    if (response && response.length > 0) {
-                        //console.log(response);
-                        shapes = response.map((item, index) => ({
+                    console.log(response); // DEBUG: tampilkan data dari server
+                    if (response && response.data && response.data.length > 0) {
+                        shapes = response.data.map((item, index) => ({
                             id: item.id,
                             id_span: item.id_span,
                             number: item.sensor_name.split('_').pop(),
                             sensor_name: item.sensor_name,
                             x: Number(item.x_position),
-                            y: Number(item.y_position), 
+                            y: Number(item.y_position),
                             radius: 10,
                             color:"black",
-                        }));
-    
-                        isDataLoaded = true;
-                        //console.log("Data sensor selesai dimuat");
-                        checkAndDraw();
+                    }));
+                    isDataLoaded = true;
+                    checkAndDraw();
                     } else {
                         console.log("Tidak ada data sensor ditemukan.");
+                        
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error("Terjadi kesalahan saat mengambil data sensor:", error);
+                    console.error("Error:", error);
                 }
             });
         }
+
         const apiUrl = "/client_sensor/status/{{ $lokasi->slug }}"; // Ganti dengan URL slug yang sesuai
         // 🔹 Fungsi Fetch Data dari API dan Update Shape
         async function fetchSensorStatus() {
@@ -289,17 +288,27 @@
         }
         // Fungsi untuk memperbarui nilai dan menggambar gauge
         function updateSensorValue(sensors, sensorNamePart, elementId, canvasId) {
-            const sensor = sensors.find(s => s.sensor_name.includes(sensorNamePart));
+            const sensor = sensors.find(s => s && s.sensor_name && s.sensor_name.includes(sensorNamePart));
             const element = document.getElementById(elementId);
 
-            if (sensor.max_value !== null) {
-                const sensorValue = parseFloat(sensor.max_value);
-                element.innerText = `${sensorValue.toFixed(2)} ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
-                drawGauge(canvasId, sensorValue.toFixed(2), parseInt(sensor.batas_atas), parseInt(sensor.batas_bawah));
-            } else {
+            if (!sensor) {
+                // Sensor tidak ditemukan
                 element.innerText = `0 ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
-                drawGauge(canvasId, 0, parseInt(sensor.batas_atas), parseInt(sensor.batas_bawah));
+                drawGauge(canvasId, 0, 100, 0); // Gunakan default batas jika tidak ada sensor
+                return;
             }
+
+            const value = sensor.max_value !== null ? parseFloat(sensor.max_value) : 0;
+            const satuan = sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm';
+
+            element.innerText = `${value.toFixed(2)} ${satuan}`;
+
+            drawGauge(
+                canvasId,
+                value.toFixed(2),
+                parseInt(sensor.batas_atas ?? 100), // default ke 100 jika null
+                parseInt(sensor.batas_bawah ?? 0)   // default ke 0 jika null
+            );
         }
         // 🔹 Mapping Status API ke Warna
         function getStatusColor(status) {
