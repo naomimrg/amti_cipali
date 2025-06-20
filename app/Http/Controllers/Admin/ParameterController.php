@@ -106,6 +106,53 @@ class ParameterController extends Controller
         return Datatables::of($list_data)->rawColumns(['action'])->make(true);
     }
 
+    public function listSensorClient()
+    {
+        $id = Auth::user()->id;
+        $list_data = new Collection;
+        $i = 1;
+    
+        // Mengambil semua vendor yang tidak dihapus
+        $getClient = DB::table('vendor')->where('isDeleted', 0)->get();
+    
+        foreach ($getClient as $gC) {
+            // Mengambil lokasi untuk setiap vendor
+            $getLokasi = DB::table('lokasi')->where('id_vendor', $gC->id)->where('isDeleted', 0)->get();
+    
+            foreach ($getLokasi as $gL) {
+                // Mengambil span untuk setiap lokasi
+                $getSpan = DB::table('span')->where('id_lokasi', $gL->id)->where('isDeleted', 0)->get();
+    
+                foreach ($getSpan as $gS) {
+                    // Mengambil parameter untuk setiap span
+                    $getParameters = DB::table('sensor')
+                    ->select('sensor_name', DB::raw('MIN(id) as id'), DB::raw('MAX(x_position) as x_position'), DB::raw('MAX(y_position) as y_position'))
+                    ->where('id_span', $gS->id)
+                    ->where('isDeleted', 0)
+                    ->groupBy('sensor_name')
+                    ->get();
+                
+    
+                    // Lakukan sesuatu dengan $getParameter jika diperlukan
+                    foreach ($getParameters as $sensors) {
+                        // Tambahkan ke $list_data atau lakukan operasi lain
+                        $list_data->push([
+                            'id' => $sensors->id,
+                            'sensor_name' => $sensors->sensor_name,
+                            'id_span' => $gS->id,
+                            'x_position' => $sensors->x_position,
+                            'y_position' => $sensors->y_position,
+                        ]);
+                    }
+                }
+
+
+            }
+        }
+    
+        return response()->json($list_data);
+
+    }
     public function listSensorByLokasi($lokasi_id)
     {
         $lokasi = DB::table('lokasi')
@@ -169,10 +216,6 @@ class ParameterController extends Controller
         }
     }
 
-
-
-
-
     public function editData($id)
     {
         $getUser = User::where('id', Auth::user()->id)->first();
@@ -228,13 +271,6 @@ class ParameterController extends Controller
         return response()->json($data);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $getUser = User::where('id', Auth::user()->id)->first();

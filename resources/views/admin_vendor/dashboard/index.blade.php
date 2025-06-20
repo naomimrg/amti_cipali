@@ -328,7 +328,9 @@
                 //console.log(data);
                 
                 if (data.status === "success") {
-                    const value = parseInt(data.max_value); // Nilai sensor yang didapat
+                    // Mendapatkan nilai natfreq sensor
+                    // console.log(data.max_value);
+                    const value = parseInt(data.z); // Nilai sensor yang didapat dari axis z
                     const maxValue = 55; // Nilai maksimum (misalnya, 55 Hz)
                     const warningValue = 45; // Nilai ambang batas peringatan (misalnya, 45 Hz)
 
