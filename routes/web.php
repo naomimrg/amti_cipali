@@ -52,7 +52,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::get('/vendor/{id}/{lokasiId}', [App\Http\Controllers\Admin\VendorController::class, 'lokasiList'])->name('vendor.lokasi');
     Route::get('/vendor/{id}/{lokasiId}/live_sensor', [App\Http\Controllers\Admin\VendorController::class, 'listLiveSensor'])->name('live_sensor');
-    Route::get('/vendor/{id}/{lokasiId}/live_sensor/{spanId}', [App\Http\Controllers\Admin\VendorController::class, 'spanList']);
+    Route::get('/vendor/{id}/{lokasiId}/live_sensor/{spanId}', [App\Http\Controllers\Admin\VendorController::class, 'spanList'])->name('live_sensor_detail');
+
     Route::get('/vendor/listVendor', [App\Http\Controllers\Admin\VendorController::class, 'listVendor']);
     Route::get('/listLokasi/{id}', [App\Http\Controllers\Admin\VendorController::class, 'listLokasi']);
     Route::get('/listSpan/{id}', [App\Http\Controllers\Admin\VendorController::class, 'listSpan']);

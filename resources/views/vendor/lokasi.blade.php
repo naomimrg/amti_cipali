@@ -25,7 +25,7 @@
                             <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">? Hz</p>
                         </div>
                         <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                            <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                            <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}" class="text-decoration-none">
                                 <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Natural Frequency</h2>
                             </a>
                             <img src="/assets/img/Shade-natural.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">

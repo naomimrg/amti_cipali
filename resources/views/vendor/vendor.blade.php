@@ -174,7 +174,7 @@ $(document).ready(function(){
                 $.each(data.items, function(index, item) {
                     var html = '<div class="col-4">' +
                                     '<div class="loc-list">' +
-                                        '<a href="{{ url("/vendor")}}/' + id + '/' + item.slug + '">' +
+                                        '<a href="{{ url("/vendor") }}/' + id + '/' + item.slug + '/live_sensor">' +
                                             '<img src="{{ url("/assets") }}/img/lokasi/' + item.image + '">' +
                                         '</a>' +
                                         '<div class="btn-group" style="position: absolute;">' +
