@@ -393,6 +393,7 @@ class VendorController extends Controller
             // ✅ Cek apakah request ini datang dari halaman dashboard
             $referer = request()->headers->get('referer');
             if ($referer && str_contains($referer, '/dashboard')) {
+                // dd($data['lokasi']);
                 return view('vendor.lokasi', $data);
             }
 
@@ -429,14 +430,36 @@ class VendorController extends Controller
             }
         }
 
-    public function listLiveSensor($id, $lokasiId){
+    public function listLiveSensor($id, $lokasiId) {
         $getUser = DB::table('users')->where('id', Auth::user()->id)->first();
-        $getVendor = Vendor::where('slug',$id)->where('isDeleted',0)->first();
-        $getLokasi = DB::table('lokasi')->where('slug', $lokasiId)->where('isDeleted',0)->where('id_vendor',$getVendor->id)->first();
-        $data['vendor'] = $getVendor;
-        $data['lokasi'] = $getLokasi;
-        return view('vendor.live_sensor',$data);
-     }
+        $getVendor = Vendor::where('slug', $id)->where('isDeleted', 0)->first();
+        $getLokasi = DB::table('lokasi')->where('slug', $lokasiId)->where('isDeleted', 0)->where('id_vendor', $getVendor->id)->first();
+
+        if (!$getVendor || !$getLokasi) {
+            return redirect('/404');
+        }
+
+        $spanQuery = DB::table('span')
+            ->where('id_lokasi', $getLokasi->id)
+            ->where('isDeleted', 0);
+
+        $spanCount = $spanQuery->count();
+
+        if ($spanCount == 1) {
+            $singleSpan = $spanQuery->first(); // Ambil satu-satunya span
+            return redirect()->route('live_sensor_detail', [$id, $lokasiId, $singleSpan->id]);
+
+        }
+
+        if ($spanCount > 1) {
+            return view('vendor.live_sensor', [
+                'vendor' => $getVendor,
+                'lokasi' => $getLokasi
+            ]);
+        }
+
+        return redirect('/404'); // Kalau tidak ada span sama sekali
+    }
 
     public function editVendor($id)
     {
