@@ -456,6 +456,9 @@
                     drawCircle(shape.x + 20, shape.y + 12, 10, color);
                 } else if (shape.sensor_name.toLowerCase().includes("full_bridge")) {
                     drawHexagon(shape.x + 24, shape.y + 13, 10, color);
+                } else if (shape.sensor_name.toLowerCase().includes("straingauge")) { // Menambahkan kondisi untuk sensor natfreq(shape.sensor_name.toLowerCase())) {
+                    drawHexagon(shape.x + 24, shape.y + 13, 10, color);
+                    // console.log(shape.sensor_name.toLowerCase());
                 }
 
                 text_label(shape.x + 40, shape.y + 13, shape.number);

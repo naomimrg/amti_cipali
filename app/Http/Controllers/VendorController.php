@@ -20,48 +20,79 @@ use Illuminate\Support\Str;
 
 class VendorController extends Controller
 {
-    public function index($id){
+    public function index($id)
+    {
         $getUser = DB::table('users')->where('id', Auth::user()->id)->first();
-        $getVendor = DB::table('vendor')->where('id',$getUser->id_vendor)->where('isDeleted',0)->first();
-        $getLokasi = DB::table('lokasi')->where('id_vendor',$getVendor->id)->where('isDeleted',0)->where('slug',$id)->first();
-        $data['vendor'] = $getVendor;
-        $data['lokasi'] = $getLokasi;
-        return view('admin_vendor.dashboard.index',$data);
+        $getVendor = DB::table('vendor')
+            ->where('id', $getUser->id_vendor)
+            ->where('isDeleted', 0)
+            ->first();
+
+        $getLokasi = DB::table('lokasi')
+            ->where('id_vendor', $getVendor->id)
+            ->where('isDeleted', 0)
+            ->where('slug', $id)
+            ->first();
+
+        if (!$getVendor || !$getLokasi) {
+            return abort(404, 'Vendor atau Lokasi tidak ditemukan.');
+        }
+
+        // Cek jumlah span
+        $spanQuery = DB::table('span')
+            ->where('id_lokasi', $getLokasi->id)
+            ->where('isDeleted', 0);
+
+        $spanCount = $spanQuery->count();
+
+        $spanId = null;
+        if ($spanCount === 1) {
+            $spanId = $spanQuery->first()->id; // Ambil ID span tunggal
+        }
+
+        return view('admin_vendor.dashboard.index', [
+            'vendor' => $getVendor,
+            'lokasi' => $getLokasi,
+            'spanId' => $spanId // ✅ kirim ke Blade
+        ]);
     }
+
 
     public function liveSensor($id)
-{
-    $getUser = DB::table('users')->where('id', Auth::user()->id)->first();
-    
-    // Cek apakah lokasi tersedia
-    $getLokasi = DB::table('lokasi')->where('id_vendor', $getUser->id_vendor)
-        ->where('isDeleted', 0)
-        ->where('slug', $id)
-        ->first();
+    {
+        $getUser = DB::table('users')->where('id', Auth::user()->id)->first();
+        
+        // Cek apakah lokasi tersedia
+        $getLokasi = DB::table('lokasi')->where('id_vendor', $getUser->id_vendor)
+            ->where('isDeleted', 0)
+            ->where('slug', $id)
+            ->first();
 
-    if (!$getLokasi) {
-        abort(404, 'Lokasi tidak ditemukan.');
+        if (!$getLokasi) {
+            abort(404, 'Lokasi tidak ditemukan.');
+        }
+
+        $getSpan = DB::table('span')->where('id_lokasi', $getLokasi->id)
+            ->where('isDeleted', 0)
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        if ($getSpan->isEmpty()) {
+            return redirect('/dashboard')->with('error', 'Data span tidak tersedia.');
+        }
+
+        if ($getSpan->count() == 1) {
+            $spanId = $getSpan->first()->id;
+            return redirect()->route('vendor.live_sensor.detail', [$id, $spanId]);
+
+            
+        }
+
+        $data['lokasi'] = $getLokasi;
+        $data['span'] = $getSpan;
+
+        return view('admin_vendor.live_sensor.index', $data);
     }
-
-    $getSpan = DB::table('span')->where('id_lokasi', $getLokasi->id)
-        ->where('isDeleted', 0)
-        ->orderBy('id', 'DESC')
-        ->get();
-
-    if ($getSpan->isEmpty()) {
-        return redirect('/dashboard')->with('error', 'Data span tidak tersedia.');
-    }
-
-    if ($getSpan->count() == 1) {
-        $spanId = $getSpan->first()->id;
-        return redirect("/home/{$id}/live_sensor/{$spanId}");
-    }
-
-    $data['lokasi'] = $getLokasi;
-    $data['span'] = $getSpan;
-
-    return view('admin_vendor.live_sensor.index', $data);
-}
 
     
     
