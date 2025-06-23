@@ -396,18 +396,7 @@ class VendorController extends Controller
                 // dd($data['lokasi']);
                 return view('vendor.lokasi', $data);
             }
-
-            // ✅ Kalau bukan dari dashboard, lakukan pengecekan span
-            $spanCount = DB::table('span')
-                ->where('id_lokasi', $getLokasi->id)
-                ->where('isDeleted', 0)
-                ->count();
-
-            if ($spanCount > 1) {
-                return redirect()->route('live_sensor', [$id, $lokasiId]);
-            }
-
-            return view('vendor.lokasi', $data);
+            return redirect()->route('live_sensor', [$id, $lokasiId]);
         }
 
 
@@ -438,27 +427,8 @@ class VendorController extends Controller
         if (!$getVendor || !$getLokasi) {
             return redirect('/404');
         }
-
-        $spanQuery = DB::table('span')
-            ->where('id_lokasi', $getLokasi->id)
-            ->where('isDeleted', 0);
-
-        $spanCount = $spanQuery->count();
-
-        if ($spanCount == 1) {
-            $singleSpan = $spanQuery->first(); // Ambil satu-satunya span
-            return redirect()->route('live_sensor_detail', [$id, $lokasiId, $singleSpan->id]);
-
-        }
-
-        if ($spanCount > 1) {
-            return view('vendor.live_sensor', [
-                'vendor' => $getVendor,
-                'lokasi' => $getLokasi
-            ]);
-        }
-
-        return redirect('/404'); // Kalau tidak ada span sama sekali
+        return view('vendor.live_sensor', ['vendor' => $getVendor,'lokasi' => $getLokasi]);
+   
     }
 
     public function editVendor($id)
