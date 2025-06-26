@@ -46,7 +46,7 @@
                             <p id="strain-value" class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">? Microstain</p>
                         </div>
                         <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}" class="text-decoration-none">
                                     <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Strain Gauge</h2>
                                 </a>
                             <img src="/assets/img/Shade-strain.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
@@ -67,7 +67,7 @@
                             <p class="mb-0 nunito-font" id="static-deflection" style="font-size: 14px; color:#161313;">? mm</p>
                         </div>
                         <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}" class="text-decoration-none">
                                     <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Static Deflection</h2>
                                 </a>
                             <img src="/assets/img/Shade-static.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
@@ -152,7 +152,7 @@
                             <p class="mb-0 nunito-font" id="dynamic-deflection" style="font-size: 14px; color:#161313;">? mm</p>
                         </div>
                         <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}" class="text-decoration-none">
                                     <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Dynamic Deflection</h2>
                                 </a>
                             <img src="/assets/img/Shade-dynamic.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
@@ -173,7 +173,7 @@
                             <p class="mb-0 nunito-font" id="vehicle-load" style="font-size: 14px; color:#161313;">3 Ton</p>
                         </div>
                         <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}" class="text-decoration-none">
                                     <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Vehicle load</h2>
                                 </a>
                             <img src="/assets/img/Shade-vehicle.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
