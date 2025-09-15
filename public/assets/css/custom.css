@@ -489,30 +489,4 @@
         text-align: center;
         font-size: 34px;
     }
-
-    /* === Toggleable sidebar === */
-
-    /* posisi sidebar saat TERTUTUP */
-    .layout-container.menu-closed #layout-menu {
-        transform: translateX(-110%);
-        transition: transform .25s ease;
-    }
-
-    /* posisi sidebar saat TERBUKA (default) */
-    #layout-menu {
-        transform: translateX(0);
-        transition: transform .25s ease;
-    }
-
-    /* overlay (opsional) saat terbuka */
-    .layout-overlay {
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity .2s ease;
-    }
-
-    .layout-container.menu-open .layout-overlay {
-        opacity: .35;
-        pointer-events: auto;
-    }
 }

@@ -151,6 +151,7 @@
 
             <div class="content-wrapper">
                 <!-- Content -->
+
                 <div class="container-xxl flex-grow-1 container-p-y" style="padding-top:10px!important;">
                     <div class="row">
                         <div class="col-12">
@@ -216,17 +217,15 @@
     </script>
     @can('isAdminVendor')
     <script>
-        $.ajax({
-            url: "{{ url('/getLoc') }}",
-            dataType: "json",
-            success: function(data) {
-                $.each(data.items, function(index, item) {
-                    $('#loc-lists').append('<li class="menu-item"><a href="{{ url(' / home ') }}/' +
-                        item
-                        .slug + '" class="menu-link"><div data-i18n="' + item.nama_lokasi + '">' +
-                        item.nama_lokasi + '</div></a></li>');
-                });
-            }
+        $.getJSON("{{ url('/getLoc') }}", function(data) {
+            const baseHome = "{{ url('/home') }}"; // <- tidak ada spasi
+            $.each(data.items, function(i, item) {
+                $('#loc-lists').append(
+                    `<li class="menu-item">
+         <a href="${baseHome}/${item.slug}" class="menu-link">${item.nama_lokasi}</a>
+       </li>`
+                );
+            });
         });
     </script>
     @endcan
