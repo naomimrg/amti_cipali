@@ -5,7 +5,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <title>{{ config('app.name') }} | @yield('title')</title>
     <meta name="description" content="" />
 
@@ -15,12 +16,15 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet" />
     <link rel="stylesheet" href="{{ url('/assets') }}/vendor/fonts/boxicons.css" />
 
     <!-- Core CSS -->
     <link rel="stylesheet" href="{{ url('/assets') }}/vendor/css/core.css" class="template-customizer-core-css" />
-    <link rel="stylesheet" href="{{ url('/assets') }}/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{{ url('/assets') }}/vendor/css/theme-default.css"
+        class="template-customizer-theme-css" />
     <link rel="stylesheet" href="{{ url('/assets') }}/css/demo.css" />
 
     <!-- Vendors CSS -->
@@ -66,65 +70,65 @@
 
                     <ul class="menu-inner py-1">
                         @canany(['isSuperAdmin', 'isAdminGSI'])
-                            <li class="menu-item">
-                                <a href="{{ url('/dashboard') }}" class="menu-link">
-                                    <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                                    <div data-i18n="dashboard">Home</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ url('/parameter') }}" class="menu-link">
-                                    <i class="menu-icon tf-icons bx bx-cog"></i>
-                                    <div data-i18n="parameter">Default Sensor</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ url('/client_sensor') }}" class="menu-link">
-                                    <i class="menu-icon tf-icons bx bx-list-check"></i>
-                                    <div data-i18n="parameter">Sensor Client</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ url('/vendor') }}" class="menu-link">
-                                    <i class="menu-icon tf-icons bx bxs-user-detail "></i>
-                                    <div data-i18n="vendor">Manage User</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ url('/user') }}" class="menu-link">
-                                    <i class="menu-icon tf-icons bx bx-grid"></i>
-                                    <div data-i18n="user">Manage Account</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ url('/admin') }}" class="menu-link">
-                                    <i class="menu-icon tf-icons bx bxs-user-badge"></i>
-                                    <div data-i18n="vendor">Manage Admin</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ url('/report') }}" class="menu-link">
-                                    <i class="menu-icon tf-icons bx bx-download"></i>
-                                    <div data-i18n="report">Download Data</div>
-                                </a>
-                            </li>
+                        <li class="menu-item">
+                            <a href="{{ url('/dashboard') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                                <div data-i18n="dashboard">Home</div>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{ url('/parameter') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-cog"></i>
+                                <div data-i18n="parameter">Default Sensor</div>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{ url('/client_sensor') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-list-check"></i>
+                                <div data-i18n="parameter">Sensor Client</div>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{ url('/vendor') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bxs-user-detail "></i>
+                                <div data-i18n="vendor">Manage User</div>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{ url('/user') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-grid"></i>
+                                <div data-i18n="user">Manage Account</div>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{ url('/admin') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bxs-user-badge"></i>
+                                <div data-i18n="vendor">Manage Admin</div>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{ url('/report') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-download"></i>
+                                <div data-i18n="report">Download Data</div>
+                            </a>
+                        </li>
                         @endcan
                         @canany(['isAdminVendor', 'isUser'])
-                            <li class="menu-item">
-                                <a href="javascript:void(0)" class="menu-link menu-toggle">
-                                    <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                                    <div data-i18n="Extended UI">Home</div>
-                                </a>
-                                <ul class="menu-sub" id="loc-lists">
+                        <li class="menu-item">
+                            <a href="javascript:void(0)" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                                <div data-i18n="Extended UI">Home</div>
+                            </a>
+                            <ul class="menu-sub" id="loc-lists">
 
-                                </ul>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ url('/report') }}" class="menu-link">
-                                    <i class="menu-icon tf-icons bx bx-download"></i>
-                                    <div data-i18n="report">Download Data</div>
-                                </a>
-                            </li>
+                            </ul>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{{ url('/report') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-download"></i>
+                                <div data-i18n="report">Download Data</div>
+                            </a>
+                        </li>
 
                         @endcan
                     </ul>
@@ -147,7 +151,6 @@
 
             <div class="content-wrapper">
                 <!-- Content -->
-
                 <div class="container-xxl flex-grow-1 container-p-y" style="padding-top:10px!important;">
                     <div class="row">
                         <div class="col-12">
@@ -212,19 +215,20 @@
         $('#datenow').html(thisDay + ', ' + day + ' ' + months[month] + ' ' + year);
     </script>
     @can('isAdminVendor')
-        <script>
-            $.ajax({
-                url: "{{ url('/getLoc') }}",
-                dataType: "json",
-                success: function(data) {
-                    $.each(data.items, function(index, item) {
-                        $('#loc-lists').append('<li class="menu-item"><a href="{{ url('/home') }}/' + item
-                            .slug + '" class="menu-link"><div data-i18n="' + item.nama_lokasi + '">' +
-                            item.nama_lokasi + '</div></a></li>');
-                    });
-                }
-            });
-        </script>
+    <script>
+        $.ajax({
+            url: "{{ url('/getLoc') }}",
+            dataType: "json",
+            success: function(data) {
+                $.each(data.items, function(index, item) {
+                    $('#loc-lists').append('<li class="menu-item"><a href="{{ url(' / home ') }}/' +
+                        item
+                        .slug + '" class="menu-link"><div data-i18n="' + item.nama_lokasi + '">' +
+                        item.nama_lokasi + '</div></a></li>');
+                });
+            }
+        });
+    </script>
     @endcan
     @yield('script')
 </body>
