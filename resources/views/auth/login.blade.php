@@ -17,55 +17,49 @@
     <link id="pagestyle" href="{{ url('/assets') }}/argon/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
 </head>
 <style>
-/* -- CARD: border+shadow selalu aktif -- */
-.left-pane .card-plain {
-    background: #fff;
-    border: 1.5px solid #e6e9f2;
-    border-radius: 24px;
-    box-shadow: 0 10px 24px rgba(2, 6, 23, .08), 0 1px 2px rgba(2, 6, 23, .05);
-    position: relative;
-    overflow: visible;
-}
-
-/* -- NUDGE: geser dikit ke kiri hanya desktop -- */
-@media (min-width: 992px) {
     .left-pane .card-plain {
-        transform: translateX(-12px);
-        /* boleh -8 s/d -16 */
+        background: #fff;
+        border: 1.5px solid #e6e9f2;
+        border-radius: 24px;
+        box-shadow: 0 10px 24px rgba(2, 6, 23, .08), 0 1px 2px rgba(2, 6, 23, .05);
+        position: relative;
+        overflow: visible;
     }
-}
 
-/* -- SLIDESHOW & MASK -- */
-.hero-rotator .mask {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    filter: none !important;
-    backdrop-filter: none !important;
-    opacity: .6;
-    /* atur sesuai selera */
-}
+    @media (min-width: 992px) {
+        .left-pane .card-plain {
+            transform: translateX(-12px);
+        }
+    }
 
-.hero-slide {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity .8s ease;
-}
+    .hero-rotator .mask {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        filter: none !important;
+        backdrop-filter: none !important;
+        opacity: .6;
+    }
 
-.hero-slide.is-active {
-    opacity: 1;
-}
-
-/* matikan animasi kalau user minta reduced motion */
-@media (prefers-reduced-motion: reduce) {
     .hero-slide {
-        transition: none;
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity .8s ease;
     }
-}
+
+    .hero-slide.is-active {
+        opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .hero-slide {
+            transition: none;
+        }
+    }
 </style>
 
 <body class="">
@@ -140,7 +134,6 @@
                             <div id="heroRotator"
                                 class="hero-rotator position-relative h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
                                 data-interval="5000">
-                                <!-- tambahkan sebanyak yang kamu mau -->
                                 <img src="{{ url('/assets') }}/argon/img/slide-login/unpres.png"
                                     class="hero-slide is-active" alt="">
                                 <img src="{{ url('/assets') }}/argon/img/slide-login/jetty.png" class="hero-slide"
@@ -168,34 +161,33 @@
     <script src="{{ url('/assets') }}/argon/js/plugins/perfect-scrollbar.min.js"></script>
     <script src="{{ url('/assets') }}/laragon/js/plugins/smooth-scrollbar.min.js"></script>
     <script>
-    var win = navigator.platform.indexOf('Win') > -1;
-    if (win && document.querySelector('#sidenav-scrollbar')) {
-        var options = {
-            damping: '0.5'
+        var win = navigator.platform.indexOf('Win') > -1;
+        if (win && document.querySelector('#sidenav-scrollbar')) {
+            var options = {
+                damping: '0.5'
+            }
+            Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
         }
-        Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-    }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const rotator = document.getElementById('heroRotator');
-        if (!rotator) return;
+        document.addEventListener('DOMContentLoaded', function() {
+            const rotator = document.getElementById('heroRotator');
+            if (!rotator) return;
 
-        const slides = Array.from(rotator.querySelectorAll('.hero-slide'));
-        if (slides.length <= 1) return;
+            const slides = Array.from(rotator.querySelectorAll('.hero-slide'));
+            if (slides.length <= 1) return;
 
-        const interval = parseInt(rotator.dataset.interval || '5000', 10);
-        let i = 0;
+            const interval = parseInt(rotator.dataset.interval || '5000', 10);
+            let i = 0;
 
-        setInterval(() => {
-            slides[i].classList.remove('is-active');
-            i = (i + 1) % slides.length;
-            slides[i].classList.add('is-active');
-        }, interval);
-    });
+            setInterval(() => {
+                slides[i].classList.remove('is-active');
+                i = (i + 1) % slides.length;
+                slides[i].classList.add('is-active');
+            }, interval);
+        });
     </script>
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="{ url('/assets') }}/argon/js/argon-dashboard.min.js?v=2.1.0"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
