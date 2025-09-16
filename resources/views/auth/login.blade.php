@@ -16,6 +16,51 @@
     <!-- CSS Files -->
     <link id="pagestyle" href="{{ url('/assets') }}/argon/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
 </head>
+<style>
+    .left-pane .card-plain {
+        background: #fff;
+        border: 1.5px solid #e6e9f2;
+        border-radius: 24px;
+        box-shadow: 0 10px 24px rgba(2, 6, 23, .08), 0 1px 2px rgba(2, 6, 23, .05);
+        position: relative;
+        overflow: visible;
+    }
+
+    @media (min-width: 992px) {
+        .left-pane .card-plain {
+            transform: translateX(-12px);
+        }
+    }
+
+    .hero-rotator .mask {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        filter: none !important;
+        backdrop-filter: none !important;
+        opacity: .6;
+    }
+
+    .hero-slide {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity .8s ease;
+    }
+
+    .hero-slide.is-active {
+        opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .hero-slide {
+            transition: none;
+        }
+    }
+</style>
 
 <body class="">
     <main class="main-content  mt-0">
@@ -23,11 +68,11 @@
             <div class="page-header min-vh-100">
                 <div class="container">
                     <div class="row">
-                        <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
-                            <div class="card card-plain">
+                        <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto left-pane">
+                            <div class="card card-plain col-l-2">
                                 <div class="card-header pb-0 text-start">
-                                    <h4 class="font-weight-bolder">Sign In</h4>
-                                    <p class="mb-0">Enter your email and password to sign in</p>
+                                    <img src="{{ url('/assets') }}/argon/img/login-amti2.png" alt="Logo"
+                                        style="height: 75px;">
                                 </div>
                                 <div class="card-body">
                                     <form role="form" id="formAuthentication" method="POST"
@@ -56,13 +101,15 @@
                                         </div>
 
                                         <!-- reCAPTCHA v2 -->
-                                        <div class="mb-3">
-                                            <div class="g-recaptcha"
-                                                data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
-                                            @error('g-recaptcha-response')
-                                            <span
-                                                class="invalid-feedback d-block"><strong>{{ $message }}</strong></span>
-                                            @enderror
+                                        <div class="mb-3 d-flex justify-content-center">
+                                            <div>
+                                                <div class="g-recaptcha"
+                                                    data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+                                                @error('g-recaptcha-response')
+                                                <span
+                                                    class="invalid-feedback d-block"><strong>{{ $message }}</strong></span>
+                                                @enderror
+                                            </div>
                                         </div>
 
 
@@ -75,25 +122,34 @@
                                 </div>
                                 <div class="card-footer text-center pt-0 px-lg-2 px-1">
                                     <p class="mb-4 text-sm mx-auto">
-                                        Don't have an account?
-                                        <a href="javascript:;" class="text-primary text-gradient font-weight-bold">Sign
-                                            up</a>
+                                        Ada Kendala? Hubungi Admin.
+                                        <a href="javascript:;" class="text-primary text-gradient font-weight-bold"> Call
+                                        </a>
                                     </p>
                                 </div>
                             </div>
                         </div>
                         <div
-                            class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 end-0 text-center justify-content-center flex-column">
-                            <div class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
-                                style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg');
-          background-size: cover;">
-                                <span class="mask bg-gradient-primary opacity-6"></span>
-                                <h4 class="mt-5 text-white font-weight-bolder position-relative">"Attention is the new
+                            class="col-8 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 end-0 text-center justify-content-center flex-column">
+                            <div id="heroRotator"
+                                class="hero-rotator position-relative h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
+                                data-interval="5000">
+                                <img src="{{ url('/assets') }}/argon/img/slide-login/unpres.png"
+                                    class="hero-slide is-active" alt="">
+                                <img src="{{ url('/assets') }}/argon/img/slide-login/jetty.png" class="hero-slide"
+                                    alt="">
+                                <img src="{{ url('/assets') }}/argon/img/slide-login/cipali.png" class="hero-slide"
+                                    alt="">
+                                <img src="{{ url('/assets') }}/argon/img/slide-login/kaltim.png" class="hero-slide"
+                                    alt="">
+                                <!-- <span class="mask bg-gradient-primary opacity-6"></span> -->
+                                <!-- <h4 class="mt-5 text-white font-weight-bolder position-relative">"Attention is the new
                                     currency"</h4>
                                 <p class="text-white position-relative">The more effortless the writing looks, the more
-                                    effort the writer actually put into the process.</p>
+                                    effort the writer actually put into the process.</p> -->
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -112,10 +168,26 @@
             }
             Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const rotator = document.getElementById('heroRotator');
+            if (!rotator) return;
+
+            const slides = Array.from(rotator.querySelectorAll('.hero-slide'));
+            if (slides.length <= 1) return;
+
+            const interval = parseInt(rotator.dataset.interval || '5000', 10);
+            let i = 0;
+
+            setInterval(() => {
+                slides[i].classList.remove('is-active');
+                i = (i + 1) % slides.length;
+                slides[i].classList.add('is-active');
+            }, interval);
+        });
     </script>
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="{ url('/assets') }}/argon/js/argon-dashboard.min.js?v=2.1.0"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
