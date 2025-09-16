@@ -13,7 +13,6 @@
             --txt-dark: #161313;
         }
 
-        /* kartu */
         .metric-card {
             border-radius: var(--card-radius);
             min-height: var(--card-height);
@@ -94,120 +93,125 @@
 @endsection
 @section('content')
     <div class="col-12">
-        <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5">
+        <!-- card -->
+        <div class="col-12">
+            <div class="row g-3 row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5">
 
-            <!-- Natural Frequency -->
-            <div class="col">
-                <div class="card metric-card h-100">
-                    <div class="card-body">
-                        <div class="metric-stack">
-                            <div class="gauge-wrap">
-                                <canvas id="gaugeCanvas1" width="130" height="130"></canvas>
-                                <p class="label nunito-font">Current Value</p>
-                                <p class="value nunito-font" id="value_natfreq">? Hz</p>
+                <!-- Natural Frequency -->
+                <div class="col">
+                    <div class="card metric-card h-100">
+                        <div class="card-body">
+                            <div class="metric-stack">
+                                <div class="gauge-wrap">
+                                    <canvas id="gaugeCanvas1" width="130" height="130"></canvas>
+                                    <p class="label nunito-font">Current Value</p>
+                                    <p class="value nunito-font" id="value_natfreq">? Hz</p>
+                                </div>
+                                <div>
+                                    <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}"
+                                        class="stretched-link text-decoration-none">
+                                        <h2 class="metric-title nunito-font text-dark text-truncate-2">Natural Frequency
+                                        </h2>
+                                    </a>
+                                </div>
                             </div>
-                            <div>
-                                <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}"
-                                    class="stretched-link text-decoration-none">
-                                    <h2 class="metric-title nunito-font text-dark text-truncate-2">Natural Frequency</h2>
-                                </a>
-                            </div>
+                            <img src="/assets/img/Shade-natural.png" alt="" class="metric-illus">
                         </div>
-                        <img src="/assets/img/Shade-natural.png" alt="" class="metric-illus">
+                    </div>
+                </div>
+
+                <!-- Strain Gauge -->
+                <div class="col">
+                    <div class="card metric-card h-100">
+                        <div class="card-body">
+                            <div class="metric-stack">
+                                <div class="gauge-wrap">
+                                    <canvas id="gaugeCanvas2" width="130" height="130"></canvas>
+                                    <p class="label nunito-font">Current Value</p>
+                                    <p class="value nunito-font" id="strain-value">? Microstrain</p>
+                                </div>
+                                <div>
+                                    <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}"
+                                        class="stretched-link text-decoration-none">
+                                        <h2 class="metric-title nunito-font text-dark text-truncate-2">Strain Gauge</h2>
+                                    </a>
+                                </div>
+                            </div>
+                            <img src="/assets/img/Shade-strain.png" alt="" class="metric-illus">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Static Deflection -->
+                <div class="col">
+                    <div class="card metric-card h-100">
+                        <div class="card-body">
+                            <div class="metric-stack">
+                                <div class="gauge-wrap">
+                                    <canvas id="gaugeCanvas3" width="130" height="130"></canvas>
+                                    <p class="label nunito-font">Current Value</p>
+                                    <p class="value nunito-font" id="static-deflection">? mm</p>
+                                </div>
+                                <div>
+                                    <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}"
+                                        class="stretched-link text-decoration-none">
+                                        <h2 class="metric-title nunito-font text-dark text-truncate-2">Static Deflection
+                                        </h2>
+                                    </a>
+                                </div>
+                            </div>
+                            <img src="/assets/img/Shade-static.png" alt="" class="metric-illus">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Deflection -->
+                <div class="col">
+                    <div class="card metric-card h-100">
+                        <div class="card-body">
+                            <div class="metric-stack">
+                                <div class="gauge-wrap">
+                                    <canvas id="gaugeCanvas4" width="130" height="130"></canvas>
+                                    <p class="label nunito-font">Current Value</p>
+                                    <p class="value nunito-font" id="dynamic-deflection">? mm</p>
+                                </div>
+                                <div>
+                                    <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}"
+                                        class="stretched-link text-decoration-none">
+                                        <h2 class="metric-title nunito-font text-dark text-truncate-2">Dynamic Deflection
+                                        </h2>
+                                    </a>
+                                </div>
+                            </div>
+                            <img src="/assets/img/Shade-dynamic.png" alt="" class="metric-illus">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Load -->
+                <div class="col">
+                    <div class="card metric-card h-100">
+                        <div class="card-body">
+                            <div class="metric-stack">
+                                <div class="gauge-wrap">
+                                    <canvas id="gaugeCanvas5" width="130" height="130"></canvas>
+                                    <p class="label nunito-font">Current Value</p>
+                                    <p class="value nunito-font" id="vehicle-load">3 Ton</p>
+                                </div>
+                                <div>
+                                    <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}"
+                                        class="stretched-link text-decoration-none">
+                                        <h2 class="metric-title nunito-font text-dark text-truncate-2">Vehicle Load</h2>
+                                    </a>
+                                </div>
+                            </div>
+                            <img src="/assets/img/Shade-vehicle.png" alt="" class="metric-illus">
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Strain Gauge -->
-            <div class="col">
-                <div class="card metric-card h-100">
-                    <div class="card-body">
-                        <div class="metric-stack">
-                            <div class="gauge-wrap">
-                                <canvas id="gaugeCanvas2" width="130" height="130"></canvas>
-                                <p class="label nunito-font">Current Value</p>
-                                <p class="value nunito-font" id="strain-value">? Microstrain</p>
-                            </div>
-                            <div>
-                                <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}"
-                                    class="stretched-link text-decoration-none">
-                                    <h2 class="metric-title nunito-font text-dark text-truncate-2">Strain Gauge</h2>
-                                </a>
-                            </div>
-                        </div>
-                        <img src="/assets/img/Shade-strain.png" alt="" class="metric-illus">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Static Deflection -->
-            <div class="col">
-                <div class="card metric-card h-100">
-                    <div class="card-body">
-                        <div class="metric-stack">
-                            <div class="gauge-wrap">
-                                <canvas id="gaugeCanvas3" width="130" height="130"></canvas>
-                                <p class="label nunito-font">Current Value</p>
-                                <p class="value nunito-font" id="static-deflection">? mm</p>
-                            </div>
-                            <div>
-                                <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}"
-                                    class="stretched-link text-decoration-none">
-                                    <h2 class="metric-title nunito-font text-dark text-truncate-2">Static Deflection</h2>
-                                </a>
-                            </div>
-                        </div>
-                        <img src="/assets/img/Shade-static.png" alt="" class="metric-illus">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dynamic Deflection -->
-            <div class="col">
-                <div class="card metric-card h-100">
-                    <div class="card-body">
-                        <div class="metric-stack">
-                            <div class="gauge-wrap">
-                                <canvas id="gaugeCanvas4" width="130" height="130"></canvas>
-                                <p class="label nunito-font">Current Value</p>
-                                <p class="value nunito-font" id="dynamic-deflection">? mm</p>
-                            </div>
-                            <div>
-                                <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}"
-                                    class="stretched-link text-decoration-none">
-                                    <h2 class="metric-title nunito-font text-dark text-truncate-2">Dynamic Deflection</h2>
-                                </a>
-                            </div>
-                        </div>
-                        <img src="/assets/img/Shade-dynamic.png" alt="" class="metric-illus">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Vehicle Load -->
-            <div class="col">
-                <div class="card metric-card h-100">
-                    <div class="card-body">
-                        <div class="metric-stack">
-                            <div class="gauge-wrap">
-                                <canvas id="gaugeCanvas5" width="130" height="130"></canvas>
-                                <p class="label nunito-font">Current Value</p>
-                                <p class="value nunito-font" id="vehicle-load">3 Ton</p>
-                            </div>
-                            <div>
-                                <a href="{{ route('live_sensor', [$vendor->slug, $lokasi->slug]) }}"
-                                    class="stretched-link text-decoration-none">
-                                    <h2 class="metric-title nunito-font text-dark text-truncate-2">Vehicle Load</h2>
-                                </a>
-                            </div>
-                        </div>
-                        <img src="/assets/img/Shade-vehicle.png" alt="" class="metric-illus">
-                    </div>
-                </div>
-            </div>
-
         </div>
-        <!-- end card atas -->
+        <!-- end card -->
         <!-- canvas -->
         <div class="row">
             <div id="open-edit">
@@ -217,57 +221,37 @@
                 <div class="card">
                     <div class="card-body card-body-canvas">
                         <canvas id="myCanvas" class="w-100"></canvas>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <div class="d-flex justify-content-center w-100 ">
-                                <div class="d-flex mx-auto">
-                                    <div class="sensor-indicator" style="background-color: #37B401;" title="Normal"></div>
-                                    <p class="font-indicator me-3">Normal</p>
+                        <div class="d-flex justify-content-center align-items-center mt-3">
+                            <div class="d-flex">
+                                <div class="sensor-indicator" style="background-color: #37B401;" title="Normal"></div>
+                                <p class="font-indicator me-3">Normal</p>
 
-                                    <div class="sensor-indicator" style="background-color: #FECD08;" title="Warning">
-                                    </div>
-                                    <p class="font-indicator me-3">Warning</p>
+                                <div class="sensor-indicator" style="background-color: #FECD08;" title="Warning"></div>
+                                <p class="font-indicator me-3">Warning</p>
 
-                                    <div class="sensor-indicator" style="background-color: #FB0707;" title="Critical">
-                                    </div>
-                                    <p class="font-indicator me-3">Critical</p>
-                                </div>
+                                <div class="sensor-indicator" style="background-color: #FB0707;" title="Critical"></div>
+                                <p class="font-indicator me-3">Critical</p>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- end canvas -->
-        <!-- card bawah -->
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="/assets/img/square-line.png" alt="Gauge"
-                                style="width: 20px; height: auto; margin-right: 10px;">
-                            <div class="flex-grow-1">
+                        <div class="d-flex justify-content-start align-items-center mt-3 flex-wrap">
+                            <div class="d-flex align-items-center me-4">
+                                <img src="/assets/img/square-line.png" alt="Accelerometer"
+                                    style="width: 20px; margin-right: 8px;">
                                 <p class="mb-0 nunito-font" style="color: black;">Accelerometer</p>
                             </div>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="/assets/img/triangle-line.png" alt="Tiltmeter"
-                                style="width: 20px; height: auto; margin-right: 10px;">
-                            <div class="flex-grow-1">
+                            <div class="d-flex align-items-center me-4">
+                                <img src="/assets/img/triangle-line.png" alt="Tiltmeter"
+                                    style="width: 20px; margin-right: 8px;">
                                 <p class="mb-0 nunito-font" style="color: black;">Tiltmeter</p>
                             </div>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="/assets/img/hexagon-line.png" alt="Strain"
-                                style="width: 20px; height: auto; margin-right: 10px;">
-                            <div class="flex-grow-1">
+                            <div class="d-flex align-items-center me-4">
+                                <img src="/assets/img/hexagon-line.png" alt="Strain Gauge"
+                                    style="width: 20px; margin-right: 8px;">
                                 <p class="mb-0 nunito-font" style="color: black;">Strain Gauge</p>
                             </div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <img src="/assets/img/circle-line.png" alt="Displacement"
-                                style="width: 20px; height: auto; margin-right: 10px;">
-                            <div class="flex-grow-1">
+                            <div class="d-flex align-items-center">
+                                <img src="/assets/img/circle-line.png" alt="Displacement"
+                                    style="width: 20px; margin-right: 8px;">
                                 <p class="mb-0 nunito-font" style="color: black;">Displacement</p>
                             </div>
                         </div>
@@ -275,9 +259,8 @@
                 </div>
             </div>
         </div>
-        <!-- endcard bawah -->
+        <!-- end canvas -->
     </div>
-    <!-- / Content -->
 @endsection
 @section('script')
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
@@ -309,7 +292,7 @@
                 canvas.height = img.height;
 
                 isImageLoaded = true;
-                checkAndDraw(); 
+                checkAndDraw();
             };
 
             img.src = "{{ url('/assets') }}/img/lokasi/{{ $lokasi->foto }}";
@@ -319,7 +302,7 @@
                     url: "/client_sensor/listSensorClient/{{ $lokasi->id }}",
                     method: "GET",
                     success: function(response) {
-                        console.log(response); 
+                        console.log(response);
                         if (response && response.data && response.data.length > 0) {
                             shapes = response.data.map((item, index) => ({
                                 id: item.id,
@@ -344,7 +327,7 @@
                 });
             }
 
-            const apiUrl = "/client_sensor/status/{{ $lokasi->slug }}"; 
+            const apiUrl = "/client_sensor/status/{{ $lokasi->slug }}";
             async function fetchSensorStatus() {
                 try {
                     const response = await fetch(apiUrl);
@@ -364,7 +347,7 @@
                         updateSensorValue(data.data, "Tiltmeter", "static-deflection", 'gaugeCanvas3');
                         updateSensorValue(data.data, "Displacement", "dynamic-deflection", 'gaugeCanvas4');
 
-                        drawAll(); 
+                        drawAll();
                     } else {
                         console.error("Error fetching sensor status:", data.status, "message:", data.message);
                     }
@@ -372,13 +355,14 @@
                     console.error("Error fetching sensor status:", error);
                 }
             }
+
             function updateSensorValue(sensors, sensorNamePart, elementId, canvasId) {
                 const sensor = sensors.find(s => s && s.sensor_name && s.sensor_name.includes(sensorNamePart));
                 const element = document.getElementById(elementId);
 
                 if (!sensor) {
                     element.innerText = `0 ${sensorNamePart === 'Full_Bridge' ? 'Microstrain' : 'mm'}`;
-                    drawGauge(canvasId, 0, 100, 0); 
+                    drawGauge(canvasId, 0, 100, 0);
                     return;
                 }
 
@@ -390,8 +374,8 @@
                 drawGauge(
                     canvasId,
                     value.toFixed(2),
-                    parseInt(sensor.batas_atas ?? 100), 
-                    parseInt(sensor.batas_bawah ?? 0) 
+                    parseInt(sensor.batas_atas ?? 100),
+                    parseInt(sensor.batas_bawah ?? 0)
                 );
             }
 
@@ -416,12 +400,12 @@
                     const data = await response.json();
 
                     if (data.status === "success") {
-                        const value = parseInt(data.z); 
+                        const value = parseInt(data.z);
                         console.log('ini dari z: ' + value);
                         console.log('ini dari max_value: ' + data.max_value);
                         console.log(data.max_value);
-                        const maxValue = 55; 
-                        const warningValue = 45; 
+                        const maxValue = 55;
+                        const warningValue = 45;
 
                         document.getElementById("value_natfreq").innerText = `${value} Hz`;
 
@@ -451,7 +435,7 @@
             canvas.addEventListener('dblclick', (e) => {
                 const mouseX = e.offsetX;
                 const mouseY = e.offsetY;
-                const currentUrl = "{{ url()->current() }}"; 
+                const currentUrl = "{{ url()->current() }}";
 
                 shapes.forEach(shape => {
                     if (
@@ -528,8 +512,7 @@
                         drawCircle(shape.x + 20, shape.y + 12, 10, color);
                     } else if (shape.sensor_name.toLowerCase().includes("full_bridge")) {
                         drawHexagon(shape.x + 24, shape.y + 13, 10, color);
-                    } else if (shape.sensor_name.toLowerCase().includes(
-                        "straingauge")) { 
+                    } else if (shape.sensor_name.toLowerCase().includes("straingauge")) {
                         drawHexagon(shape.x + 24, shape.y + 13, 10, color);
                     }
 
@@ -561,12 +544,12 @@
             }
 
             function drawTriangle(x, y, size, color) {
-                const height = (Math.sqrt(3) / 2) * size; 
-                const x1 = x; 
+                const height = (Math.sqrt(3) / 2) * size;
+                const x1 = x;
                 const y1 = y;
-                const x2 = x - size / 2; /
+                const x2 = x - size / 2;
                 const y2 = y + height;
-                const x3 = x + size / 2; 
+                const x3 = x + size / 2;
                 const y3 = y + height;
 
                 ctx.fillStyle = color;
@@ -582,7 +565,7 @@
                 ctx.fillStyle = color;
                 ctx.beginPath();
                 for (let i = 0; i < 6; i++) {
-                    const angle = (Math.PI / 3) * i; 
+                    const angle = (Math.PI / 3) * i;
                     const xPos = x + size * Math.cos(angle);
                     const yPos = y + size * Math.sin(angle);
                     ctx.lineTo(xPos, yPos);
@@ -606,7 +589,7 @@
                 const centerY = canvas.height / 2;
                 const radius = Math.min(centerX, centerY) - 20;
 
-                ctx.clearRect(0, 0, canvas.width, canvas.height); 
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 let color;
                 let percentage;
@@ -614,18 +597,18 @@
                 percentage = ((value / maxValue) * 100).toFixed(0);
 
                 if (value == 0) {
-                    color = '#000000'; 
-                    percentage = 100; 
+                    color = '#000000';
+                    percentage = 100;
                 } else if (value < 0) {
-                    color = '#16A799'; 
-                    percentage = ((value / maxValue) * 100).toFixed(0); 
+                    color = '#16A799';
+                    percentage = ((value / maxValue) * 100).toFixed(0);
                 } else if (value >= maxValue) {
-                    color = '#FF0E0E'; 
-                    percentage = 100; 
+                    color = '#FF0E0E';
+                    percentage = 100;
                 } else if (value >= warningValue) {
-                    color = '#E9E225'; 
+                    color = '#E9E225';
                 } else {
-                    color = '#16A799'; 
+                    color = '#16A799';
                 }
 
                 ctx.beginPath();
@@ -634,11 +617,11 @@
                 ctx.strokeStyle = '#e0e0e0';
                 ctx.stroke();
 
-                const endAngle = (percentage / 100) * 2 * Math.PI; 
+                const endAngle = (percentage / 100) * 2 * Math.PI;
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle - Math.PI / 2);
                 ctx.lineWidth = 15;
-                ctx.strokeStyle = color; 
+                ctx.strokeStyle = color;
                 ctx.stroke();
 
                 for (let i = 0; i <= 10; i++) {
@@ -649,7 +632,7 @@
                     ctx.lineTo(centerX + Math.cos(angle) * (radius + 12), centerY + Math.sin(angle) * (radius +
                     12));
                     ctx.lineWidth = 3;
-                    ctx.strokeStyle = '#fff'; 
+                    ctx.strokeStyle = '#fff';
                     ctx.stroke();
                 }
 
@@ -659,9 +642,9 @@
                 ctx.textBaseline = 'middle';
 
                 if (value === 0) {
-                    ctx.fillText('--', centerX, centerY); 
+                    ctx.fillText('--', centerX, centerY);
                 } else {
-                    ctx.fillText(percentage + '%', centerX, centerY); 
+                    ctx.fillText(percentage + '%', centerX, centerY);
                 }
             }
             drawGauge('gaugeCanvas1', 0, 50, 30);
