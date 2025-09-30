@@ -88,8 +88,14 @@
             display: block;
             width: 100%;
         }
-    </style>
 
+        <style>#myCanvas {
+            max-width: 600px;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16/9;
+        }
+    </style>
 @endsection
 @section('content')
     <div class="col-12">
@@ -221,16 +227,27 @@
                 <div class="card">
                     <div class="card-body card-body-canvas">
                         <canvas id="myCanvas" class="w-100"></canvas>
-                        <div class="d-flex justify-content-center align-items-center mt-3">
-                            <div class="d-flex">
-                                <div class="sensor-indicator" style="background-color: #37B401;" title="Normal"></div>
-                                <p class="font-indicator me-3">Normal</p>
-
-                                <div class="sensor-indicator" style="background-color: #FECD08;" title="Warning"></div>
-                                <p class="font-indicator me-3">Warning</p>
-
-                                <div class="sensor-indicator" style="background-color: #FB0707;" title="Critical"></div>
-                                <p class="font-indicator me-3">Critical</p>
+                        <div class="d-flex justify-content-center align-items-center mt-3 gap-4">
+                            <!-- Normal -->
+                            <div class="d-flex align-items-center">
+                                <div class="sensor-indicator"
+                                    style="background-color: #37B401; width:40px; height:8px; border-radius:4px; margin-right:6px;">
+                                </div>
+                                <span class="font-indicator">Normal</span>
+                            </div>
+                            <!-- Warning -->
+                            <div class="d-flex align-items-center">
+                                <div class="sensor-indicator"
+                                    style="background-color: #FECD08; width:40px; height:8px; border-radius:4px; margin-right:6px;">
+                                </div>
+                                <span class="font-indicator">Warning</span>
+                            </div>
+                            <!-- Critical -->
+                            <div class="d-flex align-items-center">
+                                <div class="sensor-indicator"
+                                    style="background-color: #FB0707; width:40px; height:8px; border-radius:4px; margin-right:6px;">
+                                </div>
+                                <span class="font-indicator">Critical</span>
                             </div>
                         </div>
                         <div class="d-flex justify-content-start align-items-center mt-3 flex-wrap">
@@ -628,9 +645,9 @@
                     const angle = (i / 10) * 2 * Math.PI - Math.PI / 2;
                     ctx.beginPath();
                     ctx.moveTo(centerX + Math.cos(angle) * (radius - 12), centerY + Math.sin(angle) * (radius -
-                    12));
+                        12));
                     ctx.lineTo(centerX + Math.cos(angle) * (radius + 12), centerY + Math.sin(angle) * (radius +
-                    12));
+                        12));
                     ctx.lineWidth = 3;
                     ctx.strokeStyle = '#fff';
                     ctx.stroke();
