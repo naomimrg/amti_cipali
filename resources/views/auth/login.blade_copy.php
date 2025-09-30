@@ -70,7 +70,6 @@
                                     style="padding-left:20px;padding-right:20px;">
                                     @csrf
                                     <div class="mb-3">
-
                                         <input style="background:#817b84;border-radius:15px;border:none;color:white;"
                                             type="email" class="form-control @error('email') is-invalid @enderror"
                                             id="email" name="email" placeholder="email" value="{{ old('email') }}"
@@ -82,9 +81,7 @@
                                         @enderror
                                     </div>
                                     <div class="mb-3 form-password-toggle">
-
                                         <div class="input-group input-group-merge">
-
                                             <input
                                                 style="background:#817b84;border-radius:15px;border:none;color:white;"
                                                 type="password" id="password"
