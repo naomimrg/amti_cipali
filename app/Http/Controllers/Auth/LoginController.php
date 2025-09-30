@@ -27,7 +27,7 @@ class LoginController extends Controller
 
         $response = Http::asForm()
             ->withOptions([
-                'verify' => storage_path('cert/cacert.pem'), // <- path CA bundle
+                'verify' => storage_path('cert/cacert.pem'),
             ])
             ->post('https://www.google.com/recaptcha/api/siteverify', [
                 'secret'   => env('RECAPTCHA_SECRET_KEY'),
@@ -43,7 +43,6 @@ class LoginController extends Controller
             ])->withInput();
         }
 
-        // lanjut proses login bawaan
         if (
             method_exists($this, 'hasTooManyLoginAttempts') &&
             $this->hasTooManyLoginAttempts($request)
