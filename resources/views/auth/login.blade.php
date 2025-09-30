@@ -20,70 +20,70 @@
 </head>
 
 <style>
-    /* --- Styling form sebelah kiri (punya kamu) --- */
-    .left-pane .card-header h4 {
-        font-weight: 600;
-        font-size: 1.25rem;
-        line-height: 1.3;
-        margin-bottom: .25rem;
-    }
+/* --- Styling form sebelah kiri (punya kamu) --- */
+.left-pane .card-header h4 {
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    margin-bottom: .25rem;
+}
 
-    .left-pane .card-header p {
-        color: #6b7280;
-        font-size: .95rem;
-    }
+.left-pane .card-header p {
+    color: #6b7280;
+    font-size: .95rem;
+}
 
-    .left-pane .form-control.form-control-lg {
-        height: 48px;
-        border-radius: 12px;
-        border-color: #D1D5DB;
-    }
+.left-pane .form-control.form-control-lg {
+    height: 48px;
+    border-radius: 12px;
+    border-color: #D1D5DB;
+}
 
-    .left-pane .form-control.form-control-lg:focus {
-        border-color: #4F46E5;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, .2);
-    }
+.left-pane .form-control.form-control-lg:focus {
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, .2);
+}
 
-    .left-pane .g-recaptcha {
-        transform: scale(1);
-        transform-origin: left top;
-    }
+.left-pane .g-recaptcha {
+    transform: scale(1);
+    transform-origin: left top;
+}
 
-    .left-pane .card-body .mb-3>div {
-        width: 100%;
-    }
+.left-pane .card-body .mb-3>div {
+    width: 100%;
+}
 
-    .left-pane .btn-primary {
-        background: #4F46E5;
-        border-color: #4F46E5;
-        border-radius: 12px;
-        font-weight: 600;
-    }
+.left-pane .btn-primary {
+    background: #4F46E5;
+    border-color: #4F46E5;
+    border-radius: 12px;
+    font-weight: 600;
+}
 
-    .left-pane .btn-primary:hover {
-        background: #4338CA;
-        border-color: #4338CA;
-    }
+.left-pane .btn-primary:hover {
+    background: #4338CA;
+    border-color: #4338CA;
+}
 
-    .left-pane .btn-primary:focus {
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, .25);
-    }
+.left-pane .btn-primary:focus {
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, .25);
+}
 
-    .left-pane .card-footer a {
-        text-decoration: underline;
-    }
+.left-pane .card-footer a {
+    text-decoration: underline;
+}
 
-    @media (min-width: 992px) {
-        .left-pane .card-plain {
-            transform: translateX(-12px);
-        }
+@media (min-width: 992px) {
+    .left-pane .card-plain {
+        transform: translateX(-12px);
     }
+}
 
-    /* Pastikan konten di atas background React */
-    .page-content {
-        position: relative;
-        z-index: 5;
-    }
+/* Pastikan konten di atas background React */
+.page-content {
+    position: relative;
+    z-index: 5;
+}
 </style>
 
 <body class="">
@@ -174,18 +174,18 @@
     <script src="{{ url('/assets') }}/laragon/js/plugins/smooth-scrollbar.min.js"></script>
 
     <script>
-        var win = navigator.platform.indexOf('Win') > -1;
-        if (win && document.querySelector('#sidenav-scrollbar')) {
-            var options = {
-                damping: '0.5'
-            };
-            Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-        }
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+        var options = {
+            damping: '0.5'
+        };
+        Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
     </script>
 
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <script src="{{ url('/assets') }}/argon/js/argon-dashboard.min.js?v=2.1.0"></script>
+    <!-- <script src="{{ url('/assets') }}/argon/js/argon-dashboard.min.js?v=2.1.0"></script> -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <!-- Laravel Mix JS (React background bundle) -->
