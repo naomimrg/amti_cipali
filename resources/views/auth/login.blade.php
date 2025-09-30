@@ -1,195 +1,289 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ url('/assets') }}/argon/img/apple-icon.png" />
-    <link rel="icon" type="image/png" href="{{ url('/assets') }}/argon/img/logo-amti.png" />
+    <meta charset="UTF-8">
     <title>{{ config('app.name') }} | Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <!-- Fonts and icons -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <style>
+    :root {
+        --glass: rgba(255, 255, 255, .55);
+        --focus: #2563eb;
+        --text: #111827;
+        --muted: #6b7280;
+        --btn: #6e56ff;
+        --btn-hover: #5a45ff;
+    }
 
-    <!-- Argon CSS -->
-    <link id="pagestyle" href="{{ url('/assets') }}/argon/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+    * {
+        box-sizing: border-box;
+    }
 
-    <!-- Laravel Mix CSS (React background styles) -->
-    <link rel="stylesheet" href="{{ mix('css/app.css') }}">
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        font-family: 'Open Sans', Arial, sans-serif;
+        color: var(--text);
+    }
+
+    body {
+        overflow: hidden;
+    }
+
+    .bg-grid {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        z-index: -1;
+    }
+
+    .bg-grid>div {
+        background-size: cover;
+        background-position: center;
+    }
+
+    .brand {
+        position: absolute;
+        top: 55px;
+        left: 45px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 18px;
+        background: var(--glass);
+        border-radius: 12px;
+    }
+
+    .brand img {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        display: block;
+    }
+
+    .brand-sep {
+        width: 3px;
+        height: 36px;
+        background: #000;
+        display: inline-block;
+        border-radius: 2px;
+    }
+
+
+    .brand-text {
+        /* line-height: 1.1; */
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: .22em;
+        white-space: pre-line;
+        opacity: 0;
+        transform: translateX(-14px);
+        animation: brandIn .9s cubic-bezier(.23, 1, .32, 1) .05s forwards;
+    }
+
+    @keyframes brandIn {
+        0% {
+            opacity: 0;
+            transform: translateX(-14px);
+        }
+
+        60% {
+            opacity: 1;
+            transform: translateX(6px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .login-wrap {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .card {
+        width: min(420px, 92vw);
+        background: var(--glass);
+        border-radius: 20px;
+        padding: 36px 24px 28px;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, .25);
+        text-align: center;
+    }
+
+    .card h2 {
+        margin: 0 0 22px;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: .02em;
+    }
+
+    .form {
+        width: 100%;
+        display: grid;
+        gap: 12px;
+        place-items: center;
+    }
+
+    .input {
+        width: 86%;
+        height: 48px;
+        border-radius: 26px;
+        border: 1px solid #d1d5db;
+        background: #fff;
+        padding: 0 16px;
+        font-size: 15px;
+        outline: none;
+        transition: border-color .15s, box-shadow .15s;
+    }
+
+    .input:focus {
+        border-color: var(--focus);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, .28);
+    }
+
+    .hint {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .btn {
+        width: 86%;
+        height: 48px;
+        border: none;
+        border-radius: 26px;
+        background: var(--btn);
+        color: #fff;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: .22em;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background .15s, transform .06s;
+    }
+
+    .btn:hover {
+        background: var(--btn-hover);
+    }
+
+    .btn:active {
+        transform: translateY(1px);
+    }
+
+    .btn:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+    }
+
+    @media (max-width:520px) {
+        .brand {
+            top: 16px;
+            left: 16px;
+            padding: 10px 14px;
+            gap: 12px;
+        }
+
+        .brand img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .brand-sep {
+            height: 28px;
+        }
+
+        .card {
+            padding: 28px 16px 22px;
+        }
+    }
+    </style>
 </head>
 
-<style>
-/* --- Styling form sebelah kiri (punya kamu) --- */
-.left-pane .card-header h4 {
-    font-weight: 600;
-    font-size: 1.25rem;
-    line-height: 1.3;
-    margin-bottom: .25rem;
-}
+<body>
+    <div class="bg-grid">
+        <div style="background-image:url('{{ asset('assets/argon/img/slide-login/cipali.jpg') }}')"></div>
+        <div style="background-image:url('{{ asset('assets/argon/img/slide-login/unpress.jpg') }}')"></div>
+        <div style="background-image:url('{{ asset('assets/argon/img/slide-login/kaltim.jpeg') }}')"></div>
+        <div style="background-image:url('{{ asset('assets/argon/img/slide-login/jetty.png') }}')"></div>
+    </div>
+    <div class="brand">
+        <img src="{{ asset('assets/argon/img/logo-amti.png') }}" alt="AMTI">
+        <span class="brand-sep" aria-hidden="true"></span>
+        <span class="brand-text">ASSET MONITORING
+            TEKNOLOGI INDONESIA</span>
+    </div>
+    <div class="login-wrap">
+        <div class="card">
+            <h2>SHMS LOGIN</h2>
 
-.left-pane .card-header p {
-    color: #6b7280;
-    font-size: .95rem;
-}
+            <form id="formAuthentication" class="form" method="POST" action="{{ route('login') }}">
+                @csrf
 
-.left-pane .form-control.form-control-lg {
-    height: 48px;
-    border-radius: 12px;
-    border-color: #D1D5DB;
-}
+                <input type="email" id="email" name="email"
+                    class="input form-control @error('email') is-invalid @enderror" placeholder="Email"
+                    value="{{ old('email') }}" required autocomplete="off" autofocus>
+                @error('email')
+                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                @enderror
 
-.left-pane .form-control.form-control-lg:focus {
-    border-color: #4F46E5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, .2);
-}
+                <input type="password" id="password" name="password"
+                    class="input form-control @error('password') is-invalid @enderror" placeholder="Password" required
+                    autocomplete="off" aria-describedby="password">
+                @error('password')
+                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                @enderror
 
-.left-pane .g-recaptcha {
-    transform: scale(1);
-    transform-origin: left top;
-}
-
-.left-pane .card-body .mb-3>div {
-    width: 100%;
-}
-
-.left-pane .btn-primary {
-    background: #4F46E5;
-    border-color: #4F46E5;
-    border-radius: 12px;
-    font-weight: 600;
-}
-
-.left-pane .btn-primary:hover {
-    background: #4338CA;
-    border-color: #4338CA;
-}
-
-.left-pane .btn-primary:focus {
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, .25);
-}
-
-.left-pane .card-footer a {
-    text-decoration: underline;
-}
-
-@media (min-width: 992px) {
-    .left-pane .card-plain {
-        transform: translateX(-12px);
-    }
-}
-
-/* Pastikan konten di atas background React */
-.page-content {
-    position: relative;
-    z-index: 5;
-}
-</style>
-
-<body class="">
-    <!-- Mount React Background (4 gambar) -->
-    <div id="bg-root" data-images='[
-    "/assets/argon/img/slide-login/unpres.png",
-    "/assets/argon/img/slide-login/jetty.png",
-    "/assets/argon/img/slide-login/cipali.png",
-    "/assets/argon/img/slide-login/kaltim.png"
-  ]'></div>
-
-    <main class="main-content mt-0 page-content">
-        <section>
-            <div class="page-header min-vh-100">
-                <div class="container">
-                    <div class="row justify-content-start">
-                        <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto left-pane">
-                            <div class="card card-plain">
-                                <div class="card-header pb-0 text-start">
-                                    <img src="{{ url('/assets') }}/argon/img/login-amti.png" alt="Logo"
-                                        style="height:75px;" />
-                                </div>
-
-                                <div class="card-body">
-                                    <form role="form" id="formAuthentication" method="POST"
-                                        action="{{ route('login') }}">
-                                        @csrf
-
-                                        <div class="mb-3">
-                                            <input type="email" id="email" name="email"
-                                                class="form-control form-control-lg @error('email') is-invalid @enderror"
-                                                placeholder="Email" value="{{ old('email') }}" required
-                                                autocomplete="email" autofocus />
-                                            @error('email')
-                                            <span class="invalid-feedback"
-                                                role="alert"><strong>{{ $message }}</strong></span>
-                                            @enderror
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <input type="password" id="password" name="password"
-                                                class="form-control form-control-lg @error('password') is-invalid @enderror"
-                                                placeholder="Password" required autocomplete="current-password" />
-                                            @error('password')
-                                            <span class="invalid-feedback"
-                                                role="alert"><strong>{{ $message }}</strong></span>
-                                            @enderror
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <div class="g-recaptcha"
-                                                data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
-                                            @error('g-recaptcha-response')
-                                            <span
-                                                class="invalid-feedback d-block"><strong>{{ $message }}</strong></span>
-                                            @enderror
-                                        </div>
-
-                                        <div class="text-center">
-                                            <button class="btn btn-lg btn-primary w-100 mt-4 mb-0" type="submit">
-                                                {{ __('Masuk') }}
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <div class="card-footer text-center pt-0 px-lg-2 px-1">
-                                    <p class="mb-4 text-sm mx-auto">
-                                        Ada Kendala? Hubungi Admin.
-                                        <a href="javascript:;"
-                                            class="text-primary text-gradient font-weight-bold">Call</a>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Kolom kanan rotator DIHAPUS, karena background sudah diganti React --}}
-                    </div>
+                <div style="text-align:center;">
+                    <div class="hint">Please validate the captcha below</div>
+                    <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"
+                        style="display:inline-block;"></div>
+                    @if ($errors->has('g-recaptcha-response'))
+                    <span class="invalid-feedback" style="display:block">
+                        <strong>{{ $errors->first('g-recaptcha-response') }}</strong>
+                    </span>
+                    @endif
                 </div>
-            </div>
-        </section>
-    </main>
 
-    <!-- Core JS Files -->
-    <script src="{{ url('/assets') }}/argon/js/core/popper.min.js"></script>
-    <script src="{{ url('/assets') }}/argon/js/core/bootstrap.min.js"></script>
-    <script src="{{ url('/assets') }}/argon/js/plugins/perfect-scrollbar.min.js"></script>
-    <script src="{{ url('/assets') }}/laragon/js/plugins/smooth-scrollbar.min.js"></script>
+                <button id="submitBtn" class="btn" type="submit">LOGIN</button>
+            </form>
+        </div>
+    </div>
 
-    <script>
-    var win = navigator.platform.indexOf('Win') > -1;
-    if (win && document.querySelector('#sidenav-scrollbar')) {
-        var options = {
-            damping: '0.5'
-        };
-        Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-    }
-    </script>
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('formAuthentication');
+            const btn = document.getElementById('submitBtn');
+            const inputs = form.querySelectorAll('input[type="email"], input[type="password"]');
+            let captchaOk = false;
 
-    <!-- Github buttons -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <!-- <script src="{{ url('/assets') }}/argon/js/argon-dashboard.min.js?v=2.1.0"></script> -->
+            function sync() {
+                const filled = Array.from(inputs).every(i => i.value.trim() !== '');
+                btn.disabled = !(filled && captchaOk);
+            }
+            window.onCaptchaSuccess = function() {
+                captchaOk = true;
+                sync();
+            };
+            window.onCaptchaExpired = function() {
+                captchaOk = false;
+                sync();
+            };
+
+            inputs.forEach(i => i.addEventListener('input', sync));
+            sync();
+        });
+    </script> -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
-    <!-- Laravel Mix JS (React background bundle) -->
-    <script src="{{ mix('js/app.js') }}" defer></script>
 </body>
 
 </html>
