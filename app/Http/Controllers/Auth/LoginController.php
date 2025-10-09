@@ -25,14 +25,11 @@ class LoginController extends Controller
     {
         $this->validateLogin($request);
 
-        $response = Http::asForm()
-            ->withOptions([
-                'verify' => storage_path('cert/cacert.pem'),
-            ])
+        $response = Http::withoutVerifying()
+            ->asForm()
             ->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret'   => env('RECAPTCHA_SECRET_KEY'),
+                'secret' => env('RECAPTCHA_SECRET_KEY'),
                 'response' => $request->input('g-recaptcha-response'),
-                'remoteip' => $request->ip(),
             ]);
 
         $captchaData = $response->json();

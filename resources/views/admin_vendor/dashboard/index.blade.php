@@ -2,91 +2,110 @@
 @section('title', 'Home')
 @section('style')
 <style>
-.form-group{
-    margin-bottom: 10px;
-}
+    .form-group {
+        margin-bottom: 10px;
+    }
 </style>
 
 @endsection
 @section('content')
-    <div class="col-12">
-        <!-- card atas -->
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
-                            <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                                <div class="gauge-container">
-                                    <canvas id="gaugeCanvas1" width="130" height="130"></canvas>
-                                </div>
-                                <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">? Hz</p>
+<div class="col-12">
+    <!-- card atas -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <!-- Ubah align-items-center menjadi align-items-start -->
+                        <div class="text-center">
+                            <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
+                            <div class="gauge-container">
+                                <canvas id="gaugeCanvas1" width="130" height="130"></canvas>
                             </div>
-                            <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <a href="{{ $spanId ? route('vendor.live_sensor.detail', [$lokasi->slug, $spanId]) : route('vendor.live_sensor', $lokasi->slug) }}" class="text-decoration-none">
-                                    <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Natural Frequency</h2>
-                                </a>
-                                <img src="/assets/img/Shade-natural.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                            </div>
+                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current
+                                Value</p>
+                            <p class="mb-0 nunito-font" id="value_natfreq" style="font-size: 14px; color:#161313;">? Hz
+                            </p>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                    <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
-                        <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                                <div class="gauge-container">
-                                    <canvas id="gaugeCanvas2" width="130" height="130"></canvas>
-                                </div>
-                                <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                <p id="strain-value" class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">? Microstain</p>
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
-                                    <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Strain Gauge</h2>
-                                </a>
-                                <img src="/assets/img/Shade-strain.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
-                            <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                                <div class="gauge-container">
-                                    <canvas id="gaugeCanvas3" width="130" height="130"></canvas>
-                                </div>
-                                <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                <p class="mb-0 nunito-font" id="static-deflection" style="font-size: 14px; color:#161313;">? mm</p>
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
-                                    <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Static Deflection</h2>
-                                </a>
-                                <img src="/assets/img/Shade-static.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                            </div>
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                            <!-- Tambahkan d-flex dan flex-column -->
+                            <a href="{{ $spanId ? route('vendor.live_sensor.detail', [$lokasi->slug, $spanId]) : route('vendor.live_sensor', $lokasi->slug) }}"
+                                class="text-decoration-none">
+                                <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Natural Frequency</h2>
+                            </a>
+                            <img src="/assets/img/Shade-natural.png" alt="Shade Strain" class="img-fluid ms-5"
+                                style="width: 100%; height: auto; max-width: 300px;">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- end card atas -->
-         <!-- canvas -->
-        <div class="row">
-            <div id="open-edit">
-                <i class='bx bx-lock-alt'></i>
-            </div> 
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body card-body-canvas"> 
-                        <canvas id="myCanvas" class="w-100"></canvas>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
+        <div class="col-md-4">
+            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <!-- Ubah align-items-center menjadi align-items-start -->
+                        <div class="text-center">
+                            <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
+                            <div class="gauge-container">
+                                <canvas id="gaugeCanvas2" width="130" height="130"></canvas>
+                            </div>
+                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current
+                                Value</p>
+                            <p id="strain-value" class="mb-0 nunito-font" style="font-size: 14px; color:#161313;">?
+                                Microstain</p>
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                            <!-- Tambahkan d-flex dan flex-column -->
+                            <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Strain Gauge</h2>
+                            </a>
+                            <img src="/assets/img/Shade-strain.png" alt="Shade Strain" class="img-fluid ms-5"
+                                style="width: 100%; height: auto; max-width: 300px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <!-- Ubah align-items-center menjadi align-items-start -->
+                        <div class="text-center">
+                            <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
+                            <div class="gauge-container">
+                                <canvas id="gaugeCanvas3" width="130" height="130"></canvas>
+                            </div>
+                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current
+                                Value</p>
+                            <p class="mb-0 nunito-font" id="static-deflection" style="font-size: 14px; color:#161313;">?
+                                mm</p>
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                            <!-- Tambahkan d-flex dan flex-column -->
+                            <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Static Deflection</h2>
+                            </a>
+                            <img src="/assets/img/Shade-static.png" alt="Shade Strain" class="img-fluid ms-5"
+                                style="width: 100%; height: auto; max-width: 300px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end card atas -->
+    <!-- canvas -->
+    <div class="row">
+        <div id="open-edit">
+            <i class='bx bx-lock-alt'></i>
+        </div>
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body card-body-canvas">
+                    <canvas id="myCanvas" class="w-100"></canvas>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
                         <div class="d-flex justify-content-center w-100 ">
                             <div class="d-flex mx-auto">
                                 <div class="sensor-indicator" style="background-color: #37B401;" title="Normal"></div>
@@ -100,91 +119,107 @@
                             </div>
                         </div>
                     </div>
-                    </div>
                 </div>
-            </div>                        
+            </div>
         </div>
-        <!-- end canvas -->
-        <!-- card bawah -->
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="/assets/img/square-line.png" alt="Gauge" style="width: 20px; height: auto; margin-right: 10px;">
-                            <div class="flex-grow-1">
-                                <p class="mb-0 nunito-font" style="color: black;">Accelerometer</p>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="/assets/img/triangle-line.png" alt="Tiltmeter" style="width: 20px; height: auto; margin-right: 10px;">
-                            <div class="flex-grow-1">
-                                <p class="mb-0 nunito-font" style="color: black;">Tiltmeter</p>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="/assets/img/hexagon-line.png" alt="Strain" style="width: 20px; height: auto; margin-right: 10px;">
-                            <div class="flex-grow-1">
-                                <p class="mb-0 nunito-font" style="color: black;">Strain Gauge</p>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <img src="/assets/img/circle-line.png" alt="Displacement" style="width: 20px; height: auto; margin-right: 10px;">
-                            <div class="flex-grow-1">
-                                <p class="mb-0 nunito-font" style="color: black;">Displacement</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-            </div>
-            <div class="col-md-4">
-                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
-                            <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                                <div class="gauge-container">
-                                    <canvas id="gaugeCanvas4" width="130" height="130"></canvas>
-                                </div>
-                                <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                <p class="mb-0 nunito-font" id="dynamic-deflection" style="font-size: 14px; color:#161313;">? mm</p>
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
-                                    <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Dynamic Deflection</h2>
-                                </a>
-                                <img src="/assets/img/Shade-dynamic.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card mb-4" style="border-radius: 20px; height: 200px;">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start"> <!-- Ubah align-items-center menjadi align-items-start -->
-                            <div class="text-center"> <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
-                                <div class="gauge-container">
-                                    <canvas id="gaugeCanvas5" width="130" height="130"></canvas>
-                                </div>
-                                <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current Value</p>
-                                <p class="mb-0 nunito-font" id="vehicle-load" style="font-size: 14px; color:#161313;">3 Ton</p>
-                            </div>
-                            <div class="flex-grow-1 d-flex flex-column justify-content-center"> <!-- Tambahkan d-flex dan flex-column -->
-                                <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
-                                    <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Vehicle load</h2>
-                                </a>
-                                <img src="/assets/img/Shade-vehicle.png" alt="Shade Strain" class="img-fluid ms-5" style="width: 100%; height: auto; max-width: 300px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-        <!-- endcard bawah -->
     </div>
-           
+    <!-- end canvas -->
+    <!-- card bawah -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="/assets/img/square-line.png" alt="Gauge"
+                            style="width: 20px; height: auto; margin-right: 10px;">
+                        <div class="flex-grow-1">
+                            <p class="mb-0 nunito-font" style="color: black;">Accelerometer</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="/assets/img/triangle-line.png" alt="Tiltmeter"
+                            style="width: 20px; height: auto; margin-right: 10px;">
+                        <div class="flex-grow-1">
+                            <p class="mb-0 nunito-font" style="color: black;">Tiltmeter</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="/assets/img/hexagon-line.png" alt="Strain"
+                            style="width: 20px; height: auto; margin-right: 10px;">
+                        <div class="flex-grow-1">
+                            <p class="mb-0 nunito-font" style="color: black;">Strain Gauge</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <img src="/assets/img/circle-line.png" alt="Displacement"
+                            style="width: 20px; height: auto; margin-right: 10px;">
+                        <div class="flex-grow-1">
+                            <p class="mb-0 nunito-font" style="color: black;">Displacement</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <!-- Ubah align-items-center menjadi align-items-start -->
+                        <div class="text-center">
+                            <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
+                            <div class="gauge-container">
+                                <canvas id="gaugeCanvas4" width="130" height="130"></canvas>
+                            </div>
+                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current
+                                Value</p>
+                            <p class="mb-0 nunito-font" id="dynamic-deflection" style="font-size: 14px; color:#161313;">
+                                ? mm</p>
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                            <!-- Tambahkan d-flex dan flex-column -->
+                            <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Dynamic Deflection</h2>
+                            </a>
+                            <img src="/assets/img/Shade-dynamic.png" alt="Shade Strain" class="img-fluid ms-5"
+                                style="width: 100%; height: auto; max-width: 300px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4" style="border-radius: 20px; height: 200px;">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <!-- Ubah align-items-center menjadi align-items-start -->
+                        <div class="text-center">
+                            <!-- Tambahkan text-center untuk meratakan gambar dan teks -->
+                            <div class="gauge-container">
+                                <canvas id="gaugeCanvas5" width="130" height="130"></canvas>
+                            </div>
+                            <p class="mb-0 nunito-font font-weight-bold" style="font-size: 14px; color:#A3A3A3;">Current
+                                Value</p>
+                            <p class="mb-0 nunito-font" id="vehicle-load" style="font-size: 14px; color:#161313;">3 Ton
+                            </p>
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                            <!-- Tambahkan d-flex dan flex-column -->
+                            <a href="{{url()->current()}}/live_sensor/17" class="text-decoration-none">
+                                <h2 class="card-title ms-3 mb-0 nunito-font text-dark">Vehicle load</h2>
+                            </a>
+                            <img src="/assets/img/Shade-vehicle.png" alt="Shade Strain" class="img-fluid ms-5"
+                                style="width: 100%; height: auto; max-width: 300px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- endcard bawah -->
+</div>
+
 @endsection
 @section('script')
 <script type="text/javascript">
@@ -192,43 +227,44 @@
         headers: {
             'csrftoken': '{{ csrf_token() }}'
         }
-    }); 
-    
+    });
 
-    $(document).ready(function () {
+
+    $(document).ready(function() {
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d');
-    
+
         const img = new Image();
         let shapes = [];
         let isImageLoaded = false;
         let isDataLoaded = false;
         let selectedShape = null; // ⬅ Tambahkan deklarasi di awal
-        let offsetX = 0, offsetY = 0;
+        let offsetX = 0,
+            offsetY = 0;
 
-        $("#open-edit").click(function(){
-             $("#myCanvas").toggleClass("w-100"); // Toggle class di canvas
-             // Toggle class icon
-             let icon = $(this).find("i");
-             if (icon.hasClass("bx-lock-alt")) {
-                 icon.removeClass("bx-lock-alt").addClass("bx-lock-open-alt bx-tada");
-             } else {
-                 icon.removeClass("bx-lock-open-alt bx-tada").addClass("bx-lock-alt");
-             }
-         });
-    
+        $("#open-edit").click(function() {
+            $("#myCanvas").toggleClass("w-100"); // Toggle class di canvas
+            // Toggle class icon
+            let icon = $(this).find("i");
+            if (icon.hasClass("bx-lock-alt")) {
+                icon.removeClass("bx-lock-alt").addClass("bx-lock-open-alt bx-tada");
+            } else {
+                icon.removeClass("bx-lock-open-alt bx-tada").addClass("bx-lock-alt");
+            }
+        });
+
         // Pasang event listener sebelum menetapkan src
         img.onload = function() {
             canvas.width = img.width;
             canvas.height = img.height; // Sesuaikan ukuran
-    
+
             isImageLoaded = true;
             checkAndDraw(); // Cek apakah bisa langsung menggambar
         };
-    
+
         // Atur src gambar, ini memicu `img.onload`
         img.src = "{{ url('/assets') }}/img/lokasi/{{$lokasi->foto}}";
-    
+
         // Mengambil data sensor dari API
         function fetchSensorData() {
             $.ajax({
@@ -245,13 +281,13 @@
                             x: Number(item.x_position),
                             y: Number(item.y_position),
                             radius: 10,
-                            color:"black",
-                    }));
-                    isDataLoaded = true;
-                    checkAndDraw();
+                            color: "black",
+                        }));
+                        isDataLoaded = true;
+                        checkAndDraw();
                     } else {
                         console.log("Tidak ada data sensor ditemukan.");
-                        
+
                     }
                 },
                 error: function(xhr, status, error) {
@@ -307,17 +343,22 @@
                 canvasId,
                 value.toFixed(2),
                 parseInt(sensor.batas_atas ?? 100), // default ke 100 jika null
-                parseInt(sensor.batas_bawah ?? 0)   // default ke 0 jika null
+                parseInt(sensor.batas_bawah ?? 0) // default ke 0 jika null
             );
         }
         // 🔹 Mapping Status API ke Warna
         function getStatusColor(status) {
             switch (status) {
-                case "black": return "black";
-                case "green": return "green";
-                case "orange": return "orange";
-                case "red": return "red";
-                default: return "green";
+                case "black":
+                    return "black";
+                case "green":
+                    return "green";
+                case "orange":
+                    return "orange";
+                case "red":
+                    return "red";
+                default:
+                    return "green";
             }
         }
 
@@ -326,7 +367,7 @@
                 const response = await fetch("/live_sensor/currentnatfreq?lokasi={{ $lokasi->id }}");
                 const data = await response.json();
                 //console.log(data);
-                
+
                 if (data.status === "success") {
                     // Mendapatkan nilai natfreq sensor
                     // console.log(data.max_value);
@@ -336,7 +377,7 @@
 
                     // Menampilkan nilai natfreq dalam format Hz
                     document.getElementById("value_natfreq").innerText = `${value} Hz`;
-                    
+
                     // Menggambar gauge berdasarkan nilai, maxValue, dan warningValue
                     drawGauge('gaugeCanvas1', value, maxValue, warningValue);
                 }
@@ -351,8 +392,8 @@
             const mouseY = e.offsetY;
             const currentUrl = "{{ url()->current() }}"; // Mendapatkan URL saat ini
 
-        // Misalkan Anda memiliki shape yang dipilih
-        
+            // Misalkan Anda memiliki shape yang dipilih
+
             shapes.forEach(shape => {
                 if (
                     mouseX > shape.x && mouseX < shape.x + 50 &&
@@ -363,7 +404,7 @@
             });
         });
 
-    
+
         function checkAndDraw() {
             //console.log("Cek apakah semua data siap...");
             if (isImageLoaded && isDataLoaded) {
@@ -371,16 +412,16 @@
                 drawAll();
             }
         }
-    
+
         function drawAll() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
             shapes.forEach(shape => {
                 drawRoundedRect(shape.x, shape.y, 50, 25, 15, 'white');
-                
+
                 let color = shape.color;
-                
+
                 if (shape.sensor_name.toLowerCase().includes("accelerometer")) {
                     drawRoundedRect(shape.x + 16, shape.y + 5, 15, 15, 1, color);
                 } else if (shape.sensor_name.toLowerCase().includes("tiltmeter")) {
@@ -394,7 +435,7 @@
                 text_label(shape.x + 40, shape.y + 13, shape.number);
             });
         }
-    
+
         function drawRoundedRect(x, y, width, height, radius, color) {
             ctx.fillStyle = color;
             ctx.beginPath();
@@ -410,7 +451,7 @@
             ctx.closePath();
             ctx.fill();
         }
-    
+
         function drawCircle(x, y, radius, color) {
             ctx.fillStyle = color;
             ctx.beginPath();
@@ -426,7 +467,7 @@
             const y2 = y + height;
             const x3 = x + size / 2; // Bottom right vertex
             const y3 = y + height;
-    
+
             ctx.fillStyle = color;
             ctx.beginPath();
             ctx.moveTo(x1, y1);
@@ -435,7 +476,7 @@
             ctx.closePath();
             ctx.fill();
         }
-    
+
         // Function to draw a hexagon
         function drawHexagon(x, y, size, color) {
             ctx.fillStyle = color;
@@ -449,7 +490,7 @@
             ctx.closePath();
             ctx.fill();
         }
-    
+
         function text_label(x, y, text) {
             ctx.fillStyle = 'black';
             ctx.font = '14px Arial';
@@ -477,13 +518,13 @@
             // Tentukan warna dan persentase berdasarkan kondisi
             if (value == 0) {
                 color = '#000000'; // Hitam untuk nilai 0
-                percentage = 100;  // Persentase 100% karena gauge full
+                percentage = 100; // Persentase 100% karena gauge full
             } else if (value < 0) {
                 color = '#16A799'; // Hijau untuk nilai negatif
                 percentage = ((value / maxValue) * 100).toFixed(0); // Persentase untuk nilai negatif
             } else if (value >= maxValue) {
                 color = '#FF0E0E'; // Merah untuk nilai lebih dari atau sama dengan maxValue
-                percentage = 100;  // Persentase 100%
+                percentage = 100; // Persentase 100%
             } else if (value >= warningValue) {
                 color = '#E9E225'; // Kuning (Warning)
             } else {
@@ -521,7 +562,7 @@
             ctx.font = 'bold 20px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            
+
             // Tampilkan "%" jika bukan 0, atau "!" jika value == 0
             if (value === 0) {
                 ctx.fillText('--', centerX, centerY); // Teks "--" jika value = 0
@@ -544,11 +585,8 @@
         // 🔹 Jalankan Fetch Data API Setiap 5 Detik
         setInterval(fetchSensorStatus, 5000);
         setInterval(natFreqCurrentValue, 5000);
-        
+
 
     });
-
-
-
 </script>
 @endsection

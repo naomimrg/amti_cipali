@@ -2,131 +2,132 @@
 @section('title', 'Dashboard')
 @section('style')
 <style>
-#map {
-    height: 350px
-}
+    #map {
+        height: 350px
+    }
 
-.marker-pin {
-    width: 40px;
-    height: 40px;
-    border-radius: 50% 50% 50% 0;
-    background: #c30b82;
-    position: absolute;
-    transform: rotate(-45deg);
-    left: 50%;
-    top: 50%;
-    margin: -15px 0 0 -15px;
-}
+    .marker-pin {
+        width: 40px;
+        height: 40px;
+        border-radius: 50% 50% 50% 0;
+        background: #c30b82;
+        position: absolute;
+        transform: rotate(-45deg);
+        left: 50%;
+        top: 50%;
+        margin: -15px 0 0 -15px;
+    }
 
-.custom-div-icon i {
-    position: absolute;
-    width: 22px;
-    font-size: 22px;
-    left: 0;
-    right: 0;
-    margin: 10px auto;
-    text-align: center;
-}
+    .custom-div-icon i {
+        position: absolute;
+        width: 22px;
+        font-size: 22px;
+        left: 0;
+        right: 0;
+        margin: 10px auto;
+        text-align: center;
+    }
 </style>
 <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.3.3/dist/leaflet.css">
 
-<script src='https://unpkg.com/leaflet@1.3.3/dist/leaflet.js
-'></script>
+<script src='https://unpkg.com/leaflet@1.3.3/dist/leaflet.js'></script>
 @endsection
 @section('content')
 
 <div class="row" style="height:100%;">
     <div class="card shadow-sm">
-        <div class="card-body p-2 py-4">
-            <div id="map" class="leaflet-container" style="height: 500px; width: 100%; z-index: 0;"></div>
+        <div class="card-body py-4">
+            <div id="map" class="leaflet-container" style="height: 600px; width: 100%; z-index: 0;"></div>
         </div>
     </div>
     <div class="col-md-12" style="margin-top: 20px;">
-        <div class="d-flex">
-            <div class="d-flex align-item-center mx-3 my-2">
-                <span class="status-circle status-critical"></span>
-                <div class="status-info">Critical</div>
-            </div>
-            <div class="d-flex align-item-center mx-3  my-2">
-                <span class="status-circle status-warning"></span>
-                <div class="status-info">Warning</div>
-            </div>
-            <div class="d-flex align-item-center mx-3  my-2">
-                <span class="status-circle status-good"></span>
-                <div class="status-info">Good</div>
-            </div>
-            <div class="d-flex align-item-center mx-3  my-2">
-                <span class="status-circle status-off"></span>
-                <div class="status-info">Offline</div>
-            </div>
+        <center>
+            <div class="d-flex">
+                <div class="d-flex align-item-center mx-3 my-2">
+                    <span class="status-circle status-critical"></span>
+                    <div class="status-info">Critical</div>
+                </div>
+                <div class="d-flex align-item-center mx-3  my-2">
+                    <span class="status-circle status-warning"></span>
+                    <div class="status-info">Warning</div>
+                </div>
+                <div class="d-flex align-item-center mx-3  my-2">
+                    <span class="status-circle status-good"></span>
+                    <div class="status-info">Good</div>
+                </div>
+                <div class="d-flex align-item-center mx-3  my-2">
+                    <span class="status-circle status-off"></span>
+                    <div class="status-info">Offline</div>
+                </div>
 
-        </div>
+            </div>
+        </center>
     </div>
 </div>
 <!-- / Content -->
 @endsection
 @section('script')
 <script>
-function showData() {
-    $.ajax({
-        url: "{{ url('/dashboard/listLokasi') }}",
-        dataType: "json",
-        async: true,
-        type: "GET",
-        success: function(data) {
-            var map = L.map('map').setView([-2, 120], 5);
+    function showData() {
+        $.ajax({
+            url: "{{ url('/dashboard/listLokasi') }}",
+            dataType: "json",
+            async: true,
+            type: "GET",
+            success: function(data) {
+                var map = L.map('map').setView([-2, 120], 5);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
 
-            $.each(data.items, function(index, item) {
-                icon = L.divIcon({
-                    className: 'custom-div-icon',
-                    html: '<div id="' + item.id + '-' + item.slug +
-                        '" style="background-color:' + item.status +
-                        ';" class="marker-pin"><center><img src="{{ url("/assets") }}/img/lokasi/' +
-                        item.image +
-                        '" style="width: 30px;height:30px;object-fit:cover;background:black;transform:rotate(45deg);margin-top: 5px;border-radius: 16px;"></center></div>',
-                    iconSize: [30, 42],
-                    iconAnchor: [15, 42]
+                $.each(data.items, function(index, item) {
+                    icon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: '<div id="' + item.id + '-' + item.slug +
+                            '" style="background-color:' + item.status +
+                            ';" class="marker-pin"><center><img src="{{ url("/assets") }}/img/lokasi/' +
+                            item.image +
+                            '" style="width: 30px;height:30px;object-fit:cover;background:black;transform:rotate(45deg);margin-top: 5px;border-radius: 16px;"></center></div>',
+                        iconSize: [30, 42],
+                        iconAnchor: [15, 42]
+                    });
+                    L.marker([item.long, item.lat], {
+                            icon: icon
+                        }).addTo(map)
+                        .bindPopup('<a href="{{ url("/vendor")}}/' + item.slug_vendor + '/' + item
+                            .slug + '">' + item.nama_lokasi + '</a>')
+                        .openPopup();
                 });
-                L.marker([item.long, item.lat], {
-                        icon: icon
-                    }).addTo(map)
-                    .bindPopup('<a href="{{ url("/vendor")}}/' + item.slug_vendor + '/' + item
-                        .slug + '">' + item.nama_lokasi + '</a>')
-                    .openPopup();
-            });
-        }
-    });
-}
-showData();
+            }
+        });
+    }
+    showData();
 
-$(document).ready(function() {
-    realtime();
-});
-
-function realtime() {
-    setTimeout(function() {
-        status();
+    $(document).ready(function() {
         realtime();
-    }, 20000);
-}
-
-function status() {
-    $.ajax({
-        url: "{{ url('/dashboard/listLokasi') }}",
-        dataType: "json",
-        async: true,
-        type: "GET",
-        success: function(data) {
-            $.each(data.items, function(index, item) {
-                var id = item.id + '-' + item.slug;
-                document.getElementById(id).style.backgroundColor = item.status;
-            });
-        }
     });
-}
+
+    function realtime() {
+        setTimeout(function() {
+            status();
+            realtime();
+        }, 20000);
+    }
+
+    function status() {
+        $.ajax({
+            url: "{{ url('/dashboard/listLokasi') }}",
+            dataType: "json",
+            async: true,
+            type: "GET",
+            success: function(data) {
+                $.each(data.items, function(index, item) {
+                    var id = item.id + '-' + item.slug;
+                    document.getElementById(id).style.backgroundColor = item.status;
+                });
+            }
+        });
+    }
 </script>
 @endsection

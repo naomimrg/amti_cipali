@@ -17,26 +17,26 @@ class DashboardController extends Controller
     {
         $id = Auth::user()->id;
         $getUser = User::where('id', $id)->first();
-        if($getUser->role == 'Admin Vendor' || $getUser->role == 'User'){
+        if ($getUser->role == 'Admin Vendor' || $getUser->role == 'User') {
             return redirect('/404');
-        }else{
+        } else {
             return view('dashboard.index');
         }
     }
 
     public function listLokasi()
     {
-        $getLokasi = DB::table('lokasi')->select('lokasi.*', 'vendor.nama_vendor','vendor.foto as foto_vendor','vendor.slug as slug_vendor')->join('vendor','vendor.id','=','lokasi.id_vendor')->where('lokasi.isDeleted',0)->where('vendor.isDeleted',0)->get();
+        $getLokasi = DB::table('lokasi')->select('lokasi.*', 'vendor.nama_vendor', 'vendor.foto as foto_vendor', 'vendor.slug as slug_vendor', 'vendor.id')->join('vendor', 'vendor.id', '=', 'lokasi.id_vendor')->where('lokasi.isDeleted', 0)->where('vendor.isDeleted', 0)->get();
         $data = array();
         foreach ($getLokasi as $key) {
             if ($key->foto != "" || $key->foto != NULL) {
                 $image = $key->foto;
-            }else {
+            } else {
                 $image = 'default.jpg';
             }
             $status = "green";
             $countSpan = 0;
-            $getSpan = DB::table('span')->where('id_lokasi',$key->id)->where('isDeleted',0)->orderBy('id', 'ASC')->get();
+            $getSpan = DB::table('span')->where('id_lokasi', $key->id)->where('isDeleted', 0)->orderBy('id', 'ASC')->get();
             $to_date = date('Y-m-d H:i:s');
             $from_date = date('Y-m-d H:i:s', strtotime('-50 second'));
             $goodSpan = 0;
@@ -44,80 +44,80 @@ class DashboardController extends Controller
             $criticalSpan = 0;
             $offlineSpan = 0;
             foreach ($getSpan as $keys) {
-                $countSensor = Sensor::where('id_span',$keys->id)->where('isDeleted',0)->count();
+                $countSensor = Sensor::where('id_span', $keys->id)->where('isDeleted', 0)->count();
                 $good = 0;
                 $warning = 0;
                 $critical = 0;
                 $offline = 0;
-                if($countSensor > 0){
-                    $getSensor = Sensor::where('id_span',$keys->id)->where('isDeleted',0)->get();
-                    foreach($getSensor as $gs){
+                if ($countSensor > 0) {
+                    $getSensor = Sensor::where('id_span', $keys->id)->where('isDeleted', 0)->get();
+                    foreach ($getSensor as $gs) {
                         $batas_atas = $gs->batas_atas;
                         $batas_bawah = $gs->batas_bawah;
-                        $getValue = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(DB::raw('time'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->count();
-                        if($getValue > 0){
-                            $gV = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(DB::raw('DATE(time)'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->first();
+                        $getValue = DB::table('log_data')->where('id_sensor', $gs->id)->whereBetween(DB::raw('time'), [$from_date, $to_date])->orderBy('id', 'DESC')->limit(1)->count();
+                        if ($getValue > 0) {
+                            $gV = DB::table('log_data')->where('id_sensor', $gs->id)->whereBetween(DB::raw('DATE(time)'), [$from_date, $to_date])->orderBy('id', 'DESC')->limit(1)->first();
                             $value = $gV->value;
-                            if($value == 0 || $value == NULL){
+                            if ($value == 0 || $value == NULL) {
                                 $offline++;
-                            }elseif($value < $batas_bawah){
+                            } elseif ($value < $batas_bawah) {
                                 $good++;
-                            }elseif($value > $batas_bawah && $value < $batas_atas){
+                            } elseif ($value > $batas_bawah && $value < $batas_atas) {
                                 $warning++;
-                            }elseif($value > $batas_atas){
+                            } elseif ($value > $batas_atas) {
                                 $critical++;
-                            }else{
+                            } else {
                                 $offline++;
                             }
-                        }else{
+                        } else {
                             $offline++;
                         }
-
                     }
                     $rules = $countSensor / 2;
 
-                    if($offline > 0){
+                    if ($offline > 0) {
                         $status = "black-pin";
-                    }elseif($critical > 0 || $warning >= $rules){
+                    } elseif ($critical > 0 || $warning >= $rules) {
                         $status = "red-pin";
-                    }elseif($warning > 0){
+                    } elseif ($warning > 0) {
                         $status = "yellow-pin";
-                    }elseif($good == $countSensor){
+                    } elseif ($good == $countSensor) {
                         $status = "green-pin";
                     }
-                }else{
+                } else {
                     $status = "black-pin";
                 }
 
-                if($status == "red-pin"){
+                if ($status == "red-pin") {
                     $criticalSpan++;
-                }elseif($status == "orange-pin"){
+                } elseif ($status == "orange-pin") {
                     $warningSpan++;
-                }elseif($status == "green-pin"){
+                } elseif ($status == "green-pin") {
                     $goodSpan++;
-                }elseif($status == "black-pin"){
+                } elseif ($status == "black-pin") {
                     $offlineSpan++;
                 }
                 $countSpan++;
             }
-            $rulesSpan = $countSpan/2;
-            if($countSpan > 0){
-                if($offlineSpan > 0){
+            $rulesSpan = $countSpan / 2;
+            if ($countSpan > 0) {
+                if ($offlineSpan > 0) {
                     $statusSpan = "black";
-                }elseif($criticalSpan > 0 || $warningSpan >= $rulesSpan){
+                } elseif ($criticalSpan > 0 || $warningSpan >= $rulesSpan) {
                     $statusSpan = "red";
-                }elseif($warningSpan > 0){
+                } elseif ($warningSpan > 0) {
                     $statusSpan = "yellow";
-                }elseif($goodSpan == $countSpan){
+                } elseif ($goodSpan == $countSpan) {
                     $statusSpan = "green";
                 }
-            }else{
+            } else {
                 $statusSpan = "black";
             }
 
 
             $data[] = [
                 'id' => $key->id,
+                'vendor_id' => $key->id_vendor,
                 'nama_vendor' => $key->nama_vendor,
                 'slug_vendor' => $key->slug_vendor,
                 'image' => $image,
@@ -126,8 +126,8 @@ class DashboardController extends Controller
                 'long' => $key->long,
                 'lat' => $key->lat,
                 'status' => $statusSpan,
-                'created_at' => date('D,j M Y',strtotime($key->created_at))];
-
+                'created_at' => date('D,j M Y', strtotime($key->created_at))
+            ];
         }
         return response()->json(['items' => $data]);
     }
@@ -145,11 +145,11 @@ class DashboardController extends Controller
                     $from_date = now()->subSeconds(3)->toDateTimeString();
 
                     $locations = DB::table('lokasi')
-                        ->leftJoin('span', function($join) {
+                        ->leftJoin('span', function ($join) {
                             $join->on('lokasi.id', '=', 'span.id_lokasi')
                                 ->where('span.isDeleted', 0);
                         })
-                        ->leftJoin('sensor', function($join) {
+                        ->leftJoin('sensor', function ($join) {
                             $join->on('span.id', '=', 'sensor.id_span')
                                 ->where('sensor.isDeleted', 0);
                         })
@@ -183,7 +183,7 @@ class DashboardController extends Controller
                     $data = [];
                     foreach ($locations as $locationId => $location) {
                         $countSensor = $location->count();
-                        $rules = $countSensor/2;
+                        $rules = $countSensor / 2;
 
                         $countOffline = $location->filter(function ($item) {
                             return is_null($item->log_data_value) || $item->log_data_value === 0;
@@ -203,7 +203,7 @@ class DashboardController extends Controller
                             $statusSpan = 'red';
                         } elseif ($countWarning > 0) {
                             $statusSpan = 'yellow';
-                        } elseif($countGood == $countSensor){
+                        } elseif ($countGood == $countSensor) {
                             $statusSpan = "green";
                         }
 
@@ -217,7 +217,8 @@ class DashboardController extends Controller
                             'long' => $location->first()->long,
                             'lat' => $location->first()->lat,
                             'status' => $statusSpan,
-                            'created_at' => date('D,j M Y',strtotime($location->first()->created_at))];
+                            'created_at' => date('D,j M Y', strtotime($location->first()->created_at))
+                        ];
                     }
                 }
 
