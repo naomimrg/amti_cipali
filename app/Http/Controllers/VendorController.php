@@ -324,14 +324,11 @@ class VendorController extends Controller
         $sensorMeta = DB::table('sensor')->where('id', $sensorId)->first();
         if (!$sensorMeta) return response()->json(['error' => 'sensor not found'], 404);
 
-        if ($mode === 'history') {
-            $latestTime = DB::table('log_data')
-                ->where('id_sensor', $sensorId)
-                ->max('time');
+        $TTL_SECONDS = 8;
 
-            if (!$latestTime) {
-                return response()->json([]);
-            }
+        if ($mode === 'history') {
+            $latestTime = DB::table('log_data')->where('id_sensor', $sensorId)->max('time');
+            if (!$latestTime) return response()->json([]);
 
             $to   = \Carbon\Carbon::parse($latestTime);
             $from = (clone $to)->subMilliseconds($rangeMs);
@@ -340,30 +337,45 @@ class VendorController extends Controller
                 ->select([
                     'time as datetime',
                     'value',
-                    DB::raw("'" . ($sensorMeta->satuan ?? '') . "' as satuan"),
-                    DB::raw("NULL as status")
+                    DB::raw("'" . ($sensorMeta->satuan ?? '') . "' as satuan")
                 ])
                 ->where('id_sensor', $sensorId)
                 ->whereBetween('time', [$from, $to])
                 ->orderBy('time', 'asc')
                 ->get();
 
+            $lastTs = \Carbon\Carbon::parse(optional($rows->last())->datetime);
+            $online = $lastTs && $lastTs->gt(now()->subSeconds($TTL_SECONDS));
+            $status = $online ? 'online' : 'offline';
+            $color  = $online ? '#10B981' : '#000000';
+
+            if ($rows->isNotEmpty()) {
+                $rows[$rows->count() - 1]->status = $status;
+                $rows[$rows->count() - 1]->color  = $color;
+            }
+
             return response()->json($rows);
         }
 
         $row = DB::table('log_data')
-            ->select([
-                'time as datetime',
-                'value',
-                DB::raw("'" . ($sensorMeta->satuan ?? '') . "' as satuan"),
-                DB::raw("NULL as status")
-            ])
+            ->select(['time as datetime', 'value'])
             ->where('id_sensor', $sensorId)
             ->orderBy('time', 'desc')
             ->limit(1)
             ->first();
 
-        return response()->json($row ?? new \stdClass());
+        if (!$row) return response()->json(new \stdClass());
+
+        $ts = \Carbon\Carbon::parse($row->datetime);
+        $online = $ts->gt(now()->subSeconds($TTL_SECONDS));
+
+        return response()->json([
+            'datetime' => $row->datetime,
+            'value'    => $row->value,
+            'satuan'   => $sensorMeta->satuan ?? '',
+            'status'   => $online ? 'online' : 'offline',
+            'color'    => $online ? '#10B981' : '#000000',
+        ]);
     }
 
     public function natFreqChartList(Request $request)

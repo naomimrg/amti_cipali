@@ -360,15 +360,17 @@
             try {
                 const data = await fetchJSON(buildUrl(selectedSensorId));
                 const ts = parseDateTime(data.datetime);
+                lastDataTs = Date.now();
                 setYAxisByType(sensorTypeText);
                 pushPoint(ts, data.value);
-                updateStatusUI({
-                    status: data.status,
-                    value: data.value,
-                    satuan: data.satuan
-                });
+
+                const statusEl = document.getElementById('status-sensor');
+                const valueEl = document.getElementById('current-value');
+                if (statusEl) statusEl.style.backgroundColor = data.color || '#111827';
+                if (valueEl) valueEl.innerHTML = `Current Value = ${data.value} ${data.satuan || ''}`;
 
                 chart.update();
+
                 retryCount = 0;
             } catch (error) {
                 console.error('Error fetching sensor data:', error);
