@@ -129,7 +129,7 @@
 
 @section('script')
     <script>
-        const WINDOW_MS = 1 * 60 * 1000;
+        const WINDOW_MS = 60 * 1000;
         const SAMPLE_INTERVAL = 3000;
         const POLL_INTERVAL = 1000;
         const AUTO_RESET_EVERY_WINDOW = false;
@@ -269,12 +269,30 @@
             chart.data.labels.push(formatTime(bucketTs));
             chart.data.datasets[0].data.push(val);
 
-            const cutoff = bucketTs - WINDOW_MS;
-            while (timeStamps.length && timeStamps[0] < cutoff) {
+            const cutoffNow = Date.now() - WINDOW_MS;
+            while (timeStamps.length && timeStamps[0] < cutoffNow) {
                 timeStamps.shift();
                 chart.data.labels.shift();
                 chart.data.datasets[0].data.shift();
             }
+        }
+
+        function forceTrimWindow() {
+            const cutoffNow = Date.now() - WINDOW_MS;
+            while (timeStamps.length && timeStamps[0] < cutoffNow) {
+                timeStamps.shift();
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+            }
+            chart.update();
+        }
+
+        function ensureTimers() {
+            if (pollTimer) clearInterval(pollTimer);
+            pollTimer = setInterval(async () => {
+                await updateChart();
+                forceTrimWindow();
+            }, POLL_INTERVAL);
         }
 
         function updateStatusUI({

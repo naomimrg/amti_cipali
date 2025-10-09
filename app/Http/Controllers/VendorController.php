@@ -316,30 +316,35 @@ class VendorController extends Controller
     public function chartList(Request $request)
     {
         $sensorId = $request->query('id_sensor');
-        if (!$sensorId) {
-            return response()->json(['error' => 'id_sensor is required'], 400);
-        }
+        if (!$sensorId) return response()->json(['error' => 'id_sensor is required'], 400);
 
         $mode    = $request->query('mode', 'live');
         $rangeMs = (int) $request->query('range_ms', 60000);
-        $now     = now();
-        $from    = $now->copy()->subMilliseconds($rangeMs);
 
-        $getParameter = DB::table('sensor')->where('id', $sensorId)->first();
-        if (!$getParameter) {
-            return response()->json(['error' => 'sensor not found'], 404);
-        }
+        $sensorMeta = DB::table('sensor')->where('id', $sensorId)->first();
+        if (!$sensorMeta) return response()->json(['error' => 'sensor not found'], 404);
 
         if ($mode === 'history') {
+            $latestTime = DB::table('log_data')
+                ->where('id_sensor', $sensorId)
+                ->max('time');
+
+            if (!$latestTime) {
+                return response()->json([]);
+            }
+
+            $to   = \Carbon\Carbon::parse($latestTime);
+            $from = (clone $to)->subMilliseconds($rangeMs);
+
             $rows = DB::table('log_data')
                 ->select([
                     'time as datetime',
                     'value',
-                    DB::raw("'green' as status"),
-                    DB::raw("'" . $getParameter->satuan . "' as satuan")
+                    DB::raw("'" . ($sensorMeta->satuan ?? '') . "' as satuan"),
+                    DB::raw("NULL as status")
                 ])
                 ->where('id_sensor', $sensorId)
-                ->whereBetween('time', [$from, $now])
+                ->whereBetween('time', [$from, $to])
                 ->orderBy('time', 'asc')
                 ->get();
 
@@ -350,8 +355,8 @@ class VendorController extends Controller
             ->select([
                 'time as datetime',
                 'value',
-                DB::raw("'green' as status"),
-                DB::raw("'" . $getParameter->satuan . "' as satuan")
+                DB::raw("'" . ($sensorMeta->satuan ?? '') . "' as satuan"),
+                DB::raw("NULL as status")
             ])
             ->where('id_sensor', $sensorId)
             ->orderBy('time', 'desc')
@@ -391,6 +396,7 @@ class VendorController extends Controller
 
         return response()->json($response);
     }
+
     public function CurrentNatFreq(Request $request)
     {
         // Ambil waktu saat ini dengan format "Y-m-d H:00:00"
