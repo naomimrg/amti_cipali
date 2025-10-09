@@ -129,11 +129,11 @@
 
 @section('script')
     <script>
-        const WINDOW_MS = 1 * 60 * 1000; 
-        const SAMPLE_INTERVAL = 3000; 
-        const POLL_INTERVAL = 1000; 
-        const AUTO_RESET_EVERY_WINDOW = false; 
-        const MAX_RETRY = 5; 
+        const WINDOW_MS = 1 * 60 * 1000;
+        const SAMPLE_INTERVAL = 3000;
+        const POLL_INTERVAL = 1000;
+        const AUTO_RESET_EVERY_WINDOW = false;
+        const MAX_RETRY = 5;
 
         let chart;
         let timeStamps = [];
@@ -159,13 +159,30 @@
             return isNaN(parsed) ? Date.now() : parsed;
         }
 
+        function buildUrl(sensorId, extra = "") {
+            const base = `{{ url('/live_sensor/chartList') }}`;
+            const bust = `_=${Date.now()}`;
+            const parts = [`id_sensor=${encodeURIComponent(sensorId)}`];
+            if (extra) parts.push(extra);
+            parts.push(bust);
+            return `${base}?${parts.join('&')}`;
+        }
+
         function setYAxisByType(sensorType) {
             let yAxisLabel = "Acceleration";
             const t = (sensorType || '').toLowerCase();
             if (t.includes("displacement")) yAxisLabel = "Displacement";
-            else if (t.includes("tiltmeter")) yAxisLabel = "Degree"; 
+            else if (t.includes("tiltmeter")) yAxisLabel = "Degree";
             else if (t.includes("strain gauge")) yAxisLabel = "Microstrain";
             chart.options.scales.y.title.text = yAxisLabel;
+        }
+
+        async function fetchJSON(url) {
+            const resp = await fetch(url, {
+                cache: 'no-store'
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return resp.json();
         }
 
         function createChart() {
@@ -245,7 +262,6 @@
 
         function pushPoint(ts, val) {
             const bucketTs = Math.floor(ts / SAMPLE_INTERVAL) * SAMPLE_INTERVAL;
-
             if (lastPlottedTs === bucketTs) return;
             lastPlottedTs = bucketTs;
 
@@ -259,14 +275,6 @@
                 chart.data.labels.shift();
                 chart.data.datasets[0].data.shift();
             }
-        }
-
-        async function fetchJSON(url) {
-            const resp = await fetch(url, {
-                cache: 'no-store'
-            });
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            return resp.json();
         }
 
         function updateStatusUI({
@@ -283,11 +291,11 @@
         async function loadInitialWindow(sensorId, sensorTypeText) {
             clearSeries();
             setYAxisByType(sensorTypeText);
+            chart.data.datasets[0].label = sensorTypeText || 'Sensor';
             chart.update();
 
             try {
-                const url =
-                    `{{ url('/live_sensor/chartList') }}?id_sensor=${encodeURIComponent(sensorId)}&range_ms=${WINDOW_MS}&mode=history`;
+                const url = buildUrl(sensorId, `range_ms=${WINDOW_MS}&mode=history`);
                 const payload = await fetchJSON(url);
                 const arr = Array.isArray(payload) ? payload : [payload];
 
@@ -301,11 +309,12 @@
                     .sort((a, b) => a.ts - b.ts);
 
                 normalized.forEach(d => pushPoint(d.ts, d.value));
+
                 const last = normalized[normalized.length - 1];
                 if (last) updateStatusUI(last);
 
                 chart.update();
-                retryCount = 0; 
+                retryCount = 0;
             } catch (e) {
                 console.error('Error load initial window:', e);
                 if (retryCount < MAX_RETRY) {
@@ -318,11 +327,10 @@
 
         async function updateChart() {
             const sensorSelect = document.getElementById('sensor_id');
-            if (!sensorSelect) return; 
+            if (!sensorSelect) return;
 
             const selectedSensorId = sensorSelect.value;
             const sensorTypeText = sensorSelect.options[sensorSelect.selectedIndex]?.text || "";
-
             if (!selectedSensorId) return;
 
             if (lastSensorId !== selectedSensorId) {
@@ -332,10 +340,8 @@
             }
 
             try {
-                const url = `{{ url('/live_sensor/chartList') }}?id_sensor=${encodeURIComponent(selectedSensorId)}`;
-                const data = await fetchJSON(url);
+                const data = await fetchJSON(buildUrl(selectedSensorId));
                 const ts = parseDateTime(data.datetime);
-
                 setYAxisByType(sensorTypeText);
                 pushPoint(ts, data.value);
                 updateStatusUI({
@@ -345,7 +351,7 @@
                 });
 
                 chart.update();
-                retryCount = 0; 
+                retryCount = 0;
             } catch (error) {
                 console.error('Error fetching sensor data:', error);
                 if (retryCount < MAX_RETRY) {
@@ -379,21 +385,29 @@
 
         (function bootstrap() {
             createChart();
-            ensureTimers();
 
             const sensorSelect = document.getElementById('sensor_id');
+
             if (sensorSelect && sensorSelect.value) {
+                lastSensorId = sensorSelect.value;
                 const sensorTypeText = sensorSelect.options[sensorSelect.selectedIndex]?.text || "";
-                loadInitialWindow(sensorSelect.value, sensorTypeText);
+                loadInitialWindow(lastSensorId, sensorTypeText);
             }
 
             if (sensorSelect) {
-                sensorSelect.addEventListener('change', () => {
+                sensorSelect.addEventListener('change', async () => {
+                    if (pollTimer) {
+                        clearInterval(pollTimer);
+                        pollTimer = null;
+                    }
                     const sensorTypeText = sensorSelect.options[sensorSelect.selectedIndex]?.text || "";
-                    lastSensorId = null; 
-                    loadInitialWindow(sensorSelect.value, sensorTypeText);
+                    lastSensorId = sensorSelect.value;
+                    await loadInitialWindow(lastSensorId, sensorTypeText);
+                    ensureTimers();
                 });
             }
+
+            ensureTimers();
         })();
     </script>
 
