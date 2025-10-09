@@ -3,7 +3,8 @@
 @section('style')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.2.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js">
+    </script>
 
     <style>
         .filter-list {
@@ -128,36 +129,53 @@
 
 @section('script')
     <script>
-        function showData() {
-            var pathArray = window.location.href.split('/');
-            var idVendor = pathArray[4];
-            var id = pathArray[7];
-            $.ajax({
-                type: "get",
-                url: "{{ url('/listSensor') }}/" + id,
-                cache: false,
-                success: function(data) {
-                    $.each(data.items, function(index, item) {
-                        $('#sensor_id').empty();
-                        $.each(data.items, function(index, item) {
-                            $("#sensor_id").append('<option value="' + item.id + '">' + item
-                                .sensor_id + '</option>');
-                        });
-                    });
-                }
-            });
-            selectTags = document.querySelectorAll('select');
-
-            for (var i = 0; i < selectTags.length; i++) {
-                selectTags[i].selectedIndex = 0;
-            }
-        }
-        showData();
+        const WINDOW_MS = 1 * 60 * 1000; 
+        const SAMPLE_INTERVAL = 3000; 
+        const POLL_INTERVAL = 1000; 
+        const AUTO_RESET_EVERY_WINDOW = false; 
+        const MAX_RETRY = 5; 
 
         let chart;
+        let timeStamps = [];
+        let lastSensorId = null;
+        let lastPlottedTs = 0;
+        let pollTimer = null;
+        let resetTimer = null;
+        let retryCount = 0;
+
+        function formatTime(ts) {
+            const d = new Date(ts);
+            return d.toLocaleTimeString('en-GB', {
+                hour12: false
+            });
+        }
+
+        function parseDateTime(datetime) {
+            if (!datetime) return Date.now();
+            if (typeof datetime === 'string' && datetime.includes(' ')) {
+                datetime = datetime.replace(' ', 'T');
+            }
+            const parsed = Date.parse(datetime);
+            return isNaN(parsed) ? Date.now() : parsed;
+        }
+
+        function setYAxisByType(sensorType) {
+            let yAxisLabel = "Acceleration";
+            const t = (sensorType || '').toLowerCase();
+            if (t.includes("displacement")) yAxisLabel = "Displacement";
+            else if (t.includes("tiltmeter")) yAxisLabel = "Degree"; 
+            else if (t.includes("strain gauge")) yAxisLabel = "Microstrain";
+            chart.options.scales.y.title.text = yAxisLabel;
+        }
 
         function createChart() {
-            const ctx = document.getElementById('myChart').getContext('2d');
+            const canvas = document.getElementById('myChart');
+            if (!canvas) {
+                console.error('Canvas #myChart tidak ditemukan.');
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -167,13 +185,26 @@
                         data: [],
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        tension: 0.2,
-                    }, ]
+                        tension: 0.25,
+                        borderWidth: 3,
+                        borderCapStyle: 'round',
+                        borderJoinStyle: 'round',
+                        pointRadius: 2,
+                        pointHoverRadius: 5,
+                        pointHitRadius: 6,
+                        pointBorderWidth: 2,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false
+                    }]
                 },
                 options: {
+                    animation: false,
+                    responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
-                            beginAtZero: true,
+                            beginAtZero: false,
                             title: {
                                 display: true,
                                 text: 'Acceleration'
@@ -183,56 +214,187 @@
                             type: 'category',
                             title: {
                                 display: true,
-                                text: 'Time (s)',
+                                text: 'Time (HH:MM:SS)'
                             },
+                            ticks: {
+                                autoSkip: true,
+                                maxRotation: 0,
+                                autoSkipPadding: 10
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
                         },
+                        tooltip: {
+                            mode: 'nearest',
+                            intersect: false
+                        }
                     }
                 }
-
             });
         }
 
-        createChart();
+        function clearSeries() {
+            timeStamps = [];
+            chart.data.labels = [];
+            chart.data.datasets[0].data = [];
+            lastPlottedTs = 0;
+        }
 
-        async function updateChart() {
-            const selectedSensor = document.getElementById('sensor_id');
-            const selectedOption = selectedSensor.value;
-            const sensorType = selectedSensor.options[selectedSensor.selectedIndex]?.text
-        .toLowerCase(); 
+        function pushPoint(ts, val) {
+            const bucketTs = Math.floor(ts / SAMPLE_INTERVAL) * SAMPLE_INTERVAL;
 
-            try {
-                const response = await fetch("{{ url('/live_sensor/chartList') }}?id_sensor=" + selectedOption);
-                const data = await response.json();
+            if (lastPlottedTs === bucketTs) return;
+            lastPlottedTs = bucketTs;
 
-                let yAxisLabel = "Acceleration "; // Default
-                if (sensorType.includes("displacement")) {
-                    yAxisLabel = "Displacement";
-                } else if (sensorType.includes("tiltmeter")) {
-                    yAxisLabel = "Degree";
-                } else if (sensorType.includes("strain gauge")) {
-                    yAxisLabel = "Microstrain";
-                }
+            timeStamps.push(bucketTs);
+            chart.data.labels.push(formatTime(bucketTs));
+            chart.data.datasets[0].data.push(val);
 
-                chart.options.scales.y.title.text = yAxisLabel;
-
-                chart.data.labels.push(data.datetime);
-                chart.data.datasets[0].data.push(data.value);
-
-                if (chart.data.labels.length > 10) {
-                    chart.data.labels.shift();
-                    chart.data.datasets[0].data.shift();
-                }
-
-                document.getElementById('status-sensor').style.backgroundColor = data.status;
-                $("#current-value").html(`Current Value = ${data.value} ${data.satuan}`);
-
-                chart.update();
-            } catch (error) {
-                console.error("Error fetching sensor data:", error);
+            const cutoff = bucketTs - WINDOW_MS;
+            while (timeStamps.length && timeStamps[0] < cutoff) {
+                timeStamps.shift();
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
             }
         }
 
-        setInterval(updateChart, 3000);
+        async function fetchJSON(url) {
+            const resp = await fetch(url, {
+                cache: 'no-store'
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return resp.json();
+        }
+
+        function updateStatusUI({
+            status,
+            value,
+            satuan
+        }) {
+            const statusEl = document.getElementById('status-sensor');
+            const valueEl = document.getElementById('current-value');
+            if (statusEl) statusEl.style.backgroundColor = status || 'black';
+            if (valueEl) valueEl.innerHTML = `Current Value = ${value} ${satuan || ''}`;
+        }
+
+        async function loadInitialWindow(sensorId, sensorTypeText) {
+            clearSeries();
+            setYAxisByType(sensorTypeText);
+            chart.update();
+
+            try {
+                const url =
+                    `{{ url('/live_sensor/chartList') }}?id_sensor=${encodeURIComponent(sensorId)}&range_ms=${WINDOW_MS}&mode=history`;
+                const payload = await fetchJSON(url);
+                const arr = Array.isArray(payload) ? payload : [payload];
+
+                const normalized = arr
+                    .map(d => ({
+                        ts: parseDateTime(d.datetime),
+                        value: d.value,
+                        status: d.status,
+                        satuan: d.satuan
+                    }))
+                    .sort((a, b) => a.ts - b.ts);
+
+                normalized.forEach(d => pushPoint(d.ts, d.value));
+                const last = normalized[normalized.length - 1];
+                if (last) updateStatusUI(last);
+
+                chart.update();
+                retryCount = 0; 
+            } catch (e) {
+                console.error('Error load initial window:', e);
+                if (retryCount < MAX_RETRY) {
+                    retryCount++;
+                    const backoff = Math.min(5000, 500 * retryCount);
+                    setTimeout(() => loadInitialWindow(sensorId, sensorTypeText), backoff);
+                }
+            }
+        }
+
+        async function updateChart() {
+            const sensorSelect = document.getElementById('sensor_id');
+            if (!sensorSelect) return; 
+
+            const selectedSensorId = sensorSelect.value;
+            const sensorTypeText = sensorSelect.options[sensorSelect.selectedIndex]?.text || "";
+
+            if (!selectedSensorId) return;
+
+            if (lastSensorId !== selectedSensorId) {
+                lastSensorId = selectedSensorId;
+                await loadInitialWindow(selectedSensorId, sensorTypeText);
+                return;
+            }
+
+            try {
+                const url = `{{ url('/live_sensor/chartList') }}?id_sensor=${encodeURIComponent(selectedSensorId)}`;
+                const data = await fetchJSON(url);
+                const ts = parseDateTime(data.datetime);
+
+                setYAxisByType(sensorTypeText);
+                pushPoint(ts, data.value);
+                updateStatusUI({
+                    status: data.status,
+                    value: data.value,
+                    satuan: data.satuan
+                });
+
+                chart.update();
+                retryCount = 0; 
+            } catch (error) {
+                console.error('Error fetching sensor data:', error);
+                if (retryCount < MAX_RETRY) {
+                    retryCount++;
+                    const backoff = Math.min(5000, 500 * retryCount);
+                    setTimeout(updateChart, backoff);
+                    return;
+                }
+            }
+        }
+
+        function ensureTimers() {
+            if (pollTimer) clearInterval(pollTimer);
+            pollTimer = setInterval(updateChart, POLL_INTERVAL);
+
+            if (resetTimer) {
+                clearInterval(resetTimer);
+                resetTimer = null;
+            }
+            if (AUTO_RESET_EVERY_WINDOW) {
+                resetTimer = setInterval(() => {
+                    clearSeries();
+                    chart.update();
+                    const sensorSelect = document.getElementById('sensor_id');
+                    if (!sensorSelect || !sensorSelect.value) return;
+                    const sensorTypeText = sensorSelect.options[sensorSelect.selectedIndex]?.text || "";
+                    loadInitialWindow(sensorSelect.value, sensorTypeText);
+                }, WINDOW_MS);
+            }
+        }
+
+        (function bootstrap() {
+            createChart();
+            ensureTimers();
+
+            const sensorSelect = document.getElementById('sensor_id');
+            if (sensorSelect && sensorSelect.value) {
+                const sensorTypeText = sensorSelect.options[sensorSelect.selectedIndex]?.text || "";
+                loadInitialWindow(sensorSelect.value, sensorTypeText);
+            }
+
+            if (sensorSelect) {
+                sensorSelect.addEventListener('change', () => {
+                    const sensorTypeText = sensorSelect.options[sensorSelect.selectedIndex]?.text || "";
+                    lastSensorId = null; 
+                    loadInitialWindow(sensorSelect.value, sensorTypeText);
+                });
+            }
+        })();
     </script>
 
     <script>
