@@ -59,29 +59,50 @@ class VendorController extends Controller
 
     public function listLokasi($id)
     {
-
+        // Ambil vendor berdasarkan slug
         $getVendor = Vendor::where('slug', $id)->where('isDeleted', 0)->first();
-        $getLokasi = DB::table('lokasi')->where('id_vendor', $getVendor->id)->where('isDeleted', 0)
+
+        if (!$getVendor) {
+            return response()->json(['error' => 'Vendor tidak ditemukan.'], 404);
+        }
+
+        // Ambil lokasi milik vendor
+        $getLokasi = DB::table('lokasi')
+            ->where('id_vendor', $getVendor->id)
+            ->where('isDeleted', 0)
             ->get();
-        $data = array();
+
+        $data = [];
+
         foreach ($getLokasi as $key) {
-            if ($key->foto != "" || $key->foto != NULL) {
-                $image = $key->foto;
-            } else {
-                $image = 'default.jpg';
-            }
+            // Tentukan gambar default
+            $image = !empty($key->foto) ? $key->foto : 'default.jpg';
+
+            // Ambil span pertama dari lokasi ini
+            $firstSpan = DB::table('span')
+                ->where('id_lokasi', $key->id)
+                ->where('isDeleted', 0)
+                ->orderBy('id', 'ASC')
+                ->first();
+
+            $spanId = $firstSpan ? $firstSpan->id : null;
+
+            // Tambahkan data ke array
             $data[] = [
                 'id' => $key->id,
                 'image' => $image,
                 'nama_lokasi' => $key->nama_lokasi,
                 'slug' => $key->slug,
+                'span_id' => $spanId, // 🔥 untuk langsung ke live sensor
                 'long' => $key->long,
                 'lat' => $key->lat,
-                'created_at' => date('D,j M Y', strtotime($key->created_at))
+                'created_at' => date('D, j M Y', strtotime($key->created_at))
             ];
         }
+
         return response()->json(['items' => $data]);
     }
+
 
     public function listSpan($id)
     {

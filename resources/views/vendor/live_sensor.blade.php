@@ -3,7 +3,7 @@
 
 @section('style')
 <style>
-/* Kosong, bisa dihapus kalau memang tidak digunakan */
+    /* Kosong, bisa dihapus kalau memang tidak digunakan */
 </style>
 @endsection
 
@@ -83,29 +83,29 @@
 
 @section('script')
 <script type="text/javascript">
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-    }
-});
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    });
 
-function showData() {
-    var pathArray = window.location.href.split('/');
-    var idVendor = pathArray[4];
-    var id = pathArray[5];
+    function showData() {
+        var pathArray = window.location.href.split('/');
+        var idVendor = pathArray[4];
+        var id = pathArray[5];
 
-    $.ajax({
-        url: "{{ url('/listSpanLokasi') }}/" + id,
-        dataType: "json",
-        async: true,
-        type: "GET",
-        success: function(data) {
-            $('#list-span').empty(); // ✅ fix: clear existing data
+        $.ajax({
+            url: "{{ url('/listSpanLokasi') }}/" + id,
+            dataType: "json",
+            async: true,
+            type: "GET",
+            success: function(data) {
+                $('#list-span').empty(); // ✅ fix: clear existing data
 
-            console.log("Data span:", data);
-            $.each(data.items, function(index, item) {
-                console.log("Processing item:", item); // Debug each item
-                $('#list-span').append(`
+                console.log("Data span:", data);
+                $.each(data.items, function(index, item) {
+                    console.log("Processing item:", item); // Debug each item
+                    $('#list-span').append(`
                         <div class="col-4">
                             <div class="loc-list">
                                 <a href="{{ url("/vendor") }}/${idVendor}/${id}/live_sensor/${item.id}">
@@ -146,119 +146,119 @@ function showData() {
                             </div>
                         </div>
                     `);
+                });
+            }
+        });
+    }
+
+    showData();
+
+    var mode;
+
+    function show_modal(data) {
+        if (mode === "edit") {
+            $.ajax({
+                url: "{{ url('/editSpan') }}/" + data,
+                dataType: "json",
+                type: "GET",
+                success: function(data) {
+                    $('#form-field-edit').find('input[name="nama_span"]').val(data.nama_span);
+                    $('#form-field-edit').find('input[name="station_id"]').val(data.stationId);
+                    $('#form-field-edit').find('input[name="id_span"]').val(data.id);
+                }
             });
+
+            $('#modal-edit-span').find('.modal-title').text("Edit Span").end().modal('show');
+        } else if (mode === "hapus") {
+            $('#modal_hapus').find('.modal-title').text("Hapus Span");
+            $('#form-field-hapus').find('input[name="id"]').val(data);
+            $('#modal_hapus').modal('show');
+        }
+    }
+
+    function reset_default() {
+        $('#form-field-edit')[0].reset();
+        $('#form-field-edit').find('input[name="id_span"]').val('');
+        mode = undefined;
+        $('#list-span').html('');
+        $('#modal-edit-span').modal('hide');
+        showData();
+    }
+
+    function reset_default_hapus() {
+        $('#form-field-hapus')[0].reset();
+        $('#form-field-hapus').find('input[name="id"]').val('');
+        mode = undefined;
+        $('#list-span').html('');
+        $('#modal_hapus').modal('hide');
+        showData();
+    }
+
+    $(document).on('click', ".action", function() {
+        const action = $(this).data('action');
+        const id = $(this).data('id');
+
+        // Close modal button event
+        $('.closemodal').off('click').on('click', function() {
+            $(this).closest('.modal').modal('hide');
+        });
+
+        if (action === "delete") {
+            const idToDelete = $("input[name='id']").val();
+            $.ajax({
+                url: "{{ url('/deleteSpan') }}/" + idToDelete,
+                dataType: "json",
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                type: "DELETE",
+                success: function(data) {
+                    swal({
+                        title: $.isEmptyObject(data.error) ? "Success!" : "Error!",
+                        text: data.error || data.success,
+                        type: $.isEmptyObject(data.error) ? "success" : "error",
+                    });
+                    reset_default_hapus();
+                }
+            });
+        } else if (action === "edit") {
+            mode = "edit";
+            show_modal(id);
+        } else if (action === "hapus") {
+            mode = "hapus";
+            show_modal(id);
         }
     });
-}
 
-showData();
+    $(document).ready(function() {
+        $('#form-field-edit').on('submit', function(event) {
+            event.preventDefault();
 
-var mode;
-
-function show_modal(data) {
-    if (mode === "edit") {
-        $.ajax({
-            url: "{{ url('/editSpan') }}/" + data,
-            dataType: "json",
-            type: "GET",
-            success: function(data) {
-                $('#form-field-edit').find('input[name="nama_span"]').val(data.nama_span);
-                $('#form-field-edit').find('input[name="station_id"]').val(data.stationId);
-                $('#form-field-edit').find('input[name="id_span"]').val(data.id);
-            }
-        });
-
-        $('#modal-edit-span').find('.modal-title').text("Edit Span").end().modal('show');
-    } else if (mode === "hapus") {
-        $('#modal_hapus').find('.modal-title').text("Hapus Span");
-        $('#form-field-hapus').find('input[name="id"]').val(data);
-        $('#modal_hapus').modal('show');
-    }
-}
-
-function reset_default() {
-    $('#form-field-edit')[0].reset();
-    $('#form-field-edit').find('input[name="id_span"]').val('');
-    mode = undefined;
-    $('#list-span').html('');
-    $('#modal-edit-span').modal('hide');
-    showData();
-}
-
-function reset_default_hapus() {
-    $('#form-field-hapus')[0].reset();
-    $('#form-field-hapus').find('input[name="id"]').val('');
-    mode = undefined;
-    $('#list-span').html('');
-    $('#modal_hapus').modal('hide');
-    showData();
-}
-
-$(document).on('click', ".action", function() {
-    const action = $(this).data('action');
-    const id = $(this).data('id');
-
-    // Close modal button event
-    $('.closemodal').off('click').on('click', function() {
-        $(this).closest('.modal').modal('hide');
-    });
-
-    if (action === "delete") {
-        const idToDelete = $("input[name='id']").val();
-        $.ajax({
-            url: "{{ url('/deleteSpan') }}/" + idToDelete,
-            dataType: "json",
-            data: {
-                _token: '{{ csrf_token() }}'
-            },
-            type: "DELETE",
-            success: function(data) {
-                swal({
-                    title: $.isEmptyObject(data.error) ? "Success!" : "Error!",
-                    text: data.error || data.success,
-                    type: $.isEmptyObject(data.error) ? "success" : "error",
-                });
-                reset_default_hapus();
-            }
-        });
-    } else if (action === "edit") {
-        mode = "edit";
-        show_modal(id);
-    } else if (action === "hapus") {
-        mode = "hapus";
-        show_modal(id);
-    }
-});
-
-$(document).ready(function() {
-    $('#form-field-edit').on('submit', function(event) {
-        event.preventDefault();
-
-        $.ajax({
-            url: "{{ url('/updateLiveSpan') }}",
-            method: "POST",
-            data: new FormData(this),
-            dataType: 'JSON',
-            contentType: false,
-            cache: false,
-            processData: false,
-            success: function(data) {
-                swal({
-                    title: $.isEmptyObject(data.error) ? "Success!" : "Error!",
-                    text: data.error || data.success,
-                    type: $.isEmptyObject(data.error) ? "success" : "error",
-                });
-                reset_default();
-            }
+            $.ajax({
+                url: "{{ url('/updateLiveSpan') }}",
+                method: "POST",
+                data: new FormData(this),
+                dataType: 'JSON',
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function(data) {
+                    swal({
+                        title: $.isEmptyObject(data.error) ? "Success!" : "Error!",
+                        text: data.error || data.success,
+                        type: $.isEmptyObject(data.error) ? "success" : "error",
+                    });
+                    reset_default();
+                }
+            });
         });
     });
-});
 
-$('form').on("keypress", function(e) {
-    if (e.keyCode === 13) {
-        e.preventDefault();
-        return false;
-    }
-});
+    $('form').on("keypress", function(e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
 </script>
 @endsection

@@ -18,7 +18,7 @@
         </div>
         <div class="col-6 text-end">
             <button type="button" class="action btn btn-primary me-3" id="btn-add-span">
-                Tambah Span (Kedua)
+                Tambah Span
             </button>
             <button type="button" data-action="add" class="action btn btn-primary">
                 Tambah Lokasi
@@ -205,7 +205,7 @@
                         $('#list-lokasi').append(`
                         <div class="col-4">
                             <div class="loc-list position-relative">
-                                <a href="{{ url('/vendor') }}/${id}/${item.slug}/live_sensor">
+                                <a href="${item.span_id ? `{{ url('/vendor') }}/${id}/${item.slug}/live_sensor/${item.span_id}` : '#'}"${!item.span_id ? 'onclick="alert(`Belum ada span untuk lokasi ini!`)"' : ''}>
                                     <img src="{{ url('/assets/img/lokasi') }}/${item.image}" alt="${item.nama_lokasi}">
                                 </a>
                                 <div class="btn-group position-absolute" style="top: -16px; right: -16px;">
