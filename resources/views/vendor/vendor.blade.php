@@ -4,9 +4,9 @@
 
 @section('style')
 <style>
-.form-group {
-    margin-bottom: 10px;
-}
+    .form-group {
+        margin-bottom: 10px;
+    }
 </style>
 @endsection
 
@@ -181,28 +181,28 @@
 
 @section('script')
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
 
-    // ======================= AJAX SETUP =======================
-    $.ajaxSetup({
-        headers: {
-            'csrftoken': '{{ csrf_token() }}'
-        }
-    });
+        // ======================= AJAX SETUP =======================
+        $.ajaxSetup({
+            headers: {
+                'csrftoken': '{{ csrf_token() }}'
+            }
+        });
 
-    // ======================= LOAD DATA =======================
-    function showData() {
-        let id = window.location.href.split('/')[4];
-        $.ajax({
-            url: "{{ url('/listLokasi') }}/" + id,
-            dataType: "json",
-            type: "GET",
-            success: function(data) {
-                console.log(data);
-                $('#list-lokasi').empty();
-                $.each(data.items, function(_, item) {
-                    console.log("ini data", item);
-                    $('#list-lokasi').append(`
+        // ======================= LOAD DATA =======================
+        function showData() {
+            let id = window.location.href.split('/')[4];
+            $.ajax({
+                url: "{{ url('/listLokasi/') }}/" + id,
+                dataType: "json",
+                type: "GET",
+                success: function(data) {
+                    console.log(data);
+                    $('#list-lokasi').empty();
+                    $.each(data.items, function(_, item) {
+                        console.log("ini data", item);
+                        $('#list-lokasi').append(`
                         <div class="col-4">
                             <div class="loc-list position-relative">
                                 <a href="{{ url('/vendor') }}/${id}/${item.slug}/live_sensor">
@@ -221,91 +221,117 @@ $(document).ready(function() {
                             </div>
                         </div>
                     `);
-                });
-            }
-        });
-    }
-    showData();
-
-    // ======================= TAMBAH SPAN =======================
-    $('#btn-add-span').on('click', function() {
-        populateLokasiOptions();
-        $('#modal-add-span').modal('show');
-    });
-
-    function populateLokasiOptions() {
-        let id = window.location.href.split('/')[4];
-        $.getJSON("{{ url('/listLokasi') }}/" + id, function(data) {
-            let $select = $('#lokasi_id').empty().append('<option value="">Pilih Lokasi</option>');
-            $.each(data.items, function(_, item) {
-                $select.append(`<option value="${item.id}">${item.nama_lokasi}</option>`);
+                    });
+                }
             });
-        });
-    }
-
-    $('#form-span').on('submit', function(e) {
-        e.preventDefault();
-        let formData = new FormData(this);
-
-        $.ajax({
-            url: "{{ url('/insertSpan') }}",
-            method: "POST",
-            data: formData,
-            dataType: 'JSON',
-            contentType: false,
-            cache: false,
-            processData: false,
-            success: function(data) {
-                swal({
-                    title: $.isEmptyObject(data.error) ? "Success!" : "Error!",
-                    text: data.error || data.success,
-                    type: $.isEmptyObject(data.error) ? "success" : "error"
-                });
-                $('#modal-add-span').modal('hide');
-                $('#form-span')[0].reset();
-            }
-        });
-    });
-
-    // ======================= ACTION HANDLER =======================
-    let mode;
-
-    function show_modal(data) {
-        if (mode === "add") {
-            $('#form-field').trigger('reset').children('.modal').modal('show');
-        } else if (mode === "edit") {
-            $.getJSON("{{ url('/editLokasi') }}/" + data, function(res) {
-                $('#form-field-edit').find('#nama_lokasis').val(res.nama_lokasi);
-                $('#form-field-edit').find('#longitudes').val(res.long);
-                $('#form-field-edit').find('#latitudes').val(res.lat);
-                $('#form-field-edit').find('#id_lokasis').val(res.id);
-                $('#form-field-edit').children('.modal').modal('show');
-            });
-        } else if (mode === "hapus") {
-            $('#konfirmasiId').val(data);
-            $('#modal_hapus').modal('show');
         }
-    }
-
-    function refreshAfterAction() {
-        $('.modal').modal('hide');
         showData();
-    }
 
-    $(document).on('click', '.action', function() {
-        const action = $(this).data('action');
-        const id = $(this).data('id');
-        $('.closemodal').click(() => $('.modal').modal('hide'));
+        // ======================= TAMBAH SPAN =======================
+        $('#btn-add-span').on('click', function() {
+            populateLokasiOptions();
+            $('#modal-add-span').modal('show');
+        });
 
-        if (action === "delete") {
-            const id = $("input[name='id_lokasi']").val();
+        function populateLokasiOptions() {
+            let id = window.location.href.split('/')[4];
+            $.getJSON("{{ url('/listLokasi') }}/" + id, function(data) {
+                let $select = $('#lokasi_id').empty().append('<option value="">Pilih Lokasi</option>');
+                $.each(data.items, function(_, item) {
+                    $select.append(`<option value="${item.id}">${item.nama_lokasi}</option>`);
+                });
+            });
+        }
+
+        $('#form-span').on('submit', function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+
             $.ajax({
-                url: "{{ url('/deleteLokasi') }}/" + id,
-                type: "DELETE",
-                dataType: "json",
-                data: {
-                    _token: '{!! csrf_token() !!}'
-                },
+                url: "{{ url('/insertSpan') }}",
+                method: "POST",
+                data: formData,
+                dataType: 'JSON',
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function(data) {
+                    swal({
+                        title: $.isEmptyObject(data.error) ? "Success!" : "Error!",
+                        text: data.error || data.success,
+                        type: $.isEmptyObject(data.error) ? "success" : "error"
+                    });
+                    $('#modal-add-span').modal('hide');
+                    $('#form-span')[0].reset();
+                }
+            });
+        });
+
+        // ======================= ACTION HANDLER =======================
+        let mode;
+
+        function show_modal(data) {
+            if (mode === "add") {
+                $('#form-field').trigger('reset').children('.modal').modal('show');
+            } else if (mode === "edit") {
+                $.getJSON("{{ url('/editLokasi') }}/" + data, function(res) {
+                    $('#form-field-edit').find('#nama_lokasis').val(res.nama_lokasi);
+                    $('#form-field-edit').find('#longitudes').val(res.long);
+                    $('#form-field-edit').find('#latitudes').val(res.lat);
+                    $('#form-field-edit').find('#id_lokasis').val(res.id);
+                    $('#form-field-edit').children('.modal').modal('show');
+                });
+            } else if (mode === "hapus") {
+                $('#konfirmasiId').val(data);
+                $('#modal_hapus').modal('show');
+            }
+        }
+
+        function refreshAfterAction() {
+            $('.modal').modal('hide');
+            showData();
+        }
+
+        $(document).on('click', '.action', function() {
+            const action = $(this).data('action');
+            const id = $(this).data('id');
+            $('.closemodal').click(() => $('.modal').modal('hide'));
+
+            if (action === "delete") {
+                const id = $("input[name='id_lokasi']").val();
+                $.ajax({
+                    url: "{{ url('/deleteLokasi') }}/" + id,
+                    type: "DELETE",
+                    dataType: "json",
+                    data: {
+                        _token: '{!! csrf_token() !!}'
+                    },
+                    success: function(data) {
+                        swal({
+                            title: $.isEmptyObject(data.error) ? "Success!" : "Error!",
+                            text: data.error || data.success,
+                            type: $.isEmptyObject(data.error) ? "success" : "error"
+                        });
+                        refreshAfterAction();
+                    }
+                });
+            } else {
+                mode = action;
+                show_modal(id);
+            }
+        });
+
+        // ======================= FORM SUBMIT =======================
+        $('#form-field').on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: "{{ url('/insertLokasi') }}",
+                method: "POST",
+                data: new FormData(this),
+                dataType: 'JSON',
+                contentType: false,
+                cache: false,
+                processData: false,
                 success: function(data) {
                     swal({
                         title: $.isEmptyObject(data.error) ? "Success!" : "Error!",
@@ -315,59 +341,33 @@ $(document).ready(function() {
                     refreshAfterAction();
                 }
             });
-        } else {
-            mode = action;
-            show_modal(id);
-        }
-    });
+        });
 
-    // ======================= FORM SUBMIT =======================
-    $('#form-field').on('submit', function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: "{{ url('/insertLokasi') }}",
-            method: "POST",
-            data: new FormData(this),
-            dataType: 'JSON',
-            contentType: false,
-            cache: false,
-            processData: false,
-            success: function(data) {
-                swal({
-                    title: $.isEmptyObject(data.error) ? "Success!" : "Error!",
-                    text: data.error || data.success,
-                    type: $.isEmptyObject(data.error) ? "success" : "error"
-                });
-                refreshAfterAction();
-            }
+        $('#form-field-edit').on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: "{{ url('/updateLokasi') }}",
+                method: "POST",
+                data: new FormData(this),
+                dataType: 'JSON',
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function(data) {
+                    swal({
+                        title: $.isEmptyObject(data.error) ? "Success!" : "Error!",
+                        text: data.error || data.success,
+                        type: $.isEmptyObject(data.error) ? "success" : "error"
+                    });
+                    refreshAfterAction();
+                }
+            });
+        });
+
+        // ======================= PREVENT ENTER =======================
+        $('form').on("keypress", function(e) {
+            if (e.keyCode === 13) e.preventDefault();
         });
     });
-
-    $('#form-field-edit').on('submit', function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: "{{ url('/updateLokasi') }}",
-            method: "POST",
-            data: new FormData(this),
-            dataType: 'JSON',
-            contentType: false,
-            cache: false,
-            processData: false,
-            success: function(data) {
-                swal({
-                    title: $.isEmptyObject(data.error) ? "Success!" : "Error!",
-                    text: data.error || data.success,
-                    type: $.isEmptyObject(data.error) ? "success" : "error"
-                });
-                refreshAfterAction();
-            }
-        });
-    });
-
-    // ======================= PREVENT ENTER =======================
-    $('form').on("keypress", function(e) {
-        if (e.keyCode === 13) e.preventDefault();
-    });
-});
 </script>
 @endsection

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['middleware' => ['guest']], function() {
+Route::group(['middleware' => ['guest']], function () {
     Route::get('/', function () {
         return view('auth.login');
     });
@@ -23,7 +23,7 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::group(['middleware' => ['auth']], function() {
+Route::group(['middleware' => ['auth']], function () {
     //SUPER ADMIN
     Route::get('/dashboard/listLokasi', [App\Http\Controllers\Admin\DashboardController::class, 'listLokasi']);
     Route::get('/dashboard/listLokasiSSE', [App\Http\Controllers\Admin\DashboardController::class, 'listLokasiSSE']);
@@ -45,7 +45,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::put('/client_sensor/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'updateData']);
     Route::put('/client_sensor/updateKordinat/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'updateKordinat']);
     Route::get('/client_sensor/{id}/edit', [App\Http\Controllers\Admin\ParameterController::class, 'editData']);
-	Route::delete('/client_sensor/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'deleteSensor']);
+    Route::delete('/client_sensor/{id}', [App\Http\Controllers\Admin\ParameterController::class, 'deleteSensor']);
     Route::resource('/parameter', 'App\Http\Controllers\Admin\ParameterController');
 
     Route::get('/client_sensor/status/{lokasiId}', [App\Http\Controllers\VendorController::class, 'currentValue']);
@@ -106,5 +106,4 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/getProfile', [App\Http\Controllers\SettingController::class, 'getProfile']);
     Route::get('/profile', [App\Http\Controllers\SettingController::class, 'index']);
     Route::post('/updateProfile', [App\Http\Controllers\SettingController::class, 'updateProfile'])->name('updateProfile');
-
 });

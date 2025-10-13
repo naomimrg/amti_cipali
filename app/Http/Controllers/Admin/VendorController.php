@@ -28,27 +28,31 @@ class VendorController extends Controller
     {
         $id = Auth::user()->id;
         $getUser = User::where('id', $id)->first();
-        if($getUser->role == 'Admin Vendor' || $getUser->role == 'User'){
+        if ($getUser->role == 'Admin Vendor' || $getUser->role == 'User') {
             return redirect('/404');
-        }else{
+        } else {
             return view('vendor.index');
         }
-
     }
 
     public function listVendor()
     {
         //$infoUser = DB::table('users')->where('id', Auth::user()->id)->first();
-        $getVendor = DB::table('vendor')->where('isDeleted',0)->get();
+        $getVendor = DB::table('vendor')->where('isDeleted', 0)->get();
         $data = array();
         foreach ($getVendor as $key) {
             if ($key->foto != "" || $key->foto != NULL) {
                 $image = $key->foto;
-            }else {
+            } else {
                 $image = 'default.jpeg';
             }
-            $data[] = ['id' => $key->id,'image' => $image,'nama_vendor' => $key->nama_vendor,'slug' => $key->slug,'created_at' => date('D,j M Y',strtotime($key->created_at))];
-
+            $data[] = [
+                'id' => $key->id,
+                'image' => $image,
+                'nama_vendor' => $key->nama_vendor,
+                'slug' => $key->slug,
+                'created_at' => date('D,j M Y', strtotime($key->created_at))
+            ];
         }
         return response()->json(['items' => $data]);
     }
@@ -56,14 +60,14 @@ class VendorController extends Controller
     public function listLokasi($id)
     {
 
-        $getVendor = Vendor::where('slug',$id)->where('isDeleted',0)->first();
-        $getLokasi = DB::table('lokasi')->where('id_vendor',$getVendor->id)->where('isDeleted',0)
-        ->get();
+        $getVendor = Vendor::where('slug', $id)->where('isDeleted', 0)->first();
+        $getLokasi = DB::table('lokasi')->where('id_vendor', $getVendor->id)->where('isDeleted', 0)
+            ->get();
         $data = array();
         foreach ($getLokasi as $key) {
             if ($key->foto != "" || $key->foto != NULL) {
                 $image = $key->foto;
-            }else {
+            } else {
                 $image = 'default.jpg';
             }
             $data[] = [
@@ -73,65 +77,65 @@ class VendorController extends Controller
                 'slug' => $key->slug,
                 'long' => $key->long,
                 'lat' => $key->lat,
-                'created_at' => date('D,j M Y',strtotime($key->created_at))];
+                'created_at' => date('D,j M Y', strtotime($key->created_at))
+            ];
         }
         return response()->json(['items' => $data]);
     }
 
     public function listSpan($id)
     {
-        $getLokasi = DB::table('lokasi')->where('slug',$id)->where('isDeleted',0)->first();
-        $getSpan = DB::table('span')->where('id_lokasi',$getLokasi->id)->where('isDeleted',0)->orderBy('id', 'ASC')
-        ->get();
+        $getLokasi = DB::table('lokasi')->where('slug', $id)->where('isDeleted', 0)->first();
+        $getSpan = DB::table('span')->where('id_lokasi', $getLokasi->id)->where('isDeleted', 0)->orderBy('id', 'ASC')
+            ->get();
         $data = array();
         $no = 1;
         $to_date = date('Y-m-d H:i:s');
         $from_date = date('Y-m-d H:i:s', strtotime('-3 second'));
 
         foreach ($getSpan as $key) {
-            $countSensor = Sensor::where('id_span',$key->id)->where('isDeleted',0)->count();
+            $countSensor = Sensor::where('id_span', $key->id)->where('isDeleted', 0)->count();
             $good = 0;
             $warning = 0;
             $critical = 0;
             $offline = 0;
-            if($countSensor > 0){
-                $getSensor = Sensor::where('id_span',$key->id)->where('isDeleted',0)->get();
-                foreach($getSensor as $gs){
+            if ($countSensor > 0) {
+                $getSensor = Sensor::where('id_span', $key->id)->where('isDeleted', 0)->get();
+                foreach ($getSensor as $gs) {
                     $batas_atas = $gs->batas_atas;
                     $batas_bawah = $gs->batas_bawah;
-                    $getValue = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(DB::raw('time'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->count();
-                    if($getValue > 0){
-                        $getValue = DB::table('log_data')->where('id_sensor',$gs->id)->whereBetween(DB::raw('DATE(time)'), [$from_date, $to_date])->orderBy('id','DESC')->limit(1)->get();
-                        foreach($getValue as $gV){
+                    $getValue = DB::table('log_data')->where('id_sensor', $gs->id)->whereBetween(DB::raw('time'), [$from_date, $to_date])->orderBy('id', 'DESC')->limit(1)->count();
+                    if ($getValue > 0) {
+                        $getValue = DB::table('log_data')->where('id_sensor', $gs->id)->whereBetween(DB::raw('DATE(time)'), [$from_date, $to_date])->orderBy('id', 'DESC')->limit(1)->get();
+                        foreach ($getValue as $gV) {
                             $value = $gV->value;
-                            if($value == 0 || $value == NULL){
+                            if ($value == 0 || $value == NULL) {
                                 $offline++;
-                            }elseif($value < $batas_bawah){
+                            } elseif ($value < $batas_bawah) {
                                 $good++;
-                            }elseif($value > $batas_bawah && $value < $batas_atas){
+                            } elseif ($value > $batas_bawah && $value < $batas_atas) {
                                 $warning++;
-                            }elseif($value > $batas_atas){
+                            } elseif ($value > $batas_atas) {
                                 $critical++;
-                            }else{
+                            } else {
                                 $offline++;
                             }
                         }
-                    }else{
+                    } else {
                         $offline++;
                     }
-
                 }
                 $rules = $countSensor / 2;
-                if($offline > 0){
+                if ($offline > 0) {
                     $status = "black-pin";
-                }elseif($critical > 0 || $warning >= $rules){
+                } elseif ($critical > 0 || $warning >= $rules) {
                     $status = "red-pin";
-                }elseif($warning > 0){
+                } elseif ($warning > 0) {
                     $status = "yellow-pin";
-                }elseif($good == $countSensor){
+                } elseif ($good == $countSensor) {
                     $status = "green-pin";
                 }
-            }else{
+            } else {
                 $status = "black-pin";
             }
             $data[] = [
@@ -141,7 +145,8 @@ class VendorController extends Controller
                 'foto' => $key->foto,
                 'y' => $key->y_position,
                 'x' => $key->x_position,
-                'status' => $status];
+                'status' => $status
+            ];
             $no++;
         }
         return response()->json(['items' => $data]);
@@ -151,7 +156,7 @@ class VendorController extends Controller
     {
         $response = new StreamedResponse(function () use ($slug) {
             while (true) {
-                if(connection_aborted()){
+                if (connection_aborted()) {
                     exit();
                 }
 
@@ -159,11 +164,11 @@ class VendorController extends Controller
                 $from_date = now()->subSeconds(3)->toDateTimeString();
 
                 $spans = DB::table('span')
-                    ->join('lokasi', function($join) {
+                    ->join('lokasi', function ($join) {
                         $join->on('lokasi.id', '=', 'span.id_lokasi')
                             ->where('lokasi.isDeleted', 0);
                     })
-                    ->leftJoin('sensor', function($join) {
+                    ->leftJoin('sensor', function ($join) {
                         $join->on('span.id', '=', 'sensor.id_span')
                             ->where('sensor.isDeleted', 0);
                     })
@@ -194,7 +199,7 @@ class VendorController extends Controller
                 $no = 1;
                 foreach ($spans as $spanId => $span) {
                     $countSensor = $span->count();
-                    $rules = $countSensor/2;
+                    $rules = $countSensor / 2;
 
                     $countOffline = $span->filter(function ($item) {
                         return is_null($item->log_data_value) || $item->log_data_value === 0;
@@ -214,7 +219,7 @@ class VendorController extends Controller
                         $statusSpan = 'red-pin';
                     } elseif ($countWarning > 0) {
                         $statusSpan = 'yellow-pin';
-                    } elseif($countGood == $countSensor){
+                    } elseif ($countGood == $countSensor) {
                         $statusSpan = "green-pin";
                     }
 
@@ -249,17 +254,18 @@ class VendorController extends Controller
 
     public function listSensor($id)
     {
-        $getSensor = DB::table('sensor')->where('id_span',$id)->where('isDeleted',0)->get();
+        $getSensor = DB::table('sensor')->where('id_span', $id)->where('isDeleted', 0)->get();
         $data = array();
         foreach ($getSensor as $key) {
-            $getParameter = DB::table('parameter')->where('id',$key->id_parameter)->first();
+            $getParameter = DB::table('parameter')->where('id', $key->id_parameter)->first();
             $data[] = [
                 'id' => $key->id,
                 'nama_sensor' => $getParameter->nama_parameter,
                 'sensor_id' => $key->nama_sensor,
                 'batas_bawah' => $key->batas_bawah,
                 'batas_atas' => $key->batas_atas,
-                'satuan' => $key->satuan];
+                'satuan' => $key->satuan
+            ];
         }
         return response()->json(['items' => $data]);
     }
@@ -273,21 +279,21 @@ class VendorController extends Controller
         $vendor->nama_vendor = $request->input('nama_vendor');
         $vendor->slug = $slug;
 
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
             $validation = Validator::make($request->all(), [
                 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
             ]);
-            if($validation->passes()) {
+            if ($validation->passes()) {
                 $image = $request->file('image');
-                $new_name = date('Ymd') . time() . '_'.$image->getClientOriginalName(). '.' . $image->getClientOriginalExtension();
+                $new_name = date('Ymd') . time() . '_' . $image->getClientOriginalName() . '.' . $image->getClientOriginalExtension();
                 $image->move(public_path('assets/img/vendor'), $new_name);
                 $vendor->foto = $new_name;
             }
         }
-        if($vendor->save()){
-            return response()->json(['success'=>'Vendor Berhasil Disimpan.']);
-        }else {
-            return response()->json(['error'=>'Vendor Gagal Disimpan.']);
+        if ($vendor->save()) {
+            return response()->json(['success' => 'Vendor Berhasil Disimpan.']);
+        } else {
+            return response()->json(['error' => 'Vendor Gagal Disimpan.']);
         }
     }
 
@@ -303,21 +309,21 @@ class VendorController extends Controller
         $lokasi->lat = $request->input('latitude');
         $lokasi->slug = $slug;
 
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
             $validation = Validator::make($request->all(), [
                 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
             ]);
-            if($validation->passes()) {
+            if ($validation->passes()) {
                 $image = $request->file('image');
-                $new_name = date('Ymd') . time() . '_'.$image->getClientOriginalName(). '.' . $image->getClientOriginalExtension();
+                $new_name = date('Ymd') . time() . '_' . $image->getClientOriginalName() . '.' . $image->getClientOriginalExtension();
                 $image->move(public_path('assets/img/lokasi'), $new_name);
                 $lokasi->foto = $new_name;
             }
         }
-        if($lokasi->save()){
-            return response()->json(['success'=>'Data Berhasil Disimpan.']);
-        }else{
-            return response()->json(['error'=>'Data Gagal Disimpan.']);
+        if ($lokasi->save()) {
+            return response()->json(['success' => 'Data Berhasil Disimpan.']);
+        } else {
+            return response()->json(['error' => 'Data Gagal Disimpan.']);
         }
     }
 
@@ -327,19 +333,19 @@ class VendorController extends Controller
         $span->nama_span = $request->input('nama_span');
         $span->stationId = $request->input('station_id');
         $span->id_lokasi = $request->input('id_lokasi');
-        if($span->save()){
-            return response()->json(['success'=>'Span Berhasil Ditambah.']);
-        }else{
-            return response()->json(['error'=>'Span Gagal Ditambah.']);
+        if ($span->save()) {
+            return response()->json(['success' => 'Span Berhasil Ditambah.']);
+        } else {
+            return response()->json(['error' => 'Span Gagal Ditambah.']);
         }
     }
     public function insertSensor(Request $request)
     {
         $id_sensor = $request->input('id_sensor');
-        $getParameter = Parameter::where('id',$id_sensor)->where('isDeleted',0)->first();
+        $getParameter = Parameter::where('id', $id_sensor)->where('isDeleted', 0)->first();
         $namaSensor = $request->input('nama_sensor');
-        $checkId = Sensor::join('span','span.id','=','sensor.id_span')->join('lokasi','lokasi.id','=','span.id_lokasi')->join('vendor','vendor.id','=','lokasi.id_vendor')->where('nama_sensor', $namaSensor)->where('sensor.isDeleted',0)->where('vendor.isDeleted',0)->count();
-        if($checkId == 0){
+        $checkId = Sensor::join('span', 'span.id', '=', 'sensor.id_span')->join('lokasi', 'lokasi.id', '=', 'span.id_lokasi')->join('vendor', 'vendor.id', '=', 'lokasi.id_vendor')->where('nama_sensor', $namaSensor)->where('sensor.isDeleted', 0)->where('vendor.isDeleted', 0)->count();
+        if ($checkId == 0) {
             $sensor = new Sensor;
             $sensor->id_span = $request->input('id_span');
             $sensor->nama_sensor = $namaSensor;
@@ -347,79 +353,77 @@ class VendorController extends Controller
             $sensor->satuan = $getParameter->satuan;
             $sensor->batas_bawah = $getParameter->batas_bawah;
             $sensor->batas_atas = $getParameter->batas_atas;
-            if($sensor->save()){
-                return response()->json(['success'=>'Sensor Berhasil Ditambah.']);
-            }else{
-                return response()->json(['error'=>'Sensor Gagal Ditambah.']);
+            if ($sensor->save()) {
+                return response()->json(['success' => 'Sensor Berhasil Ditambah.']);
+            } else {
+                return response()->json(['error' => 'Sensor Gagal Ditambah.']);
             }
-        }else{
-            return response()->json(['error'=>'Nama sensor sudah ada, silahkan ubah nama sensor.']);
+        } else {
+            return response()->json(['error' => 'Nama sensor sudah ada, silahkan ubah nama sensor.']);
         }
-
     }
 
     public function show($id)
     {
-        $getVendor = Vendor::where('slug',$id)->where('isDeleted',0)->first();
+        $getVendor = Vendor::where('slug', $id)->where('isDeleted', 0)->first();
         $data['vendor'] = $getVendor;
         $id = Auth::user()->id;
         $getUser = User::where('id', $id)->first();
-        if($getUser->role == 'Admin Vendor' || $getUser->role == 'User'){
+        if ($getUser->role == 'Admin Vendor' || $getUser->role == 'User') {
             return redirect('/404');
-        }else{
-            return view('vendor.vendor',$data);
-            
+        } else {
+            return view('vendor.vendor', $data);
         }
-
     }
 
     public function lokasiList($id, $lokasiId)
-        {
-            $getVendor = Vendor::where('slug', $id)->where('isDeleted', 0)->first();
-            $getLokasi = DB::table('lokasi')->where('slug', $lokasiId)->where('isDeleted', 0)->first();
+    {
+        $getVendor = Vendor::where('slug', $id)->where('isDeleted', 0)->first();
+        $getLokasi = DB::table('lokasi')->where('slug', $lokasiId)->where('isDeleted', 0)->first();
 
-            if (!$getVendor || !$getLokasi) {
-                return redirect('/404');
-            }
-
-            $data['vendor'] = $getVendor;
-            $data['lokasi'] = $getLokasi;
-
-            $user = Auth::user();
-            if ($user->role == 'Admin Vendor' || $user->role == 'User') {
-                return redirect('/404');
-            }
-
-            // ✅ Cek apakah request ini datang dari halaman dashboard
-            $referer = request()->headers->get('referer');
-            if ($referer && str_contains($referer, '/dashboard')) {
-                // dd($data['lokasi']);
-                return view('vendor.lokasi', $data);
-            }
-            return redirect()->route('live_sensor', [$id, $lokasiId]);
+        if (!$getVendor || !$getLokasi) {
+            return redirect('/404');
         }
+
+        $data['vendor'] = $getVendor;
+        $data['lokasi'] = $getLokasi;
+
+        $user = Auth::user();
+        if ($user->role == 'Admin Vendor' || $user->role == 'User') {
+            return redirect('/404');
+        }
+
+        // ✅ Cek apakah request ini datang dari halaman dashboard
+        $referer = request()->headers->get('referer');
+        if ($referer && str_contains($referer, '/dashboard')) {
+            // dd($data['lokasi']);
+            return view('vendor.lokasi', $data);
+        }
+        return redirect()->route('live_sensor', [$id, $lokasiId]);
+    }
 
 
     public function spanList($id, $lokasiId, $spanId)
-        {
-            $getVendor = Vendor::where('slug',$id)->where('isDeleted',0)->first();
-            $getLokasi = DB::table('lokasi')->where('slug',$lokasiId)->where('isDeleted',0)->first();
-            $getSpan = DB::table('span')->where('id',$spanId)->where('isDeleted',0)->first();
-            $getParameter = DB::table('parameter')->where('isDeleted',0)->get();
-            $data['vendor'] = $getVendor;
-            $data['lokasi'] = $getLokasi;
-            $data['span'] = $getSpan;
-            $data['sensor'] = $getParameter;
-            $id = Auth::user()->id;
-            $getUser = User::where('id', $id)->first();
-            if($getUser->role == 'Admin Vendor' || $getUser->role == 'User'){
-                return redirect('/404');
-            }else{
-                return view('vendor.span',$data);
-            }
+    {
+        $getVendor = Vendor::where('slug', $id)->where('isDeleted', 0)->first();
+        $getLokasi = DB::table('lokasi')->where('slug', $lokasiId)->where('isDeleted', 0)->first();
+        $getSpan = DB::table('span')->where('id', $spanId)->where('isDeleted', 0)->first();
+        $getParameter = DB::table('parameter')->where('isDeleted', 0)->get();
+        $data['vendor'] = $getVendor;
+        $data['lokasi'] = $getLokasi;
+        $data['span'] = $getSpan;
+        $data['sensor'] = $getParameter;
+        $id = Auth::user()->id;
+        $getUser = User::where('id', $id)->first();
+        if ($getUser->role == 'Admin Vendor' || $getUser->role == 'User') {
+            return redirect('/404');
+        } else {
+            return view('vendor.span', $data);
         }
+    }
 
-    public function listLiveSensor($id, $lokasiId) {
+    public function listLiveSensor($id, $lokasiId)
+    {
         $getUser = DB::table('users')->where('id', Auth::user()->id)->first();
         $getVendor = Vendor::where('slug', $id)->where('isDeleted', 0)->first();
         $getLokasi = DB::table('lokasi')->where('slug', $lokasiId)->where('isDeleted', 0)->where('id_vendor', $getVendor->id)->first();
@@ -427,8 +431,7 @@ class VendorController extends Controller
         if (!$getVendor || !$getLokasi) {
             return redirect('/404');
         }
-        return view('vendor.live_sensor', ['vendor' => $getVendor,'lokasi' => $getLokasi]);
-   
+        return view('vendor.live_sensor', ['vendor' => $getVendor, 'lokasi' => $getLokasi]);
     }
 
     public function editVendor($id)
@@ -451,21 +454,21 @@ class VendorController extends Controller
         $vendor->nama_vendor = $request->input('nama_vendor');
         $vendor->slug = $slug;
 
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
             $validation = Validator::make($request->all(), [
                 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
             ]);
-            if($validation->passes()) {
+            if ($validation->passes()) {
                 $image = $request->file('image');
-                $new_name = date('Ymd') . time() . '_'.$image->getClientOriginalName(). '.' . $image->getClientOriginalExtension();
+                $new_name = date('Ymd') . time() . '_' . $image->getClientOriginalName() . '.' . $image->getClientOriginalExtension();
                 $image->move(public_path('assets/img/vendor'), $new_name);
                 $vendor->foto = $new_name;
             }
         }
-        if($vendor->save()){
-            return response()->json(['success'=>'Vendor Berhasil Diubah.']);
-        }else {
-            return response()->json(['error'=>'Vendor Gagal Diubah.']);
+        if ($vendor->save()) {
+            return response()->json(['success' => 'Vendor Berhasil Diubah.']);
+        } else {
+            return response()->json(['error' => 'Vendor Gagal Diubah.']);
         }
     }
     public function updateVendor(Request $request)
@@ -477,21 +480,21 @@ class VendorController extends Controller
         $vendor->nama_vendor = $request->input('nama_vendors');
         $vendor->slug = $slug;
 
-        if($request->hasFile('foto')){
+        if ($request->hasFile('foto')) {
             $validation = Validator::make($request->all(), [
                 'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
             ]);
-            if($validation->passes()) {
+            if ($validation->passes()) {
                 $image = $request->file('foto');
-                $new_name = date('Ymd') . time() . '_'.$image->getClientOriginalName(). '.' . $image->getClientOriginalExtension();
+                $new_name = date('Ymd') . time() . '_' . $image->getClientOriginalName() . '.' . $image->getClientOriginalExtension();
                 $image->move(public_path('assets/img/vendor'), $new_name);
                 $vendor->foto = $new_name;
             }
         }
-        if($vendor->save()){
-            return response()->json(['success'=>'Vendor Berhasil Diubah.']);
-        }else {
-            return response()->json(['error'=>'Vendor Gagal Diubah.']);
+        if ($vendor->save()) {
+            return response()->json(['success' => 'Vendor Berhasil Diubah.']);
+        } else {
+            return response()->json(['error' => 'Vendor Gagal Diubah.']);
         }
     }
 
@@ -507,21 +510,21 @@ class VendorController extends Controller
         $lokasi->lat = $request->input('latitudes');
         $lokasi->slug = $slug;
 
-        if($request->hasFile('foto')){
+        if ($request->hasFile('foto')) {
             $validation = Validator::make($request->all(), [
                 'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
             ]);
-            if($validation->passes()) {
+            if ($validation->passes()) {
                 $image = $request->file('foto');
-                $new_name = date('Ymd') . time() . '_'.$image->getClientOriginalName(). '.' . $image->getClientOriginalExtension();
+                $new_name = date('Ymd') . time() . '_' . $image->getClientOriginalName() . '.' . $image->getClientOriginalExtension();
                 $image->move(public_path('assets/img/lokasi'), $new_name);
                 $lokasi->foto = $new_name;
             }
         }
-        if($lokasi->save()){
-            return response()->json(['success'=>'Lokasi Berhasil Diubah.']);
-        }else {
-            return response()->json(['error'=>'Lokasi Gagal Diubah.']);
+        if ($lokasi->save()) {
+            return response()->json(['success' => 'Lokasi Berhasil Diubah.']);
+        } else {
+            return response()->json(['error' => 'Lokasi Gagal Diubah.']);
         }
     }
 
@@ -529,27 +532,26 @@ class VendorController extends Controller
     {
         $getUser = User::where('id', Auth::user()->id)->first();
         $id = $request->input('id_span');
-        $checkData = Span::join('lokasi','lokasi.id','=','span.id_lokasi')->where('span.id',$id)->where('span.isDeleted',0)->first();
+        $checkData = Span::join('lokasi', 'lokasi.id', '=', 'span.id_lokasi')->where('span.id', $id)->where('span.isDeleted', 0)->first();
         $span = Span::find($id);
         $span->nama_span = $request->input('nama_span');
         $span->stationId = $request->input('station_id');
-        if($request->hasFile('foto')){
+        if ($request->hasFile('foto')) {
             $validation = Validator::make($request->all(), [
                 'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:20000'
             ]);
-            if($validation->passes()) {
+            if ($validation->passes()) {
                 $image = $request->file('foto');
-                $new_name = date('Ymd') . time() . '_'.$image->getClientOriginalName(). '.' . $image->getClientOriginalExtension();
+                $new_name = date('Ymd') . time() . '_' . $image->getClientOriginalName() . '.' . $image->getClientOriginalExtension();
                 $image->move(public_path('assets/img/span'), $new_name);
                 $span->foto = $new_name;
             }
         }
-        if($span->save()){
-            return response()->json(['success'=>'Span Berhasil Diubah.']);
-        }else {
-            return response()->json(['error'=>'Span Gagal Diubah.']);
+        if ($span->save()) {
+            return response()->json(['success' => 'Span Berhasil Diubah.']);
+        } else {
+            return response()->json(['error' => 'Span Gagal Diubah.']);
         }
-
     }
     public function updatePositionSpan(Request $request)
     {
@@ -560,39 +562,39 @@ class VendorController extends Controller
         $parts = explode($delimiter, $id);
         $newId = $parts[1];
 
-        $checkData = Span::join('lokasi','lokasi.id','=','span.id_lokasi')->where('span.id',$newId)->where('span.isDeleted',0)->count();
-        if($checkData > 0){
+        $checkData = Span::join('lokasi', 'lokasi.id', '=', 'span.id_lokasi')->where('span.id', $newId)->where('span.isDeleted', 0)->count();
+        if ($checkData > 0) {
             $span = Span::find($newId);
             $span->x_position = $request->input('left');
             $span->y_position = $request->input('top');
-            if($span->save()){
-                return response()->json(['success'=>'Span Berhasil Diubah.']);
-            }else {
-                return response()->json(['error'=>'Span Gagal Diubah.']);
+            if ($span->save()) {
+                return response()->json(['success' => 'Span Berhasil Diubah.']);
+            } else {
+                return response()->json(['error' => 'Span Gagal Diubah.']);
             }
-        }else{
-            return response()->json(['error'=>'Span Gagal Diubah.']);
+        } else {
+            return response()->json(['error' => 'Span Gagal Diubah.']);
         }
     }
 
     public function destroy($id)
     {
         $vendor = Vendor::find($id);
-        $vendor->isDeleted=1;
-        if($vendor->save()){
-            return response()->json(['success'=>'Vendor Berhasil Dihapus.']);
-        }else{
-            return response()->json(['error'=>'Vendor Gagal Dihapus.']);
+        $vendor->isDeleted = 1;
+        if ($vendor->save()) {
+            return response()->json(['success' => 'Vendor Berhasil Dihapus.']);
+        } else {
+            return response()->json(['error' => 'Vendor Gagal Dihapus.']);
         }
     }
     public function deleteLokasi($id)
     {
         $lokasi = Lokasi::find($id);
-        $lokasi->isDeleted=1;
-        if($lokasi->save()){
-            return response()->json(['success'=>'Lokasi Berhasil Dihapus.']);
-        }else{
-            return response()->json(['error'=>'Lokasi Gagal Dihapus.']);
+        $lokasi->isDeleted = 1;
+        if ($lokasi->save()) {
+            return response()->json(['success' => 'Lokasi Berhasil Dihapus.']);
+        } else {
+            return response()->json(['error' => 'Lokasi Gagal Dihapus.']);
         }
     }
 }
