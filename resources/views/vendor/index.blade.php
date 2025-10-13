@@ -2,9 +2,9 @@
 @section('title', 'Client')
 @section('style')
 <style>
-.form-group {
-    margin-bottom: 10px;
-}
+    .form-group {
+        margin-bottom: 10px;
+    }
 </style>
 @endsection
 
@@ -103,24 +103,24 @@
 
 @section('script')
 <script>
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-    }
-});
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    });
 
-// === Load Data Client ===
-function showData() {
-    $('#list-vendor').html('');
-    $.ajax({
-        url: "{{ url('/vendor/listVendor') }}",
-        dataType: "json",
-        type: "GET",
-        success: function(data) {
-            console.log(data);
-            $.each(data.items, function(index, item) {
-                console.log(item);
-                $('#list-vendor').append(`
+    // === Load Data Client ===
+    function showData() {
+        $('#list-vendor').html('');
+        $.ajax({
+            url: "{{ url('/vendor/listVendor') }}",
+            dataType: "json",
+            type: "GET",
+            success: function(data) {
+                console.log(data);
+                $.each(data.items, function(index, item) {
+                    console.log(item);
+                    $('#list-vendor').append(`
                         <div class="col-4">
                             <div class="loc-list position-relative">
                                 <a href="{{ url('/vendor') }}/${item.slug}/">
@@ -140,58 +140,84 @@ function showData() {
                             </div>
                         </div>
                     `);
+                });
+            }
+        });
+    }
+    showData();
+
+    // === Variabel global mode ===
+    let mode;
+
+    // === Modal Control ===
+    function show_modal(data) {
+        if (mode === "add") {
+            $('#form-field').trigger('reset');
+            $('#form-field').children('.modal').find('.modal-title').text("Tambah Client").end().modal('show');
+        } else if (mode === "edit") {
+            $.getJSON(`{{ url('/editVendor') }}/${data}`, function(res) {
+                $('#form-field-edit').find('#nama_vendors').val(res.nama_vendor);
+                $('#form-field-edit').find('#id_vendors').val(res.id);
+                $('#form-field-edit').children('.modal').modal('show');
             });
+        } else if (mode === "hapus") {
+            $('#konfirmasiId').val(data);
+            $('#modal_hapus').modal('show');
+        }
+    }
+
+    // === Reset Function ===
+    function reset_all() {
+        $('#form-field, #form-field-edit, #form-field-hapus').each(function() {
+            this.reset();
+        });
+        mode = undefined;
+        showData();
+        $('.modal').modal('hide');
+    }
+
+    // === Action Handler ===
+    $(document).on('click', ".action", function() {
+        const action = $(this).data('action');
+        const id = $(this).data('id');
+
+        $('.closemodal').click(() => $('.modal').modal('hide'));
+
+        if (action === "delete") {
+            const vendorId = $("input[name='id_vendor']").val();
+            $.ajax({
+                url: `{{ url('/vendor') }}/${vendorId}`,
+                type: "DELETE",
+                dataType: "json",
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(res) {
+                    swal({
+                        title: res.error ? "Error!" : "Success!",
+                        text: res.error || res.success,
+                        type: res.error ? "error" : "success"
+                    });
+                    reset_all();
+                }
+            });
+        } else {
+            mode = action;
+            show_modal(id);
         }
     });
-}
-showData();
 
-// === Variabel global mode ===
-let mode;
-
-// === Modal Control ===
-function show_modal(data) {
-    if (mode === "add") {
-        $('#form-field').trigger('reset');
-        $('#form-field').children('.modal').find('.modal-title').text("Tambah Client").end().modal('show');
-    } else if (mode === "edit") {
-        $.getJSON(`{{ url('/editVendor') }}/${data}`, function(res) {
-            $('#form-field-edit').find('#nama_vendors').val(res.nama_vendor);
-            $('#form-field-edit').find('#id_vendors').val(res.id);
-            $('#form-field-edit').children('.modal').modal('show');
-        });
-    } else if (mode === "hapus") {
-        $('#konfirmasiId').val(data);
-        $('#modal_hapus').modal('show');
-    }
-}
-
-// === Reset Function ===
-function reset_all() {
-    $('#form-field, #form-field-edit, #form-field-hapus').each(function() {
-        this.reset();
-    });
-    mode = undefined;
-    showData();
-    $('.modal').modal('hide');
-}
-
-// === Action Handler ===
-$(document).on('click', ".action", function() {
-    const action = $(this).data('action');
-    const id = $(this).data('id');
-
-    $('.closemodal').click(() => $('.modal').modal('hide'));
-
-    if (action === "delete") {
-        const vendorId = $("input[name='id_vendor']").val();
+    // === Submit Add ===
+    $('#form-field').on('submit', function(e) {
+        e.preventDefault();
         $.ajax({
-            url: `{{ url('/vendor') }}/${vendorId}`,
-            type: "DELETE",
-            dataType: "json",
-            data: {
-                _token: '{{ csrf_token() }}'
-            },
+            url: "{{ url('/vendor') }}",
+            method: "POST",
+            data: new FormData(this),
+            dataType: 'JSON',
+            contentType: false,
+            cache: false,
+            processData: false,
             success: function(res) {
                 swal({
                     title: res.error ? "Error!" : "Success!",
@@ -201,61 +227,35 @@ $(document).on('click', ".action", function() {
                 reset_all();
             }
         });
-    } else {
-        mode = action;
-        show_modal(id);
-    }
-});
-
-// === Submit Add ===
-$('#form-field').on('submit', function(e) {
-    e.preventDefault();
-    $.ajax({
-        url: "{{ url('/vendor') }}",
-        method: "POST",
-        data: new FormData(this),
-        dataType: 'JSON',
-        contentType: false,
-        cache: false,
-        processData: false,
-        success: function(res) {
-            swal({
-                title: res.error ? "Error!" : "Success!",
-                text: res.error || res.success,
-                type: res.error ? "error" : "success"
-            });
-            reset_all();
-        }
     });
-});
 
-// === Submit Edit ===
-$('#form-field-edit').on('submit', function(e) {
-    e.preventDefault();
-    $.ajax({
-        url: "{{ url('/updateVendor') }}",
-        method: "POST",
-        data: new FormData(this),
-        dataType: 'JSON',
-        contentType: false,
-        cache: false,
-        processData: false,
-        success: function(res) {
-            swal({
-                title: res.error ? "Error!" : "Success!",
-                text: res.error || res.success,
-                type: res.error ? "error" : "success"
-            });
-            reset_all();
-        }
-    });
-});
-
-// === Prevent Enter Submit Form ===
-$('form').on("keypress", function(e) {
-    if (e.keyCode === 13) {
+    // === Submit Edit ===
+    $('#form-field-edit').on('submit', function(e) {
         e.preventDefault();
-    }
-});
+        $.ajax({
+            url: "{{ url('/updateVendor') }}",
+            method: "POST",
+            data: new FormData(this),
+            dataType: 'JSON',
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(res) {
+                swal({
+                    title: res.error ? "Error!" : "Success!",
+                    text: res.error || res.success,
+                    type: res.error ? "error" : "success"
+                });
+                reset_all();
+            }
+        });
+    });
+
+    // === Prevent Enter Submit Form ===
+    $('form').on("keypress", function(e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+        }
+    });
 </script>
 @endsection

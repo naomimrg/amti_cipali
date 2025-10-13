@@ -75,6 +75,7 @@
             async: true,
             type: "GET",
             success: function(data) {
+                console.log(data);
                 var map = L.map('map').setView([-2, 120], 5);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

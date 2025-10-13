@@ -26,7 +26,7 @@ class DashboardController extends Controller
 
     public function listLokasi()
     {
-        $getLokasi = DB::table('lokasi')->select('lokasi.*', 'vendor.nama_vendor', 'vendor.foto as foto_vendor', 'vendor.slug as slug_vendor', 'vendor.id')->join('vendor', 'vendor.id', '=', 'lokasi.id_vendor')->where('lokasi.isDeleted', 0)->where('vendor.isDeleted', 0)->get();
+        $getLokasi = DB::table('lokasi')->select('lokasi.*', 'vendor.nama_vendor', 'vendor.foto as foto_vendor', 'vendor.slug as slug_vendor')->join('vendor', 'vendor.id', '=', 'lokasi.id_vendor')->where('lokasi.isDeleted', 0)->where('vendor.isDeleted', 0)->get();
         $data = array();
         foreach ($getLokasi as $key) {
             if ($key->foto != "" || $key->foto != NULL) {
@@ -117,7 +117,6 @@ class DashboardController extends Controller
 
             $data[] = [
                 'id' => $key->id,
-                'vendor_id' => $key->id_vendor,
                 'nama_vendor' => $key->nama_vendor,
                 'slug_vendor' => $key->slug_vendor,
                 'image' => $image,

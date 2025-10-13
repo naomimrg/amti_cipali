@@ -315,67 +315,47 @@ class VendorController extends Controller
 
     public function chartList(Request $request)
     {
-        $sensorId = $request->query('id_sensor');
-        if (!$sensorId) return response()->json(['error' => 'id_sensor is required'], 400);
+        $response = array();
+        $dataSensor = array();
+        $dateTime = array();
+        $id = $_GET['id_sensor'];
+        $to_date = date('Y-m-d H:i:s');
+        $from_date = date('Y-m-d H:i:s', strtotime('-3 second'));
 
-        $mode    = $request->query('mode', 'live');
-        $rangeMs = (int) $request->query('range_ms', 60000);
+        $idUser = Auth::user()->id;
+        $getParameter = Sensor::where('id', $id)->first();
 
-        $sensorMeta = DB::table('sensor')->where('id', $sensorId)->first();
-        if (!$sensorMeta) return response()->json(['error' => 'sensor not found'], 404);
-
-        $TTL_SECONDS = 8;
-
-        if ($mode === 'history') {
-            $latestTime = DB::table('log_data')->where('id_sensor', $sensorId)->max('time');
-            if (!$latestTime) return response()->json([]);
-
-            $to   = \Carbon\Carbon::parse($latestTime);
-            $from = (clone $to)->subMilliseconds($rangeMs);
-
-            $rows = DB::table('log_data')
-                ->select([
-                    'time as datetime',
-                    'value',
-                    DB::raw("'" . ($sensorMeta->satuan ?? '') . "' as satuan")
-                ])
-                ->where('id_sensor', $sensorId)
-                ->whereBetween('time', [$from, $to])
-                ->orderBy('time', 'asc')
-                ->get();
-
-            $lastTs = \Carbon\Carbon::parse(optional($rows->last())->datetime);
-            $online = $lastTs && $lastTs->gt(now()->subSeconds($TTL_SECONDS));
-            $status = $online ? 'online' : 'offline';
-            $color  = $online ? '#10B981' : '#000000';
-
-            if ($rows->isNotEmpty()) {
-                $rows[$rows->count() - 1]->status = $status;
-                $rows[$rows->count() - 1]->color  = $color;
-            }
-
-            return response()->json($rows);
+        $countValue = DB::table('log_data')->where('id_sensor', $id)->whereBetween(\DB::raw('time'), [$from_date, $to_date])->orderBy('time', 'DESC')->count();
+        if ($countValue > 0) {
+            $getValue = DB::table('log_data')->where('id_sensor', $id)->whereBetween(\DB::raw('time'), [$from_date, $to_date])->orderBy('time', 'DESC')->first();
+            $value = $getValue->value;
+        } else {
+            $value = 0;
         }
 
-        $row = DB::table('log_data')
-            ->select(['time as datetime', 'value'])
-            ->where('id_sensor', $sensorId)
-            ->orderBy('time', 'desc')
-            ->limit(1)
-            ->first();
+        $batas_bawah = $getParameter->batas_bawah;
+        $batas_atas = $getParameter->batas_atas;
+        if ($value == 0 || $value == NULL) {
+            $status = 'black';
+        } elseif ($value < $batas_bawah) {
+            $status = 'green';
+        } elseif ($value > $batas_bawah && $value < $batas_atas) {
+            $status = 'orange';
+        } elseif ($value > $batas_atas) {
+            $status = 'red';
+        } else {
+            $status = 'black';
+        }
+        $response = array(
+            "satuan" => $getParameter->satuan,
+            "status" => $status,
+            "batas_atas" => $getParameter->batas_atas,
+            "batas_bawah" => $getParameter->batas_bawah,
+            "value" => $value,
+            'datetime' => date('H:i:s'),
 
-        if (!$row) return response()->json(new \stdClass());
-
-        $ts = \Carbon\Carbon::parse($row->datetime);
-        $online = $ts->gt(now()->subSeconds($TTL_SECONDS));
-
-        return response()->json([
-            'datetime' => $row->datetime,
-            'value'    => $row->value,
-            'satuan'   => $sensorMeta->satuan ?? '',
-            'status'   => $online ? 'online' : 'offline',
-            'color'    => $online ? '#10B981' : '#000000',
-        ]);
+        );
+        echo json_encode($response);
     }
 
     public function natFreqChartList(Request $request)
