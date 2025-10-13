@@ -59,14 +59,11 @@ class VendorController extends Controller
 
     public function listLokasi($id)
     {
-        // Ambil vendor berdasarkan slug
         $getVendor = Vendor::where('slug', $id)->where('isDeleted', 0)->first();
 
         if (!$getVendor) {
             return response()->json(['error' => 'Vendor tidak ditemukan.'], 404);
         }
-
-        // Ambil lokasi milik vendor
         $getLokasi = DB::table('lokasi')
             ->where('id_vendor', $getVendor->id)
             ->where('isDeleted', 0)
@@ -75,10 +72,7 @@ class VendorController extends Controller
         $data = [];
 
         foreach ($getLokasi as $key) {
-            // Tentukan gambar default
             $image = !empty($key->foto) ? $key->foto : 'default.jpg';
-
-            // Ambil span pertama dari lokasi ini
             $firstSpan = DB::table('span')
                 ->where('id_lokasi', $key->id)
                 ->where('isDeleted', 0)
@@ -86,14 +80,12 @@ class VendorController extends Controller
                 ->first();
 
             $spanId = $firstSpan ? $firstSpan->id : null;
-
-            // Tambahkan data ke array
             $data[] = [
                 'id' => $key->id,
                 'image' => $image,
                 'nama_lokasi' => $key->nama_lokasi,
                 'slug' => $key->slug,
-                'span_id' => $spanId, // 🔥 untuk langsung ke live sensor
+                'span_id' => $spanId,
                 'long' => $key->long,
                 'lat' => $key->lat,
                 'created_at' => date('D, j M Y', strtotime($key->created_at))
