@@ -37,8 +37,6 @@ class VendorController extends Controller
         if (!$getVendor || !$getLokasi) {
             return abort(404, 'Vendor atau Lokasi tidak ditemukan.');
         }
-
-        // Cek jumlah span
         $spanQuery = DB::table('span')
             ->where('id_lokasi', $getLokasi->id)
             ->where('isDeleted', 0);
@@ -47,13 +45,13 @@ class VendorController extends Controller
 
         $spanId = null;
         if ($spanCount === 1) {
-            $spanId = $spanQuery->first()->id; // Ambil ID span tunggal
+            $spanId = $spanQuery->first()->id;
         }
 
         return view('admin_vendor.dashboard.index', [
             'vendor' => $getVendor,
             'lokasi' => $getLokasi,
-            'spanId' => $spanId // ✅ kirim ke Blade
+            'spanId' => $spanId
         ]);
     }
 
