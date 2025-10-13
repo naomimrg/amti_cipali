@@ -313,7 +313,7 @@ class VendorController extends Controller
         }
     }
 
-    public function chartList()
+    public function chartList(Request $request)
     {
         $response = array();
         $dataSensor = array();
@@ -357,6 +357,7 @@ class VendorController extends Controller
         );
         echo json_encode($response);
     }
+
     public function natFreqChartList(Request $request)
     {
         $stationId = $request->query('station_id');
@@ -387,6 +388,7 @@ class VendorController extends Controller
 
         return response()->json($response);
     }
+
     public function CurrentNatFreq(Request $request)
     {
         // Ambil waktu saat ini dengan format "Y-m-d H:00:00"
