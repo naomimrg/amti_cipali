@@ -61,8 +61,6 @@ class VendorController extends Controller
     public function liveSensor($id)
     {
         $getUser = DB::table('users')->where('id', Auth::user()->id)->first();
-
-        // Cek apakah lokasi tersedia
         $getLokasi = DB::table('lokasi')->where('id_vendor', $getUser->id_vendor)
             ->where('isDeleted', 0)
             ->where('slug', $id)
