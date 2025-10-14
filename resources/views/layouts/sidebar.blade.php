@@ -1,14 +1,12 @@
 <!-- resources/views/layouts/sidebar.blade.php -->
 <div id="sidebar"
     style="width:80px; height:100vh; background:#ffffff; border-radius:12px; padding:10px; box-shadow:0 2px 8px rgba(0,0,0,0.04); position:relative; transition: width 0.25s ease; display:flex; flex-direction:column;">
-    <button id="sidebarToggle" type="button"
-        style="align-self:flex-end; width:34px; height:34px; border-radius:50%; border:1px solid #e6e6e6; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-        <i class="bx bx-chevron-right" aria-hidden="true"></i>
-    </button>
+
     <div style="text-align:center; margin-top:20px; margin-bottom:15px;">
         <img id="sidebarLogo" src="{{ url('/assets/img/amti-logo-transparent.png') }}" alt="AMTI Logo"
             style="width:40px; transition: width 0.25s ease;">
     </div>
+
     <ul id="menuList" style="list-style:none; padding:0; margin:0; flex-grow:1;">
         @php
         $menus = [
@@ -57,6 +55,10 @@
         </a>
         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
     </div>
+    <button id="sidebarToggle" type="button"
+        style="position:absolute; top:35%; right:-10px; transform:translateY(-50%); width:34px; height:34px; border-radius:50%; border:1px solid #e6e6e6; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+        <i class="bx bx-chevron-right" aria-hidden="true"></i>
+    </button>
 </div>
 
 <script>
