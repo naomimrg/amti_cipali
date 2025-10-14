@@ -311,47 +311,190 @@ class VendorController extends Controller
 
     public function chartList(Request $request)
     {
-        $response = array();
-        $dataSensor = array();
-        $dateTime = array();
-        $id = $_GET['id_sensor'];
-        $to_date = date('Y-m-d H:i:s');
-        $from_date = date('Y-m-d H:i:s', strtotime('-3 second'));
-
-        $idUser = Auth::user()->id;
-        $getParameter = Sensor::where('id', $id)->first();
-
-        $countValue = DB::table('log_data')->where('id_sensor', $id)->whereBetween(\DB::raw('time'), [$from_date, $to_date])->orderBy('time', 'DESC')->count();
-        if ($countValue > 0) {
-            $getValue = DB::table('log_data')->where('id_sensor', $id)->whereBetween(\DB::raw('time'), [$from_date, $to_date])->orderBy('time', 'DESC')->first();
-            $value = $getValue->value;
-        } else {
-            $value = 0;
+        $sensorId = (int) $request->query('id_sensor');
+        if (!$sensorId) {
+            return response()->json(['error' => 'id_sensor is required'], 422);
         }
 
-        $batas_bawah = $getParameter->batas_bawah;
-        $batas_atas = $getParameter->batas_atas;
-        if ($value == 0 || $value == NULL) {
-            $status = 'black';
-        } elseif ($value < $batas_bawah) {
-            $status = 'green';
-        } elseif ($value > $batas_bawah && $value < $batas_atas) {
-            $status = 'orange';
-        } elseif ($value > $batas_atas) {
-            $status = 'red';
-        } else {
-            $status = 'black';
+        /** @var \App\Models\Sensor|null $sensor */
+        $sensor = Sensor::find($sensorId);
+        if (!$sensor) {
+            return response()->json(['error' => 'Sensor not found'], 404);
         }
-        $response = array(
-            "satuan" => $getParameter->satuan,
-            "status" => $status,
-            "batas_atas" => $getParameter->batas_atas,
-            "batas_bawah" => $getParameter->batas_bawah,
-            "value" => $value,
-            'datetime' => date('H:i:s'),
 
-        );
-        echo json_encode($response);
+        $mode    = $request->query('mode', 'realtime');    
+        $rangeMs = (int) $request->query('range_ms', 60_000);
+        $stepMs  = max(1, (int) $request->query('step_ms', 3_000));
+
+        $now  = now();
+        $from = $now->copy()->subMilliseconds($rangeMs > 0 ? $rangeMs : 60_000);
+        $to   = $now;
+
+        $table  = 'log_data';                   
+        $driver = DB::getDriverName();         
+
+        $nameLower = strtolower(($sensor->nama ?? $sensor->name ?? ''));
+        $isDisplacement = str_contains($nameLower, 'disp') || str_contains($nameLower, 'displacement');
+        $isStrain       = str_contains($nameLower, 'strain');
+
+        $bawah  = $sensor->batas_bawah;
+        $atas   = $sensor->batas_atas;
+        $satuan = $sensor->satuan;
+
+        $statusColor = function ($v) use ($bawah, $atas) {
+            if ($v === null) return 'black';
+            if ($v == 0)     return 'black';
+            if ($v < $bawah) return 'green';
+            if ($v > $atas)  return 'red';
+            return 'orange'; 
+        };
+
+        if ($mode === 'history') {
+            $step = (int) $stepMs;
+            $useLastPerBucket = ($isDisplacement || $isStrain);
+
+            if ($driver === 'pgsql') {
+                if ($useLastPerBucket) {
+                    $rows = DB::table($table)
+                        ->selectRaw("
+                        to_timestamp(
+                          floor(extract(epoch from \"time\") * 1000 / ?) * ? / 1000
+                        ) as bucket_time,
+                        FIRST_VALUE(value) OVER w as value
+                    ", [$step, $step])
+                        ->where('id_sensor', $sensorId)
+                        ->whereBetween('time', [$from, $to])
+                        ->orderBy('bucket_time', 'asc')
+                        ->orderBy('time', 'desc')
+                        ->selectRaw('DISTINCT ON (bucket_time) value')
+                        ->get();
+                    if ($rows->isEmpty()) {
+                        $rows = DB::table($table)
+                            ->selectRaw("
+                            t.bucket_time, l.value
+                        ")
+                            ->fromSub(function ($q) use ($table, $sensorId, $from, $to, $step) {
+                                $q->from($table)
+                                    ->selectRaw("
+                                  to_timestamp(
+                                    floor(extract(epoch from \"time\") * 1000 / ?) * ? / 1000
+                                  ) as bucket_time,
+                                  max(\"time\") as last_time
+                              ", [$step, $step])
+                                    ->where('id_sensor', $sensorId)
+                                    ->whereBetween('time', [$from, $to])
+                                    ->groupBy('bucket_time');
+                            }, 't')
+                            ->join($table . ' as l', function ($j) {
+                                $j->on('l.time', '=', 't.last_time');
+                            })
+                            ->orderBy('t.bucket_time', 'asc')
+                            ->get();
+                    }
+                } else {
+                    $rows = DB::table($table)
+                        ->selectRaw("
+                        to_timestamp(
+                          floor(extract(epoch from \"time\") * 1000 / ?) * ? / 1000
+                        ) as bucket_time,
+                        avg(value)::float as value
+                    ", [$step, $step])
+                        ->where('id_sensor', $sensorId)
+                        ->whereBetween('time', [$from, $to])
+                        ->groupBy('bucket_time')
+                        ->orderBy('bucket_time', 'asc')
+                        ->get();
+                }
+            } else {
+                if ($useLastPerBucket) {
+                    $rows = DB::table($table)
+                        ->selectRaw(
+                            "
+                        bucket_time, value FROM (
+                          SELECT
+                            FROM_UNIXTIME(
+                              FLOOR(UNIX_TIMESTAMP(`time`) * 1000 / ?) * ? / 1000
+                            ) AS bucket_time,
+                            `time`,
+                            value,
+                            ROW_NUMBER() OVER (
+                              PARTITION BY
+                                FROM_UNIXTIME(
+                                  FLOOR(UNIX_TIMESTAMP(`time`) * 1000 / ?) * ? / 1000
+                                )
+                              ORDER BY `time` DESC
+                            ) AS rn
+                          FROM {$table}
+                          WHERE id_sensor = ? AND `time` BETWEEN ? AND ?
+                        ) t
+                        WHERE rn = 1
+                        ORDER BY bucket_time ASC
+                    ",
+                            [$step, $step, $step, $step, $sensorId, $from, $to]
+                        )->get();
+                } else {
+                    $rows = DB::table($table)
+                        ->selectRaw("
+                        FROM_UNIXTIME(
+                          FLOOR(UNIX_TIMESTAMP(`time`) * 1000 / ?) * ? / 1000
+                        ) as bucket_time,
+                        AVG(value) as value
+                    ", [$step, $step])
+                        ->where('id_sensor', $sensorId)
+                        ->whereBetween('time', [$from, $to])
+                        ->groupBy('bucket_time')
+                        ->orderBy('bucket_time', 'asc')
+                        ->get();
+                }
+            }
+
+            $history = collect($rows)->map(function ($r) use ($statusColor, $satuan) {
+                $ts  = \Carbon\Carbon::parse($r->bucket_time)->format('Y-m-d H:i:s');
+                $val = isset($r->value) ? (float) $r->value : null;
+                return [
+                    'datetime' => $ts,
+                    'value'    => $val,
+                    'status'   => $statusColor($val),
+                    'satuan'   => $satuan,
+                    'color'    => $statusColor($val),
+                ];
+            })->values();
+
+            return response()->json([
+                'history'  => $history,
+                'sensor'   => ['id' => $sensor->id, 'satuan' => $satuan],
+                'range_ms' => $rangeMs,
+                'step_ms'  => $stepMs,
+                'from'     => $from->format('Y-m-d H:i:s'),
+                'to'       => $to->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+        $latest = DB::table($table)
+            ->select('time', 'value')
+            ->where('id_sensor', $sensorId)
+            ->orderBy('time', 'desc')
+            ->first();
+
+        if (!$latest) {
+            return response()->json([
+                'datetime' => $now->format('Y-m-d H:i:s'),
+                'value'    => null,
+                'status'   => 'black',
+                'satuan'   => $satuan,
+                'color'    => 'black',
+            ]);
+        }
+
+        $val = is_null($latest->value) ? null : (float) $latest->value;
+
+        return response()->json([
+            'datetime' => \Carbon\Carbon::parse($latest->time)->format('Y-m-d H:i:s'),
+            'value'    => $val,
+            'status'   => $statusColor($val),
+            'satuan'   => $satuan,
+            'color'    => $statusColor($val),
+        ]);
     }
 
     public function natFreqChartList(Request $request)
