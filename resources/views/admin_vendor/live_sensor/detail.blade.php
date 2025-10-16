@@ -90,9 +90,28 @@
 @endsection
 @section('script')
     <script>
+        const REFRESH_MS = 3000;
+        const WINDOW_POINTS = 20;
+
+        let chart, timerId = null;
+
+        function toHHMMSS(dt) {
+            const str = String(dt || '');
+            const m = str.match(/(\d{2}:\d{2}:\d{2})/);
+            if (m) return m[1];
+            const d = new Date(str);
+            if (!isNaN(d)) {
+                const h = String(d.getHours()).padStart(2, '0');
+                const mi = String(d.getMinutes()).padStart(2, '0');
+                const s = String(d.getSeconds()).padStart(2, '0');
+                return `${h}:${mi}:${s}`;
+            }
+            return str;
+        }
+
         function showData() {
-            var pathArray = window.location.href.split('/');
-            var id = pathArray[6];
+            const pathArray = window.location.href.split('/');
+            const id = pathArray[6];
             $.ajax({
                 type: "get",
                 url: "{{ url('/listSensor') }}/" + id,
@@ -100,18 +119,17 @@
                 success: function(data) {
                     $('#sensor_id').empty();
                     $.each(data.items, function(index, item) {
-                        let sensorName = customSensorNames[item.sensor_id] || item
-                        .sensor_id; 
+                        let sensorName = (typeof customSensorNames !== 'undefined' && customSensorNames[
+                                item.sensor_id]) ?
+                            customSensorNames[item.sensor_id] :
+                            item.sensor_id;
                         $("#sensor_id").append('<option value="' + item.id + '">' + sensorName +
                             '</option>');
                     });
+                    loadHistoryAndStart();
                 }
             });
         }
-
-        showData();
-
-        let chart;
 
         function createChart() {
             const ctx = document.getElementById('myChart').getContext('2d');
@@ -124,10 +142,13 @@
                         data: [],
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        tension: 0.2,
-                    }, ]
+                        tension: 0.2
+                    }]
                 },
                 options: {
+                    animation: false,
+                    responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -140,57 +161,116 @@
                             type: 'category',
                             title: {
                                 display: true,
-                                text: 'Time (s)',
-                            },
-                        },
+                                text: 'Time (HH:MM:SS)'
+                            }
+                        }
                     }
                 }
             });
         }
 
-        createChart();
+        function resetChart() {
+            if (!chart) return;
+            chart.data.labels = [];
+            chart.data.datasets[0].data = [];
+            chart.update();
+        }
+
+        function deriveYAxisLabel(sensorText, unit) {
+            const t = (sensorText || '').toLowerCase();
+            if (t.includes('tiltmeter')) return 'Degree';
+            if (t.includes('displacement') || t.includes('disp')) return 'Displacement';
+            if (t.includes('strain gauge') || t.includes('strain')) return 'Microstrain';
+            if (t.includes('accelero') || t.includes('accelerometer') || t.includes('acc')) return 'Acceleration';
+            return 'Acceleration';
+        }
+
+        async function fetchHistory() {
+            const selectedSensor = document.getElementById('sensor_id');
+            const id = selectedSensor?.value;
+            if (!id) return;
+
+            const url = "{{ url('/live_sensor/history') }}" + `?id_sensor=${id}&window=60&step=3`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`History request failed: ${res.status}`);
+            const hist = await res.json();
+
+            let labels = [],
+                values = [],
+                unit = hist.unit || '';
+            if (Array.isArray(hist.items)) {
+                labels = hist.items.map(x => toHHMMSS(x.datetime));
+                values = hist.items.map(x => x.value);
+                unit = hist.unit || hist.items[0]?.satuan || '';
+            } else {
+                labels = (hist.labels || []).map(toHHMMSS);
+                values = hist.values || [];
+                unit = hist.unit || '';
+            }
+
+            labels = labels.slice(-WINDOW_POINTS);
+            values = values.slice(-WINDOW_POINTS);
+
+            const sensorTypeText = selectedSensor?.options[selectedSensor.selectedIndex]?.text || '';
+            chart.options.scales.y.title.text = deriveYAxisLabel(sensorTypeText, unit);
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = values;
+            chart.update();
+
+            if (values.length) {
+                const lastVal = values[values.length - 1];
+                $("#current-value").html(`Current Value = ${lastVal} ${unit || ''}`);
+            }
+        }
 
         async function updateChart() {
             const selectedSensor = document.getElementById('sensor_id');
-            const selectedOption = selectedSensor.value;
-            const sensorType = selectedSensor.options[selectedSensor.selectedIndex]?.text
-                .toLowerCase();
+            const selectedOption = selectedSensor?.value;
+            const sensorTypeText = selectedSensor?.options[selectedSensor.selectedIndex]?.text?.toLowerCase() || '';
+            if (!selectedOption) return;
 
             try {
                 const response = await fetch("{{ url('/live_sensor/chartList') }}?id_sensor=" + selectedOption);
                 const data = await response.json();
 
-                let yAxisLabel = "Acceleration "; 
-                if (sensorType.includes("displacement")) {
-                    yAxisLabel = "Displacement";
-                } else if (sensorType.includes("tiltmeter")) {
-                    yAxisLabel = "Degree";
-                } else if (sensorType.includes("strain gauge")) {
-                    yAxisLabel = "Microstrain";
-                }
-
+                const yAxisLabel = deriveYAxisLabel(sensorTypeText, data.satuan);
                 chart.options.scales.y.title.text = yAxisLabel;
 
-                chart.data.labels.push(data.datetime);
+                chart.data.labels.push(toHHMMSS(data.datetime));
                 chart.data.datasets[0].data.push(data.value);
 
-                if (chart.data.labels.length > 10) {
+                while (chart.data.labels.length > WINDOW_POINTS) {
                     chart.data.labels.shift();
                     chart.data.datasets[0].data.shift();
                 }
 
-                document.getElementById('status-sensor').style.backgroundColor = data.status;
-                $("#current-value").html(`Current Value = ${data.value} ${data.satuan}`);
+                const statusEl = document.getElementById('status-sensor');
+                if (statusEl && data.status) statusEl.style.backgroundColor = data.status;
+                $("#current-value").html(`Current Value = ${data.value} ${data.satuan || ''}`);
 
                 chart.update();
-            } catch (error) {
-                console.error("Error fetching sensor data:", error);
+            } catch (err) {
+                console.error("Error fetching sensor data:", err);
             }
         }
 
-        setInterval(() => {
-            updateChart();
-        }, 3000);
+        async function loadHistoryAndStart() {
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+            }
+            resetChart();
+            try {
+                await fetchHistory();
+            } catch (e) {
+                console.error(e);
+            }
+            timerId = setInterval(updateChart, REFRESH_MS);
+        }
+
+        createChart();
+        showData();
+        document.getElementById('sensor_id')?.addEventListener('change', loadHistoryAndStart);
     </script>
 
     <script>

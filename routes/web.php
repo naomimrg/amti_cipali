@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LiveSensorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,6 +94,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/home/{id}', [App\Http\Controllers\VendorController::class, 'index']);
     Route::get('/live_sensor/natFreqChartList', [App\Http\Controllers\VendorController::class, 'natFreqChartList']);
     Route::get('/live_sensor/currentnatfreq', [App\Http\Controllers\VendorController::class, 'CurrentNatFreq']);
+
+    //User
+    Route::get('/live_sensor/history', [LiveSensorController::class, 'history']);
 
     //Report
     Route::get('/report/list-report', [App\Http\Controllers\ReportController::class, 'listReport']);

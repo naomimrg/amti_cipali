@@ -96,8 +96,6 @@ class VendorController extends Controller
         return view('admin_vendor.live_sensor.index', $data);
     }
 
-
-
     public function dataSensor($id, $spanId)
     {
         $getUser = DB::table('users')->where('id', Auth::user()->id)->first();
