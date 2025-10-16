@@ -101,7 +101,7 @@
                     $('#sensor_id').empty();
                     $.each(data.items, function(index, item) {
                         let sensorName = customSensorNames[item.sensor_id] || item
-                        .sensor_id; // Gunakan custom name jika tersedia
+                        .sensor_id; 
                         $("#sensor_id").append('<option value="' + item.id + '">' + sensorName +
                             '</option>');
                     });
@@ -160,7 +160,7 @@
                 const response = await fetch("{{ url('/live_sensor/chartList') }}?id_sensor=" + selectedOption);
                 const data = await response.json();
 
-                let yAxisLabel = "Acceleration "; // Default
+                let yAxisLabel = "Acceleration "; 
                 if (sensorType.includes("displacement")) {
                     yAxisLabel = "Displacement";
                 } else if (sensorType.includes("tiltmeter")) {

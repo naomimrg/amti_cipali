@@ -218,6 +218,7 @@ class VendorController extends Controller
     {
         return view('admin_vendor.sensor.index');
     }
+    
     public function listSensor()
     {
         $id = Auth::user()->id;
