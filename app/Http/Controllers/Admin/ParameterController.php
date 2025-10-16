@@ -25,24 +25,32 @@ class ParameterController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    // Di ParameterController.php
+
     public function index()
     {
-        $id = Auth::user()->id;
-        $getUser = User::where('id', $id)->first();
-        if($getUser->role == 'Admin Vendor' || $getUser->role == 'User'){
-            return redirect('/404');
-        }else{
-            return view('parameter.index');
+        $user = Auth::user();
+        if ($user->role === 'Super Admin' || $user->role === 'Admin GSI') {
+            // Admin bisa full CRUD
+            return view('parameter.index', [
+                'canEdit' => true,
+                'canDelete' => true
+            ]);
+        } else {
+            // Vendor user hanya view
+            return view('parameter.index', [
+                'canEdit' => false,
+                'canDelete' => false
+            ]);
         }
     }
-
     public function sensor_client()
     {
         $id = Auth::user()->id;
         $getUser = User::where('id', $id)->first();
-        if($getUser->role == 'Admin Vendor' || $getUser->role == 'User'){
+        if ($getUser->role == 'Admin Vendor' || $getUser->role == 'User') {
             return redirect('/404');
-        }else{
+        } else {
             return view('parameter.detail');
         }
     }
@@ -52,14 +60,14 @@ class ParameterController extends Controller
         $data = Parameter::where('isDeleted', 0)->get();
         $list_data = new Collection;
         $i = 1;
-        foreach($data as $ld){
+        foreach ($data as $ld) {
             $list_data->push([
                 'id' => $i,
                 'nama_parameter' => $ld->nama_parameter,
                 'batas_bawah' => $ld->batas_bawah,
                 'batas_atas' => $ld->batas_atas,
                 'satuan' => $ld->satuan,
-                'action' => '<center><button type="button" data-id="'.$ld->id.'" data-action="edit" class="action btn btn-warning btn-sm" data-toggle="tooltip" title="Ubah"><i class="fa fa-pencil"></i> Edit</button></center>',
+                'action' => '<center><button type="button" data-id="' . $ld->id . '" data-action="edit" class="action btn btn-warning btn-sm" data-toggle="tooltip" title="Ubah"><i class="fa fa-pencil"></i> Edit</button></center>',
             ]);
             $i++;
         }
@@ -71,15 +79,15 @@ class ParameterController extends Controller
         $id = Auth::user()->id;
         $list_data = new Collection;
         $i = 1;
-        $getClient = DB::table('vendor')->where('isDeleted',0)->get();
-        foreach($getClient as $gC){
-            $getLokasi = DB::table('lokasi')->where('id_vendor',$gC->id)->where('isDeleted',0)->get();
-            foreach($getLokasi as $gL){
-                $getSpan = DB::table('span')->where('id_lokasi',$gL->id)->where('isDeleted',0)->get();
-                foreach($getSpan as $gS){
-                    $getSensor = DB::table('sensor')->where('isDeleted', 0)->where('id_span',$gS->id)->get();
-                    foreach($getSensor as $ld){
-                        $parameter = DB::table('parameter')->where('isDeleted',0)->where('id',$ld->id_parameter)->first();
+        $getClient = DB::table('vendor')->where('isDeleted', 0)->get();
+        foreach ($getClient as $gC) {
+            $getLokasi = DB::table('lokasi')->where('id_vendor', $gC->id)->where('isDeleted', 0)->get();
+            foreach ($getLokasi as $gL) {
+                $getSpan = DB::table('span')->where('id_lokasi', $gL->id)->where('isDeleted', 0)->get();
+                foreach ($getSpan as $gS) {
+                    $getSensor = DB::table('sensor')->where('isDeleted', 0)->where('id_span', $gS->id)->get();
+                    foreach ($getSensor as $ld) {
+                        $parameter = DB::table('parameter')->where('isDeleted', 0)->where('id', $ld->id_parameter)->first();
                         $list_data->push([
                             'id' => $i,
                             'nama_client' => $gC->nama_vendor,
@@ -95,11 +103,10 @@ class ParameterController extends Controller
                             'satuan' => $ld->satuan,
                             'x_position' => $ld->x_position,
                             'y_position' => $ld->y_position,
-                            'action' => '<center><button style="width: 100%;" type="button" data-id="'.$ld->id.'" data-action="edit" class="action btn btn-warning btn-sm" data-toggle="tooltip" title="Ubah"><i class="fa fa-pencil"></i> Edit</button>&nbsp;<button style="width: 100%;" type="button" data-id="'.$ld->id.'" data-action="hapus" class="action btn btn-danger btn-sm" data-toggle="tooltip" title="Delete"><i class="fa fa-times"></i> Hapus</button></center>',
+                            'action' => '<center><button style="width: 100%;" type="button" data-id="' . $ld->id . '" data-action="edit" class="action btn btn-warning btn-sm" data-toggle="tooltip" title="Ubah"><i class="fa fa-pencil"></i> Edit</button>&nbsp;<button style="width: 100%;" type="button" data-id="' . $ld->id . '" data-action="hapus" class="action btn btn-danger btn-sm" data-toggle="tooltip" title="Delete"><i class="fa fa-times"></i> Hapus</button></center>',
                         ]);
                         $i++;
                     }
-                    
                 }
             }
         }
@@ -111,28 +118,28 @@ class ParameterController extends Controller
         $id = Auth::user()->id;
         $list_data = new Collection;
         $i = 1;
-    
+
         // Mengambil semua vendor yang tidak dihapus
         $getClient = DB::table('vendor')->where('isDeleted', 0)->get();
-    
+
         foreach ($getClient as $gC) {
             // Mengambil lokasi untuk setiap vendor
             $getLokasi = DB::table('lokasi')->where('id_vendor', $gC->id)->where('isDeleted', 0)->get();
-    
+
             foreach ($getLokasi as $gL) {
                 // Mengambil span untuk setiap lokasi
                 $getSpan = DB::table('span')->where('id_lokasi', $gL->id)->where('isDeleted', 0)->get();
-    
+
                 foreach ($getSpan as $gS) {
                     // Mengambil parameter untuk setiap span
                     $getParameters = DB::table('sensor')
-                    ->select('sensor_name', DB::raw('MIN(id) as id'), DB::raw('MAX(x_position) as x_position'), DB::raw('MAX(y_position) as y_position'))
-                    ->where('id_span', $gS->id)
-                    ->where('isDeleted', 0)
-                    ->groupBy('sensor_name')
-                    ->get();
-                
-    
+                        ->select('sensor_name', DB::raw('MIN(id) as id'), DB::raw('MAX(x_position) as x_position'), DB::raw('MAX(y_position) as y_position'))
+                        ->where('id_span', $gS->id)
+                        ->where('isDeleted', 0)
+                        ->groupBy('sensor_name')
+                        ->get();
+
+
                     // Lakukan sesuatu dengan $getParameter jika diperlukan
                     foreach ($getParameters as $sensors) {
                         // Tambahkan ke $list_data atau lakukan operasi lain
@@ -145,13 +152,10 @@ class ParameterController extends Controller
                         ]);
                     }
                 }
-
-
             }
         }
-    
-        return response()->json($list_data);
 
+        return response()->json($list_data);
     }
     public function listSensorByLokasi($lokasi_id)
     {
@@ -219,12 +223,12 @@ class ParameterController extends Controller
     public function editData($id)
     {
         $getUser = User::where('id', Auth::user()->id)->first();
-        
-        $data = Sensor::where('id',$id)->first();
-        $getParameter = Parameter::where('id',$data->id_parameter)->where('isDeleted',0)->first();
-        $getSpan = Span::where('id',$data->id_span)->where('isDeleted',0)->first();
-        $getLokasi = Lokasi::where('id',$getSpan->id_lokasi)->where('isDeleted',0)->first();
-        $getClient = Vendor::where('id',$getLokasi->id_vendor)->where('isDeleted',0)->first();
+
+        $data = Sensor::where('id', $id)->first();
+        $getParameter = Parameter::where('id', $data->id_parameter)->where('isDeleted', 0)->first();
+        $getSpan = Span::where('id', $data->id_span)->where('isDeleted', 0)->first();
+        $getLokasi = Lokasi::where('id', $getSpan->id_lokasi)->where('isDeleted', 0)->first();
+        $getClient = Vendor::where('id', $getLokasi->id_vendor)->where('isDeleted', 0)->first();
 
         $data = [
             'id' => $data->id,
@@ -238,8 +242,8 @@ class ParameterController extends Controller
             'nama_sensor' => $data->sensor_name,
             'satuan' => $data->satuan
         ];
-        
-    
+
+
         return response()->json($data);
     }
 
@@ -247,13 +251,13 @@ class ParameterController extends Controller
     public function edit($id)
     {
         $getUser = User::where('id', Auth::user()->id)->first();
-        if($getUser->role == "Super Admin" || $getUser->role == "Admin GSI"){
+        if ($getUser->role == "Super Admin" || $getUser->role == "Admin GSI") {
             $data = Parameter::findorfail($id);
-        }elseif($getUser->role == "Admin Vendor"){
-            $data = Sensor::where('id',$id)->first();
-            $getParameter = Parameter::where('id',$data->id_parameter)->where('isDeleted',0)->first();
-            $getSpan = Span::where('id',$data->id_span)->where('isDeleted',0)->first();
-            $getLokasi = Lokasi::where('id',$getSpan->id_lokasi)->where('isDeleted',0)->first();
+        } elseif ($getUser->role == "Admin Vendor") {
+            $data = Sensor::where('id', $id)->first();
+            $getParameter = Parameter::where('id', $data->id_parameter)->where('isDeleted', 0)->first();
+            $getSpan = Span::where('id', $data->id_span)->where('isDeleted', 0)->first();
+            $getLokasi = Lokasi::where('id', $getSpan->id_lokasi)->where('isDeleted', 0)->first();
             $data = [
                 'id' => $data->id,
                 'lokasi' => $getLokasi->nama_lokasi,
@@ -266,40 +270,41 @@ class ParameterController extends Controller
                 'satuan' => $data->satuan
             ];
         }
-        
-    
+
+
         return response()->json($data);
     }
 
     public function update(Request $request, $id)
     {
         $getUser = User::where('id', Auth::user()->id)->first();
-        if($getUser->role == "Super Admin" || $getUser->role == "Admin GSI"){
+        if ($getUser->role == "Super Admin" || $getUser->role == "Admin GSI") {
             $sensor = Parameter::find($id);
             $sensor->nama_parameter = $request->input('nama_parameter');
             $sensor->batas_atas = $request->input('batas_atas');
             $sensor->batas_bawah = $request->input('batas_bawah');
             $sensor->satuan = $request->input('satuan');
-        }elseif($getUser->role == "Admin Vendor"){
-            $checkData = Sensor::join('span','span.id','=','sensor.id_span')->join('lokasi','lokasi.id','=','span.id_lokasi')->where('sensor.id',$id)->where('sensor.isDeleted',0)->first();
+        } elseif ($getUser->role == "Admin Vendor") {
+            $checkData = Sensor::join('span', 'span.id', '=', 'sensor.id_span')->join('lokasi', 'lokasi.id', '=', 'span.id_lokasi')->where('sensor.id', $id)->where('sensor.isDeleted', 0)->first();
 
-            if($getUser->id_vendor == $checkData->id_vendor){
+            if ($getUser->id_vendor == $checkData->id_vendor) {
                 $sensor = Sensor::find($id);
                 $sensor->batas_atas = $request->input('batas_atas');
                 $sensor->batas_bawah = $request->input('batas_bawah');
                 $sensor->satuan = $request->input('satuan');
-            }else{
-                return response()->json(['error'=>'Akses ditolak.']);
+            } else {
+                return response()->json(['error' => 'Akses ditolak.']);
             }
         }
-        
-        if($sensor->save()){
-            return response()->json(['success'=>'Sensor Berhasil Diubah.']);
-        }else{
-            return response()->json(['error'=>'Sensor Gagal Diubah.']);
+
+        if ($sensor->save()) {
+            return response()->json(['success' => 'Sensor Berhasil Diubah.']);
+        } else {
+            return response()->json(['error' => 'Sensor Gagal Diubah.']);
         }
     }
-    public function updateData(Request $request, $id){
+    public function updateData(Request $request, $id)
+    {
         // Memeriksa apakah sensor dengan ID yang diberikan ada dan tidak dihapus
         $checkData = Sensor::join('span', 'span.id', '=', 'sensor.id_span')
             ->join('lokasi', 'lokasi.id', '=', 'span.id_lokasi')
@@ -344,7 +349,7 @@ class ParameterController extends Controller
             return response()->json(['error' => 'Gagal memperbarui data sensor.'], 500);
         }
     }
-    
+
 
     /**
      * Remove the specified resource from storage.
@@ -352,17 +357,17 @@ class ParameterController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-	public function deleteSensor($id)
+    public function deleteSensor($id)
     {
         $sensor = Sensor::find($id);
         $sensor->isDeleted = 1;
-        if($sensor->save()){
-            return response()->json(['success'=>'Sensor Berhasil Dihapus.']);
-        }else{
-            return response()->json(['error'=>'Sensor Gagal Dihapus.']);
+        if ($sensor->save()) {
+            return response()->json(['success' => 'Sensor Berhasil Dihapus.']);
+        } else {
+            return response()->json(['error' => 'Sensor Gagal Dihapus.']);
         }
     }
-	
+
     public function updateKordinat(Request $request, $id)
     {
         //ambil sensor berdasarkan id
@@ -380,7 +385,7 @@ class ParameterController extends Controller
         ]);
         //ambil semua sensor yang memiliki sensor name yang sama
         $affectedRows = Sensor::where('sensor_name', $sensor->sensor_name)
-        ->update([
+            ->update([
                 'x_position' => $request->input('x_position'),
                 'y_position' => $request->input('y_position'),
             ]);

@@ -60,15 +60,19 @@ class LoginController extends Controller
             return redirect('dashboard');
         } elseif ($user->role === 'Admin Vendor' || $user->role === 'User') {
             $lokasi = Lokasi::where('id_vendor', $user->id_vendor)
+                ->where('isDeleted', 0) // ✅ Tambahkan check isDeleted
                 ->orderBy('id', 'asc')
                 ->first();
 
             if ($lokasi) {
-                return redirect("/home/{$lokasi->slug}");
+                // ✅ Redirect ke route vendor.home
+                return redirect()->route('vendor.home', ['lokasiSlug' => $lokasi->slug]);
             } else {
-                return redirect(RouteServiceProvider::HOME);
+                // ✅ Jika tidak ada lokasi, redirect ke dashboard dengan pesan
+                return redirect('dashboard')->with('warning', 'Belum ada lokasi tersedia untuk vendor Anda.');
             }
         }
+
         return redirect(RouteServiceProvider::HOME);
     }
 }

@@ -20,32 +20,42 @@ use Illuminate\Support\Str;
 
 class VendorController extends Controller
 {
-    public function index($id)
+    public function vendorHome($lokasiSlug)
     {
         $getUser = DB::table('users')->where('id', Auth::user()->id)->first();
+
         $getVendor = DB::table('vendor')
             ->where('id', $getUser->id_vendor)
             ->where('isDeleted', 0)
             ->first();
 
+        if (!$getVendor) {
+            return abort(404, 'Vendor tidak ditemukan.');
+        }
+
         $getLokasi = DB::table('lokasi')
             ->where('id_vendor', $getVendor->id)
+            ->where('slug', $lokasiSlug)
             ->where('isDeleted', 0)
-            ->where('slug', $id)
             ->first();
 
-        if (!$getVendor || !$getLokasi) {
-            return abort(404, 'Vendor atau Lokasi tidak ditemukan.');
+        if (!$getLokasi) {
+            return abort(404, 'Lokasi tidak ditemukan.');
         }
-        $spanQuery = DB::table('span')
-            ->where('id_lokasi', $getLokasi->id)
-            ->where('isDeleted', 0);
 
-        $spanCount = $spanQuery->count();
+        // ✅ Cek jumlah span untuk logic di view
+        $spanCount = DB::table('span')
+            ->where('id_lokasi', $getLokasi->id)
+            ->where('isDeleted', 0)
+            ->count();
 
         $spanId = null;
         if ($spanCount === 1) {
-            $spanId = $spanQuery->first()->id;
+            $span = DB::table('span')
+                ->where('id_lokasi', $getLokasi->id)
+                ->where('isDeleted', 0)
+                ->first();
+            $spanId = $span->id;
         }
 
         return view('admin_vendor.dashboard.index', [

@@ -21,7 +21,7 @@ Route::group(['middleware' => ['guest']], function () {
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home/{lokasiSlug}', [App\Http\Controllers\VendorController::class, 'vendorHome'])->name('vendor.home');
 
 Route::group(['middleware' => ['auth']], function () {
     //SUPER ADMIN
