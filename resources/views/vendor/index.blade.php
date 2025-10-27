@@ -119,12 +119,13 @@
             success: function(data) {
                 console.log(data);
                 $.each(data.items, function(index, item) {
-                    console.log(item);
+                    console.log("Data Client", item);
+                    console.log("Rendering vendor:", item);
                     $('#list-vendor').append(`
                         <div class="col-4">
                             <div class="loc-list position-relative">
                                 <a href="{{ url('/vendor') }}/${item.slug}/">
-                                    <img src="{{ url('/assets/img/astra.png') }}">
+                                    <img src="{{ url('/assets/img/vendor') }}/${item.image}">
                                 </a>
                                 <div class="btn-group position-absolute" style="top: -16px; right: -16px;">
                                     <button class="btn btn-primary btn-icon rounded-pill dropdown-toggle hide-arrow"

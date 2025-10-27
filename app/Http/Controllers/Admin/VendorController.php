@@ -37,23 +37,20 @@ class VendorController extends Controller
 
     public function listVendor()
     {
-        //$infoUser = DB::table('users')->where('id', Auth::user()->id)->first();
-        $getVendor = DB::table('vendor')->where('isDeleted', 0)->get();
-        $data = array();
-        foreach ($getVendor as $key) {
-            if ($key->foto != "" || $key->foto != NULL) {
-                $image = $key->foto;
-            } else {
-                $image = 'default.jpeg';
-            }
-            $data[] = [
-                'id' => $key->id,
-                'image' => $image,
-                'nama_vendor' => $key->nama_vendor,
-                'slug' => $key->slug,
-                'created_at' => date('D,j M Y', strtotime($key->created_at))
+        $vendors = DB::table('vendor')
+            ->where('isDeleted', 0)
+            ->get();
+        $data = $vendors->map(function ($vendor) {
+            return [
+                'id' => $vendor->id,
+                'image' => $vendor->foto ?: 'default.jpeg', // Shortest!
+                'nama_vendor' => $vendor->nama_vendor,
+                'slug' => $vendor->slug,
+                'created_at' => \Carbon\Carbon::parse($vendor->created_at)
+                    ->format('D, j M Y')
             ];
-        }
+        });
+
         return response()->json(['items' => $data]);
     }
 
