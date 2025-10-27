@@ -43,7 +43,7 @@ class VendorController extends Controller
         $data = $vendors->map(function ($vendor) {
             return [
                 'id' => $vendor->id,
-                'image' => $vendor->foto ?: 'default.jpeg', // Shortest!
+                'image' => $vendor->foto ?: 'default.jpeg', 
                 'nama_vendor' => $vendor->nama_vendor,
                 'slug' => $vendor->slug,
                 'created_at' => \Carbon\Carbon::parse($vendor->created_at)
