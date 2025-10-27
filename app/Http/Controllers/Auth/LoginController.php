@@ -13,7 +13,6 @@ use App\Models\Lokasi;
 class LoginController extends Controller
 {
     use AuthenticatesUsers;
-
     protected $redirectTo = '/dashboard';
 
     public function __construct()
@@ -33,7 +32,6 @@ class LoginController extends Controller
             ]);
 
         $captchaData = $response->json();
-
         if (!($captchaData['success'] ?? false)) {
             return back()->withErrors([
                 'g-recaptcha-response' => 'Captcha verification failed.',
