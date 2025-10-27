@@ -20,40 +20,32 @@ use Illuminate\Support\Str;
 
 class VendorController extends Controller
 {
-    public function vendorHome($lokasiSlug)
+    public function index($id)
     {
         $getUser = DB::table('users')->where('id', Auth::user()->id)->first();
-
         $getVendor = DB::table('vendor')
             ->where('id', $getUser->id_vendor)
             ->where('isDeleted', 0)
             ->first();
 
-        if (!$getVendor) {
-            return abort(404, 'Vendor tidak ditemukan.');
-        }
-
         $getLokasi = DB::table('lokasi')
             ->where('id_vendor', $getVendor->id)
-            ->where('slug', $lokasiSlug)
             ->where('isDeleted', 0)
+            ->where('slug', $id)
             ->first();
 
-        if (!$getLokasi) {
-            return abort(404, 'Lokasi tidak ditemukan.');
+        if (!$getVendor || !$getLokasi) {
+            return abort(404, 'Vendor atau Lokasi tidak ditemukan.');
         }
-        $spanCount = DB::table('span')
+        $spanQuery = DB::table('span')
             ->where('id_lokasi', $getLokasi->id)
-            ->where('isDeleted', 0)
-            ->count();
+            ->where('isDeleted', 0);
+
+        $spanCount = $spanQuery->count();
 
         $spanId = null;
         if ($spanCount === 1) {
-            $span = DB::table('span')
-                ->where('id_lokasi', $getLokasi->id)
-                ->where('isDeleted', 0)
-                ->first();
-            $spanId = $span->id;
+            $spanId = $spanQuery->first()->id;
         }
 
         return view('admin_vendor.dashboard.index', [
@@ -95,6 +87,8 @@ class VendorController extends Controller
 
         return view('admin_vendor.live_sensor.index', $data);
     }
+
+
 
     public function dataSensor($id, $spanId)
     {
@@ -224,7 +218,7 @@ class VendorController extends Controller
     {
         return view('admin_vendor.sensor.index');
     }
-
+    
     public function listSensor()
     {
         $id = Auth::user()->id;
@@ -329,7 +323,7 @@ class VendorController extends Controller
             return response()->json(['error' => 'Sensor not found'], 404);
         }
 
-        $mode    = $request->query('mode', 'realtime');
+        $mode    = $request->query('mode', 'realtime');    
         $rangeMs = (int) $request->query('range_ms', 60_000);
         $stepMs  = max(1, (int) $request->query('step_ms', 3_000));
 
@@ -337,8 +331,8 @@ class VendorController extends Controller
         $from = $now->copy()->subMilliseconds($rangeMs > 0 ? $rangeMs : 60_000);
         $to   = $now;
 
-        $table  = 'log_data';
-        $driver = DB::getDriverName();
+        $table  = 'log_data';                   
+        $driver = DB::getDriverName();         
 
         $nameLower = strtolower(($sensor->nama ?? $sensor->name ?? ''));
         $isDisplacement = str_contains($nameLower, 'disp') || str_contains($nameLower, 'displacement');
@@ -353,7 +347,7 @@ class VendorController extends Controller
             if ($v == 0)     return 'black';
             if ($v < $bawah) return 'green';
             if ($v > $atas)  return 'red';
-            return 'orange';
+            return 'orange'; 
         };
 
         if ($mode === 'history') {
