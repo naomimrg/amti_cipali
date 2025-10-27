@@ -24,12 +24,10 @@ class LoginController extends Controller
     {
         $this->validateLogin($request);
 
-        $response = Http::withoutVerifying()
-            ->asForm()
-            ->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret' => env('RECAPTCHA_SECRET_KEY'),
-                'response' => $request->input('g-recaptcha-response'),
-            ]);
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => env('RECAPTCHA_SECRET_KEY'),
+            'response' => $request->input('g-recaptcha-response'),
+        ]);
 
         $captchaData = $response->json();
         if (!($captchaData['success'] ?? false)) {
